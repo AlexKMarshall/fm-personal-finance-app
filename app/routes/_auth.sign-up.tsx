@@ -6,15 +6,15 @@ export default function SignUp() {
 			<h1>Sign up</h1>
 			<Form method="post" className="flex flex-col gap-8">
 				<div className="flex flex-col gap-4">
-					<div className="flex-col gap-1 flex">
+					<div className="flex flex-col gap-1">
 						<label htmlFor="name">Name</label>
 						<input type="text" id="name" name="name" autoComplete="name" />
 					</div>
-					<div className="flex-col gap-1 flex">
+					<div className="flex flex-col gap-1">
 						<label htmlFor="email">Email</label>
 						<input type="email" id="email" name="email" autoComplete="email" />
 					</div>
-					<div className="flex-col gap-1 flex">
+					<div className="flex flex-col gap-1">
 						<label htmlFor="password">Create Password</label>
 						<input
 							type="password"
