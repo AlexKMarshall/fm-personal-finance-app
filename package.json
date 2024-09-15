@@ -14,7 +14,9 @@
 		"start": "remix-serve ./build/server/index.js",
 		"typecheck": "tsc",
 		"db:generate": "prisma generate",
-		"db:push": "prisma db push --skip-generate"
+		"db:push": "prisma db push --skip-generate",
+		"test:e2e": "playwright test",
+		"test:e2e:dev": "playwright test --ui"
 	},
 	"dependencies": {
 		"-": "0.0.1",
@@ -31,8 +33,11 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.0",
+		"@faker-js/faker": "9.0.1",
+		"@playwright/test": "^1.47.1",
 		"@remix-run/dev": "2.12.0",
 		"@tailwindcss/forms": "0.5.9",
+		"@types/node": "^22.5.5",
 		"@types/react": "18.3.5",
 		"@types/react-dom": "18.3.0",
 		"autoprefixer": "10.4.20",
