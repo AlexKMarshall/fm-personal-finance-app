@@ -79,6 +79,7 @@ function handleBotRequest(
 					// errors encountered during initial shell rendering since they'll
 					// reject and get logged in handleDocumentRequest.
 					if (shellRendered) {
+						// biome-ignore lint/suspicious/noConsole: This is a server-side log
 						console.error(error)
 					}
 				},
@@ -129,6 +130,7 @@ function handleBrowserRequest(
 					// errors encountered during initial shell rendering since they'll
 					// reject and get logged in handleDocumentRequest.
 					if (shellRendered) {
+						// biome-ignore lint/suspicious/noConsole: This is a server-side log
 						console.error(error)
 					}
 				},

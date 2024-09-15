@@ -7,8 +7,10 @@
 	"scripts": {
 		"build": "remix vite:build",
 		"dev": "remix vite:dev",
-		"lint": "biome lint --write",
+		"lint": "biome lint . --write",
+		"lint:ci": "biome lint .",
 		"format": "prettier --write .",
+		"format:ci": "prettier --check .",
 		"start": "remix-serve ./build/server/index.js",
 		"typecheck": "tsc"
 	},
