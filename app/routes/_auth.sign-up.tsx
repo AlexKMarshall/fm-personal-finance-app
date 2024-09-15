@@ -1,8 +1,11 @@
+import crypto from 'crypto'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
+import { prisma } from '~/db/prisma'
+import { setAuthOnResponse } from '~/auth'
 
 const schema = z.object({
 	name: z.string(),
@@ -19,9 +22,8 @@ export async function action({ request }: ActionFunctionArgs) {
 		return submission.reply()
 	}
 
-	// TODO: Sign up the user
-
-	return redirect('/')
+	const user = await createUser(submission.value)
+	return setAuthOnResponse(redirect('/'), { userId: user.id })
 }
 
 export default function SignUp() {
@@ -93,4 +95,28 @@ export default function SignUp() {
 			</Form>
 		</div>
 	)
+}
+
+function createUser({
+	name,
+	email,
+	password,
+}: {
+	name: string
+	email: string
+	password: string
+}) {
+	const salt = crypto.randomBytes(16).toString('hex')
+	const hash = crypto
+		.pbkdf2Sync(password, salt, 1000, 64, 'sha512')
+		.toString('hex')
+
+	return prisma.user.create({
+		data: {
+			name,
+			email,
+			Password: { create: { salt, hash } },
+		},
+		select: { id: true },
+	})
 }
