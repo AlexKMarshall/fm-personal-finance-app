@@ -13,18 +13,8 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Corepack enable
-        shell: bash
-        run: corepack enable && corepack enable npm
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         id: pnpm-install
         with:
           run_install: false
@@ -42,6 +32,16 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Corepack enable
+        shell: bash
+        run: corepack enable && corepack enable npm
 
       - name: Install dependencies
         run: pnpm install
