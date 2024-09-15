@@ -13,6 +13,7 @@ const cookie = createCookie('auth', {
 
 const authCookieSchema = z.object({
 	userId: z.string(),
+	name: z.string(),
 })
 
 async function getAuthFromRequest(request: Request) {

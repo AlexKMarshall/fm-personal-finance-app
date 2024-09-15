@@ -23,7 +23,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	}
 
 	const user = await createUser(submission.value)
-	return setAuthOnResponse(redirect('/'), { userId: user.id })
+	return setAuthOnResponse(redirect('/'), { userId: user.id, name: user.name })
 }
 
 export default function SignUp() {
@@ -117,6 +117,6 @@ function createUser({
 			email,
 			Password: { create: { salt, hash } },
 		},
-		select: { id: true },
+		select: { id: true, name: true },
 	})
 }
