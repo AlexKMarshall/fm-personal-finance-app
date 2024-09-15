@@ -2,7 +2,7 @@
 	"name": "fm-personal-finance-app",
 	"private": true,
 	"sideEffects": false,
-	"packageManager": "pnpm@9.8.0",
+	"packageManager": "pnpm@9.10.0",
 	"type": "module",
 	"scripts": {
 		"build": "remix vite:build",
