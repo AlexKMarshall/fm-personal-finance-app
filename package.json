@@ -12,7 +12,9 @@
 		"format": "prettier --write .",
 		"format:ci": "prettier --check .",
 		"start": "remix-serve ./build/server/index.js",
-		"typecheck": "tsc"
+		"typecheck": "tsc",
+		"db:generate": "prisma generate",
+		"db:push": "prisma db push --skip-generate"
 	},
 	"dependencies": {
 		"-": "0.0.1",
