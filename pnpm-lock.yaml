@@ -8,6 +8,15 @@ importers:
 
   .:
     dependencies:
+      '-':
+        specifier: 0.0.1
+        version: 0.0.1
+      '@conform-to/react':
+        specifier: 1.2.1
+        version: 1.2.1(react@18.3.1)
+      '@conform-to/zod':
+        specifier: 1.2.1
+        version: 1.2.1(zod@3.23.8)
       '@remix-run/node':
         specifier: 2.12.0
         version: 2.12.0(typescript@5.6.2)
@@ -26,6 +35,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.0
@@ -33,6 +45,9 @@ importers:
       '@remix-run/dev':
         specifier: 2.12.0
         version: 2.12.0(@remix-run/react@2.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2))(@remix-run/serve@2.12.0(typescript@5.6.2))(@types/node@22.5.5)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5))
+      '@tailwindcss/forms':
+        specifier: ^0.5.9
+        version: 0.5.9(tailwindcss@3.4.11)
       '@types/react':
         specifier: 18.3.5
         version: 18.3.5
@@ -68,6 +83,9 @@ importers:
         version: 4.3.2(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5))
 
 packages:
+
+  '-@0.0.1':
+    resolution: {integrity: sha512-3HfneK3DGAm05fpyj20sT3apkNcvPpCuccOThOPdzz8sY7GgQGe0l93XH9bt+YzibcTIgUAIMoyVJI740RtgyQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -272,6 +290,19 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@conform-to/dom@1.2.1':
+    resolution: {integrity: sha512-/G9LDwxqSV23a3y8hdXNhZ9ilQZAKyYgtNozGWzTNu+Y/r7P3y3qQcF3lET6qwNJAVyzt32SCoiwfriv05gXtA==}
+
+  '@conform-to/react@1.2.1':
+    resolution: {integrity: sha512-eoqnfdo31n+Rmzb7R6dzPWtV62GcQOM2PnPIwTacqSRWmL3x8WPOWoQAHaWHLk6DvcGxpaD16hHA8+itrraxCw==}
+    peerDependencies:
+      react: '>=18'
+
+  '@conform-to/zod@1.2.1':
+    resolution: {integrity: sha512-XpBBjTq9SYfUWqMQXy7GMjT3yk2jdIdS5MVMQOn9WO7pHZdWEGVdfZCEQy4LYnPZyz2xsF/XXbtzIi9Im05AFQ==}
+    peerDependencies:
+      zod: ^3.21.0
 
   '@emotion/hash@0.9.2':
     resolution: {integrity: sha512-MyqliTZGuOm3+5ZRSaaBGP3USLw6+EGykkwZns2EPC5g8jJ4z9OrdZY9apkl3+UP9+sdz76YYkwCKP5gh8iY3g==}
@@ -769,6 +800,11 @@ packages:
     resolution: {integrity: sha512-fOvu7PCQjAj4eWDEuD8Xz5gpzFqXzGlxHZozHP4b9Jxv9APtdxL6STqztDzMLuRXEc4UpXGGhx029Xgm91QBeA==}
     cpu: [x64]
     os: [win32]
+
+  '@tailwindcss/forms@0.5.9':
+    resolution: {integrity: sha512-tM4XVr2+UVTxXJzey9Twx48c1gcxFStqn1pQz0tRsX8o3DvxhN5oY5pvyAbUx7VTaZxpej4Zzvc6h+1RJBzpIg==}
+    peerDependencies:
+      tailwindcss: '>=3.0.0 || >= 3.0.0-alpha.1 || >= 4.0.0-alpha.20'
 
   '@types/acorn@4.0.6':
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
@@ -1844,6 +1880,10 @@ packages:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
     engines: {node: '>=6'}
 
+  mini-svg-data-uri@1.4.4:
+    resolution: {integrity: sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==}
+    hasBin: true
+
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
@@ -2837,10 +2877,15 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@3.23.8:
+    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
+
+  '-@0.0.1': {}
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -3091,6 +3136,18 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.9.0':
     optional: true
+
+  '@conform-to/dom@1.2.1': {}
+
+  '@conform-to/react@1.2.1(react@18.3.1)':
+    dependencies:
+      '@conform-to/dom': 1.2.1
+      react: 18.3.1
+
+  '@conform-to/zod@1.2.1(zod@3.23.8)':
+    dependencies:
+      '@conform-to/dom': 1.2.1
+      zod: 3.23.8
 
   '@emotion/hash@0.9.2': {}
 
@@ -3537,6 +3594,11 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.21.3':
     optional: true
+
+  '@tailwindcss/forms@0.5.9(tailwindcss@3.4.11)':
+    dependencies:
+      mini-svg-data-uri: 1.4.4
+      tailwindcss: 3.4.11
 
   '@types/acorn@4.0.6':
     dependencies:
@@ -4845,6 +4907,8 @@ snapshots:
 
   mimic-fn@2.1.0: {}
 
+  mini-svg-data-uri@1.4.4: {}
+
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.1
@@ -5834,5 +5898,7 @@ snapshots:
   yaml@2.5.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.23.8: {}
 
   zwitch@2.0.4: {}
