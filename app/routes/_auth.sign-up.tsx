@@ -1,8 +1,18 @@
-import { Form, Link } from '@remix-run/react'
+import { ActionFunctionArgs } from '@remix-run/node'
+import { Form, Link, redirect } from '@remix-run/react'
+
+export async function action({ request }: ActionFunctionArgs) {
+	const body = await request.formData()
+	const name = body.get('name')
+	const email = body.get('email')
+	const password = body.get('password')
+	console.log({ name, email, password })
+	return redirect('/')
+}
 
 export default function SignUp() {
 	return (
-		<div className="max-w-140">
+		<div className="max-w-lg">
 			<h1>Sign up</h1>
 			<Form method="post" className="flex flex-col gap-8">
 				<div className="flex flex-col gap-4">
