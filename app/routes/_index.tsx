@@ -1,4 +1,6 @@
-import type { MetaFunction } from '@remix-run/node'
+import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
+import { useLoaderData } from '@remix-run/react'
+import { requireAuthCookie } from '~/auth'
 
 export const meta: MetaFunction = () => {
 	return [
@@ -7,10 +9,18 @@ export const meta: MetaFunction = () => {
 	]
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+	const { name } = await requireAuthCookie(request)
+
+	return { name }
+}
+
 export default function Index() {
+	const { name } = useLoaderData<typeof loader>()
 	return (
 		<div>
-			<h1>Hello world</h1>
+			<h1>Overview</h1>
+			<p>{name}</p>
 		</div>
 	)
 }
