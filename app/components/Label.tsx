@@ -2,7 +2,7 @@ import { forwardRef, type ComponentProps } from 'react'
 import { tv } from 'tailwind-variants'
 
 const labelStyles = tv({
-	base: 'block text-xs font-bold text-gray-500',
+	base: 'block text-xs font-bold leading-normal text-gray-500',
 })
 
 export const Label = forwardRef<HTMLLabelElement, ComponentProps<'label'>>(
