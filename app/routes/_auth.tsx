@@ -2,14 +2,16 @@ import { Outlet } from '@remix-run/react'
 
 export default function Auth() {
 	return (
-		<div className="flex min-h-svh">
-			<div className="hidden">
-				<div>Finance logo</div>
-				<h2>Keep track of your money and save for your future</h2>
-				<p>
-					Personal finance app puts you in control of your spending. Track
-					transactions, set budgets, and add to savings pots easily.
-				</p>
+		<div className="flex min-h-svh flex-col">
+			<div className="grid place-items-center rounded-b-lg bg-gray-900 p-6">
+				<img src="logo-large.svg" alt="finance" />
+				<div className="hidden">
+					<h2>Keep track of your money and save for your future</h2>
+					<p>
+						Personal finance app puts you in control of your spending. Track
+						transactions, set budgets, and add to savings pots easily.
+					</p>
+				</div>
 			</div>
 			<div className="flex flex-grow items-center justify-center p-4 sm:p-6">
 				<Outlet />
