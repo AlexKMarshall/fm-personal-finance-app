@@ -31,7 +31,7 @@
 			"cache": false
 		},
 		"test:e2e": {
-			"env": ["CI"],
+			"env": ["CI", "COOKIE_SECRET"],
 			"outputs": ["test-results/**", "playwright-report/**"]
 		},
 		"test:e2e:dev": {
