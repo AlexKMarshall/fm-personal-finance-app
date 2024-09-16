@@ -32,7 +32,7 @@
 		"zod": "3.23.8"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "1.9.0",
+		"@biomejs/biome": "1.9.1",
 		"@faker-js/faker": "9.0.1",
 		"@playwright/test": "1.47.1",
 		"@remix-run/dev": "2.12.0",
