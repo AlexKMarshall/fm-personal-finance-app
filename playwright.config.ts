@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test'
 // import dotenv from 'dotenv';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
 
+// biome-ignore lint/suspicious/noConsole: temporary debugging
+console.log('process.env.CI', process.env.CI)
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
