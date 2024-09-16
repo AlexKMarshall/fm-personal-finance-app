@@ -27,6 +27,15 @@
 		},
 		"db:push": {
 			"cache": false
+		},
+		"test:e2e": {
+			"env": ["CI"],
+			"outputs": ["test-results/**", "playwright-report/**"]
+		},
+		"test:e2e:dev": {
+			"env": ["CI"],
+			"persistent": true,
+			"cache": false
 		}
 	}
 }
