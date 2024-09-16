@@ -1,12 +1,28 @@
-import { forwardRef, type ComponentProps } from 'react'
+import {
+	forwardRef,
+	type ComponentProps,
+	createContext,
+	useContext,
+} from 'react'
 import { tv } from 'tailwind-variants'
 
 const inputStyles = tv({
-	base: 'rounded-lg border border-stone-500 px-5 py-3 text-sm',
+	base: 'rounded-lg border border-stone-500 px-5 py-3 text-sm aria-[invalid]:border-red-500 aria-[invalid]:text-red-700',
 })
 
 export const Input = forwardRef<HTMLInputElement, ComponentProps<'input'>>(
-	function Input({ className, ...props }, ref) {
-		return <input ref={ref} className={inputStyles({ className })} {...props} />
+	function Input(props, ref) {
+		const inputContext = useContext(InputContext)
+		const { className, ...mergedProps } = { ...inputContext, ...props }
+
+		return (
+			<input
+				ref={ref}
+				className={inputStyles({ className })}
+				{...mergedProps}
+			/>
+		)
 	},
 )
+
+export const InputContext = createContext<ComponentProps<typeof Input>>({})
