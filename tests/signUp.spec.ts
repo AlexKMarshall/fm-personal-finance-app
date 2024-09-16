@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { test, expect } from './playwright-utils'
 import { makeUser } from './factories/user'
 
