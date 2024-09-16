@@ -79,7 +79,7 @@ export default function SignUp() {
 	})
 
 	return (
-		<div className="rounded-xl bg-white px-5 py-6">
+		<div className="basis-[35rem] rounded-xl bg-white px-5 py-6 sm:px-6">
 			<Form
 				method="post"
 				className="flex flex-col gap-8"

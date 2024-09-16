@@ -11,7 +11,7 @@ export default function Auth() {
 					transactions, set budgets, and add to savings pots easily.
 				</p>
 			</div>
-			<div className="flex flex-grow flex-col justify-center px-4">
+			<div className="flex flex-grow items-center justify-center p-4 sm:p-6">
 				<Outlet />
 			</div>
 		</div>
