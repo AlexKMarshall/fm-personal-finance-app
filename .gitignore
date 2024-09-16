@@ -13,3 +13,5 @@ dev.db-journal
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+*storybook.log
