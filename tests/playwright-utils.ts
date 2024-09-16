@@ -1,7 +1,7 @@
 import { test as base, expect as baseExpect } from '@playwright/test'
 import { makeUser } from './factories/user'
 import { generateSalt, hashPassword } from '~/auth.server'
-import { prisma } from '~/db/prisma'
+import { prisma } from '~/db/prisma.server'
 
 function makeSignupFixture({
 	onUserSaved,

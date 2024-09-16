@@ -8,7 +8,7 @@ import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
-import { prisma } from '~/db/prisma'
+import { prisma } from '~/db/prisma.server'
 
 function createSchema(options?: {
 	isEmailUnique: (email: string) => Promise<boolean>

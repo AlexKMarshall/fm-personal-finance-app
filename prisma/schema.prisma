@@ -23,6 +23,6 @@ model Password {
   salt String
   hash String
 
-  User   User   @relation(fields: [userId], references: [id])
+  User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 }
