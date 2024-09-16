@@ -46,7 +46,7 @@ importers:
         specifier: 1.9.1
         version: 1.9.1
       '@chromatic-com/storybook':
-        specifier: ^1.9.0
+        specifier: 1.9.0
         version: 1.9.0(react@18.3.1)
       '@faker-js/faker':
         specifier: 9.0.1
@@ -58,25 +58,25 @@ importers:
         specifier: 2.12.0
         version: 2.12.0(@remix-run/react@2.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.6.2))(@remix-run/serve@2.12.0(typescript@5.6.2))(@types/node@22.5.5)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5))
       '@storybook/addon-essentials':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(storybook@8.3.0)
       '@storybook/addon-interactions':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(storybook@8.3.0)
       '@storybook/addon-links':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(react@18.3.1)(storybook@8.3.0)
       '@storybook/addon-onboarding':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(react@18.3.1)(storybook@8.3.0)
       '@storybook/react':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(@storybook/test@8.3.0(storybook@8.3.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.0)(typescript@5.6.2)
       '@storybook/react-vite':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(@storybook/test@8.3.0(storybook@8.3.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(rollup@4.21.3)(storybook@8.3.0)(typescript@5.6.2)(vite@5.4.5(@types/node@22.5.5))
       '@storybook/test':
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0(storybook@8.3.0)
       '@tailwindcss/forms':
         specifier: 0.5.9
@@ -112,7 +112,7 @@ importers:
         specifier: 5.19.1
         version: 5.19.1
       storybook:
-        specifier: ^8.3.0
+        specifier: 8.3.0
         version: 8.3.0
       tailwindcss:
         specifier: 3.4.11
@@ -4925,7 +4925,7 @@ snapshots:
 
   '@types/hast@3.0.4':
     dependencies:
-      '@types/unist': 2.0.11
+      '@types/unist': 3.0.3
 
   '@types/http-errors@2.0.4': {}
 
