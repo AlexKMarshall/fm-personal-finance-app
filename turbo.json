@@ -9,13 +9,13 @@
 			"dependsOn": ["build"],
 			"persistent": true,
 			"cache": false,
-			"env": ["COOKIE_SECRET"]
+			"env": ["COOKIE_SECRET", "DATABASE_URL"]
 		},
 		"dev": {
 			"dependsOn": ["db:generate"],
 			"persistent": true,
 			"cache": false,
-			"env": ["COOKIE_SECRET"]
+			"env": ["COOKIE_SECRET", "DATABASE_URL"]
 		},
 		"typecheck": {
 			"dependsOn": ["^check-types", "db:generate"]
@@ -31,7 +31,7 @@
 			"cache": false
 		},
 		"test:e2e": {
-			"env": ["CI", "COOKIE_SECRET"],
+			"env": ["CI", "COOKIE_SECRET", "DATABASE_URL"],
 			"outputs": ["test-results/**", "playwright-report/**"]
 		},
 		"test:e2e:dev": {
