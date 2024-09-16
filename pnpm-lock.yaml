@@ -70,7 +70,7 @@ importers:
         specifier: 16.4.5
         version: 16.4.5
       knip:
-        specifier: ^5.30.2
+        specifier: 5.30.2
         version: 5.30.2(@types/node@22.5.5)(typescript@5.6.2)
       postcss:
         specifier: 8.4.45
