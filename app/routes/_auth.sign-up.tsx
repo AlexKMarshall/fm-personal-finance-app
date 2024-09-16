@@ -8,6 +8,7 @@ import type { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
+import { Button } from '~/components/Button'
 import { FieldDescription } from '~/components/FieldDescription'
 import { FieldError } from '~/components/FieldError'
 import { Input } from '~/components/Input'
@@ -117,7 +118,9 @@ export default function SignUp() {
 						<FieldError />
 					</TextField>
 				</div>
-				<button type="submit">Create Account</button>
+				<Button type="submit" appearance="primary">
+					Create Account
+				</Button>
 				<p
 					id={form.errorId}
 					role="alert"
@@ -125,8 +128,11 @@ export default function SignUp() {
 				>
 					{form.errors}
 				</p>
-				<p className="self-center">
-					Already have an account? <Link to="/login">Login</Link>
+				<p className="self-center text-sm text-gray-500">
+					Already have an account?{' '}
+					<Link to="/login" className="font-bold text-gray-900 underline">
+						Login
+					</Link>
 				</p>
 			</Form>
 		</div>

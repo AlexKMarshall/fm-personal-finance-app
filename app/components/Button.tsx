@@ -13,11 +13,12 @@ const buttonStyles = tv({
 export const Button = forwardRef<
 	HTMLButtonElement,
 	ComponentProps<'button'> & { appearance: 'primary' }
->(function Button({ className, appearance, ...props }, ref) {
+>(function Button({ className, appearance, type = 'button', ...props }, ref) {
 	return (
 		<button
 			ref={ref}
 			className={buttonStyles({ appearance, className })}
+			type={type}
 			{...props}
 		/>
 	)
