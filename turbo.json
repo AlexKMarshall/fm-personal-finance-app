@@ -3,19 +3,20 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build", "db:generate"],
-			"outputs": [".build/**"]
+			"outputs": [".build/**"],
+			"env": ["NODE_ENV"]
 		},
 		"start": {
 			"dependsOn": ["build"],
 			"persistent": true,
 			"cache": false,
-			"env": ["COOKIE_SECRET", "DATABASE_URL"]
+			"env": ["COOKIE_SECRET", "DATABASE_URL", "NODE_ENV"]
 		},
 		"dev": {
 			"dependsOn": ["db:generate"],
 			"persistent": true,
 			"cache": false,
-			"env": ["COOKIE_SECRET", "DATABASE_URL"]
+			"env": ["COOKIE_SECRET", "DATABASE_URL", "NODE_ENV"]
 		},
 		"typecheck": {
 			"dependsOn": ["^check-types", "db:generate"]
@@ -31,11 +32,11 @@
 			"cache": false
 		},
 		"test:e2e": {
-			"env": ["CI", "COOKIE_SECRET", "DATABASE_URL"],
+			"env": ["CI", "COOKIE_SECRET", "DATABASE_URL", "NODE_ENV"],
 			"outputs": ["test-results/**", "playwright-report/**"]
 		},
 		"test:e2e:dev": {
-			"env": ["CI"],
+			"env": ["CI", "COOKIE_SECRET", "DATABASE_URL", "NODE_ENV"],
 			"persistent": true,
 			"cache": false
 		}
