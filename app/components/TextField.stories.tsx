@@ -22,10 +22,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const TextField: Story = {
-	args: {
-		id: 'field-id',
-		descriptionId: 'description-id',
-	},
+	args: {},
 	render: (args) => (
 		<TextFieldComponent {...args}>
 			<Label>Field label</Label>

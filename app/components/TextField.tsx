@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { tv } from 'tailwind-variants'
 
-import { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 import { InputContext } from './Input'
 import { LabelContext } from './Label'
 import { FieldDescriptionContext } from './FieldDescription'
@@ -13,13 +13,23 @@ const textFieldStyles = tv({
 export const TextField = forwardRef<
 	HTMLDivElement,
 	Pick<ComponentProps<'div'>, 'children' | 'className'> & {
-		id: string
+		id?: string
 		descriptionId?: string
 	}
 >(function TextField(
-	{ className, children, id, descriptionId, ...props },
+	{
+		className,
+		children,
+		id: consumerId,
+		descriptionId: consumerDescriptionId,
+		...props
+	},
 	ref,
 ) {
+	const defaultBaseId = useId()
+	const id = consumerId ?? defaultBaseId
+	const descriptionId = consumerDescriptionId ?? `${id}-description`
+
 	return (
 		<div ref={ref} className={textFieldStyles({ className })} {...props}>
 			<InputContext.Provider value={{ id, 'aria-describedby': descriptionId }}>
