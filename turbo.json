@@ -23,9 +23,11 @@
 		"lint": {},
 		"format": {},
 		"db:generate": {
+			"env": ["DATABASE_URL"],
 			"cache": false
 		},
 		"db:push": {
+			"env": ["DATABASE_URL"],
 			"cache": false
 		},
 		"test:e2e": {
