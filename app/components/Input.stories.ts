@@ -17,4 +17,9 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Input: Story = {}
+export const Empty: Story = {}
+export const Filled: Story = {
+	args: {
+		value: 'Filled',
+	},
+}
