@@ -69,9 +69,6 @@ importers:
       '@storybook/addon-onboarding':
         specifier: ^8.3.0
         version: 8.3.0(react@18.3.1)(storybook@8.3.0)
-      '@storybook/blocks':
-        specifier: ^8.3.0
-        version: 8.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.0)
       '@storybook/react':
         specifier: ^8.3.0
         version: 8.3.0(@storybook/test@8.3.0(storybook@8.3.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.0)(typescript@5.6.2)
