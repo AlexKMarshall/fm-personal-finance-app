@@ -78,13 +78,16 @@ export default function SignUp() {
 	})
 
 	return (
-		<div className="max-w-lg">
-			<h1>Sign up</h1>
+		<div className="rounded-xl bg-white px-5 py-6">
 			<Form
 				method="post"
 				className="flex flex-col gap-8"
+				aria-labelledby="sign-up"
 				{...getFormProps(form)}
 			>
+				<h1 className="text-3xl leading-tight" id="sign-up">
+					Sign up
+				</h1>
 				<div className="flex flex-col gap-4">
 					<TextField
 						{...getInputProps(fields.name, { type: 'text' })}
@@ -115,7 +118,11 @@ export default function SignUp() {
 					</TextField>
 				</div>
 				<button type="submit">Create Account</button>
-				<p id={form.errorId} role="alert" className="text-red-500">
+				<p
+					id={form.errorId}
+					role="alert"
+					className="text-red-500 empty:sr-only"
+				>
 					{form.errors}
 				</p>
 				<p className="self-center">

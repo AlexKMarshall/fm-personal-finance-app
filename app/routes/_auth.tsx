@@ -2,7 +2,7 @@ import { Outlet } from '@remix-run/react'
 
 export default function Auth() {
 	return (
-		<div>
+		<div className="flex min-h-svh">
 			<div className="hidden">
 				<div>Finance logo</div>
 				<h2>Keep track of your money and save for your future</h2>
@@ -11,7 +11,7 @@ export default function Auth() {
 					transactions, set budgets, and add to savings pots easily.
 				</p>
 			</div>
-			<div>
+			<div className="flex flex-grow flex-col justify-center px-4">
 				<Outlet />
 			</div>
 		</div>
