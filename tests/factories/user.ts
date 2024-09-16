@@ -1,4 +1,4 @@
-import { ObjectFactory } from './utils'
+import type { ObjectFactory } from './utils'
 import { faker } from '@faker-js/faker'
 
 export const makeUser: ObjectFactory<{

@@ -38,6 +38,11 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: '.bun-version'
+
       - name: Corepack enable
         shell: bash
         run: corepack enable && corepack enable npm
@@ -46,7 +51,7 @@ jobs:
         run: pnpm install
 
       - name: Check quality
-        run: pnpm exec turbo lint:ci format:ci typecheck
+        run: pnpm exec turbo lint:ci format:ci typecheck knip
 
   test:
     timeout-minutes: 15
