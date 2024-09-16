@@ -1,4 +1,9 @@
-import { forwardRef, type ComponentProps } from 'react'
+import {
+	createContext,
+	forwardRef,
+	useContext,
+	type ComponentProps,
+} from 'react'
 import { tv } from 'tailwind-variants'
 
 const fieldDescriptionStyles = tv({
@@ -8,8 +13,18 @@ const fieldDescriptionStyles = tv({
 export const FieldDescription = forwardRef<
 	HTMLParagraphElement,
 	ComponentProps<'p'>
->(function FieldDescription({ className, ...props }, ref) {
+>(function FieldDescription(props, ref) {
+	const fieldDescriptionContext = useContext(FieldDescriptionContext)
+	const { className, ...mergedProps } = { ...fieldDescriptionContext, ...props }
 	return (
-		<p ref={ref} className={fieldDescriptionStyles({ className })} {...props} />
+		<p
+			ref={ref}
+			className={fieldDescriptionStyles({ className })}
+			{...mergedProps}
+		/>
 	)
 })
+
+export const FieldDescriptionContext = createContext<
+	ComponentProps<typeof FieldDescription>
+>({})
