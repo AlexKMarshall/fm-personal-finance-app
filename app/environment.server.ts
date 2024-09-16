@@ -13,6 +13,8 @@ const rawEnvironment = {
 const parsedEnvironmentResult = schema.safeParse(rawEnvironment)
 
 if (!parsedEnvironmentResult.success) {
+	// biome-ignore lint/suspicious/noConsole: This is a server-side log
+	console.error(parsedEnvironmentResult.error)
 	throw new Error('Environment variables invalid', {
 		cause: parsedEnvironmentResult.error,
 	})

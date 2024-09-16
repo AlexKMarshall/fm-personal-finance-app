@@ -5,7 +5,7 @@ import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { prisma } from '~/db/prisma'
-import { setAuthOnResponse } from '~/auth'
+import { setAuthOnResponse } from '~/auth.server'
 
 const schema = z.object({
 	name: z.string(),

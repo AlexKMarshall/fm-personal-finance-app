@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs, MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { requireAuthCookie } from '~/auth'
+import { requireAuthCookie } from '~/auth.server'
 
 export const meta: MetaFunction = () => {
 	return [

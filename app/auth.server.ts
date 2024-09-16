@@ -1,5 +1,5 @@
 import { createCookie, redirect } from '@remix-run/node'
-import { environment } from './environment'
+import { environment } from './environment.server'
 import { z } from 'zod'
 
 const cookie = createCookie('auth', {
