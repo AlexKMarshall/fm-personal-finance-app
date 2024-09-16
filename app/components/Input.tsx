@@ -7,7 +7,7 @@ import {
 import { tv } from 'tailwind-variants'
 
 const inputStyles = tv({
-	base: 'rounded-lg border border-stone-500 px-5 py-3 text-sm',
+	base: 'rounded-lg border border-stone-500 px-5 py-3 text-sm aria-[invalid]:border-red-500 aria-[invalid]:text-red-700',
 })
 
 export const Input = forwardRef<HTMLInputElement, ComponentProps<'input'>>(

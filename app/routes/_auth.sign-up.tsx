@@ -9,8 +9,10 @@ import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
 import { FieldDescription } from '~/components/FieldDescription'
+import { FieldError } from '~/components/FieldError'
 import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
+import { TextField } from '~/components/TextField'
 import { prisma } from '~/db/prisma.server'
 
 function createSchema(options?: {
@@ -84,48 +86,33 @@ export default function SignUp() {
 				{...getFormProps(form)}
 			>
 				<div className="flex flex-col gap-4">
-					<div className="flex flex-col gap-1">
-						<Label htmlFor={fields.name.id}>Name</Label>
-						<Input
-							{...getInputProps(fields.name, { type: 'text' })}
-							autoComplete="name"
-						/>
-						<p id={fields.name.errorId} role="alert" className="text-red-500">
-							{fields.name.errors}
-						</p>
-					</div>
-					<div className="flex flex-col gap-1">
-						<Label htmlFor={fields.email.id}>Email</Label>
-						<Input
-							{...getInputProps(fields.email, { type: 'email' })}
-							autoComplete="email"
-						/>
-						<p id={fields.email.errorId} role="alert" className="text-red-500">
-							{fields.email.errors}
-						</p>
-					</div>
-					<div className="flex flex-col gap-1">
-						<Label htmlFor={fields.password.id}>Create Password</Label>
-						<Input
-							{...getInputProps(fields.password, { type: 'password' })}
-							autoComplete="new-password"
-						/>
-						{fields.password.errors ? null : (
-							<FieldDescription
-								className="self-end"
-								id={fields.password.descriptionId}
-							>
-								Passwords must be at least 8 characters
-							</FieldDescription>
-						)}
-						<p
-							id={fields.password.errorId}
-							role="alert"
-							className="text-red-500"
-						>
-							{fields.password.errors}
-						</p>
-					</div>
+					<TextField
+						{...getInputProps(fields.name, { type: 'text' })}
+						errors={fields.name.errors}
+					>
+						<Label>Name</Label>
+						<Input autoComplete="name" />
+						<FieldError />
+					</TextField>
+					<TextField
+						{...getInputProps(fields.email, { type: 'email' })}
+						errors={fields.email.errors}
+					>
+						<Label>Email</Label>
+						<Input autoComplete="email" inputMode="email" />
+						<FieldError />
+					</TextField>
+					<TextField
+						{...getInputProps(fields.password, { type: 'password' })}
+						errors={fields.password.errors}
+					>
+						<Label>Create Password</Label>
+						<Input autoComplete="new-password" />
+						<FieldDescription>
+							Passwords must be at least 8 characters
+						</FieldDescription>
+						<FieldError />
+					</TextField>
 				</div>
 				<button type="submit">Create Account</button>
 				<p id={form.errorId} role="alert" className="text-red-500">

@@ -5,6 +5,7 @@ import { Label } from './Label'
 import { Input } from './Input'
 import { expect, within } from '@storybook/test'
 import { FieldDescription } from './FieldDescription'
+import { FieldError } from './FieldError'
 
 const meta = {
 	title: 'TextField',
@@ -28,6 +29,7 @@ export const TextField: Story = {
 			<Label>Field label</Label>
 			<Input />
 			<FieldDescription>Some description</FieldDescription>
+			<FieldError />
 		</TextFieldComponent>
 	),
 	play: async ({ canvasElement }) => {
@@ -37,5 +39,27 @@ export const TextField: Story = {
 
 		await expect(input).toBeVisible()
 		await expect(input).toHaveAccessibleDescription('Some description')
+	},
+}
+
+export const Invalid: Story = {
+	args: { 'aria-invalid': true, errors: ['Error message'] },
+	render: (args) => (
+		<TextFieldComponent {...args}>
+			<Label>Field label</Label>
+			<Input />
+			<FieldDescription>Some description</FieldDescription>
+			<FieldError />
+		</TextFieldComponent>
+	),
+	play: async ({ canvasElement }) => {
+		const canvas = within(canvasElement)
+
+		const input = canvas.getByRole('textbox', { name: 'Field label' })
+		const error = canvas.getByRole('alert')
+
+		await expect(input).toBeInvalid()
+		await expect(error).toHaveTextContent('Error message')
+		await expect(input).toHaveAccessibleDescription('Error message')
 	},
 }
