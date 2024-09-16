@@ -9,6 +9,7 @@ import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
 import { Input } from '~/components/Input'
+import { Label } from '~/components/Label'
 import { prisma } from '~/db/prisma.server'
 
 function createSchema(options?: {
@@ -83,7 +84,7 @@ export default function SignUp() {
 			>
 				<div className="flex flex-col gap-4">
 					<div className="flex flex-col gap-1">
-						<label htmlFor={fields.name.id}>Name</label>
+						<Label htmlFor={fields.name.id}>Name</Label>
 						<Input
 							{...getInputProps(fields.name, { type: 'text' })}
 							autoComplete="name"
@@ -93,7 +94,7 @@ export default function SignUp() {
 						</p>
 					</div>
 					<div className="flex flex-col gap-1">
-						<label htmlFor={fields.email.id}>Email</label>
+						<Label htmlFor={fields.email.id}>Email</Label>
 						<Input
 							{...getInputProps(fields.email, { type: 'email' })}
 							autoComplete="email"
@@ -103,7 +104,7 @@ export default function SignUp() {
 						</p>
 					</div>
 					<div className="flex flex-col gap-1">
-						<label htmlFor={fields.password.id}>Create Password</label>
+						<Label htmlFor={fields.password.id}>Create Password</Label>
 						<Input
 							{...getInputProps(fields.password, { type: 'password' })}
 							autoComplete="new-password"
