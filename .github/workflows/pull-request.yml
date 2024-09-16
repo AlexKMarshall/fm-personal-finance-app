@@ -52,7 +52,7 @@ jobs:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     env:
-      COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+      COOKIE_SECRET: 'E2E_TESTS_DUMMY_COOKIE_SECRET_E2E_TESTS_DUMMY_COOKIE_SECRET'
       DATABASE_URL: 'file:./test.db'
     steps:
       - name: Check out code
