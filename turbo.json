@@ -8,12 +8,14 @@
 		"start": {
 			"dependsOn": ["build"],
 			"persistent": true,
-			"cache": false
+			"cache": false,
+			"env": ["COOKIE_SECRET"]
 		},
 		"dev": {
 			"dependsOn": ["db:generate"],
 			"persistent": true,
-			"cache": false
+			"cache": false,
+			"env": ["COOKIE_SECRET"]
 		},
 		"typecheck": {
 			"dependsOn": ["^check-types", "db:generate"]
