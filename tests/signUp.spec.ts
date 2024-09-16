@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { test, expect } from '@playwright/test'
+import { test, expect } from './playwright-utils'
 
 test('sign up', async ({ page }) => {
 	const user = makeUser()

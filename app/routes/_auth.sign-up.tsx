@@ -1,39 +1,75 @@
-import crypto from 'crypto'
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import {
+	conformZodMessage,
+	getZodConstraint,
+	parseWithZod,
+} from '@conform-to/zod'
 import { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
+import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
 import { prisma } from '~/db/prisma'
-import { setAuthOnResponse } from '~/auth.server'
 
-const schema = z.object({
-	name: z.string(),
-	email: z.string().email(),
-	password: z.string().min(8),
-})
+function createSchema(options?: {
+	isEmailUnique: (email: string) => Promise<boolean>
+}) {
+	return z.object({
+		name: z.string(),
+		email: z
+			.string()
+			.email()
+			.pipe(
+				z.string().superRefine((email, ctx) => {
+					if (typeof options?.isEmailUnique !== 'function') {
+						return ctx.addIssue({
+							code: z.ZodIssueCode.custom,
+							message: conformZodMessage.VALIDATION_UNDEFINED,
+							fatal: true,
+						})
+					}
+
+					return options.isEmailUnique(email).then((isUnique) => {
+						if (!isUnique) {
+							ctx.addIssue({
+								code: z.ZodIssueCode.custom,
+								message: 'Email is already in use',
+							})
+						}
+					})
+				}),
+			),
+		password: z.string().min(8),
+	})
+}
 
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData()
 
-	const submission = parseWithZod(formData, { schema })
+	const submission = await parseWithZod(formData, {
+		schema: createSchema({ isEmailUnique }),
+		async: true,
+	})
 
 	if (submission.status !== 'success') {
 		return submission.reply()
 	}
 
 	const user = await createUser(submission.value)
-	return setAuthOnResponse(redirect('/'), { userId: user.id, name: user.name })
+	return setAuthOnResponse(redirect('/'), {
+		userId: user.id,
+		name: user.name,
+	})
 }
 
 export default function SignUp() {
 	const lastResult = useActionData<typeof action>()
 	const [form, fields] = useForm({
 		lastResult,
-		constraint: getZodConstraint(schema),
+		constraint: getZodConstraint(createSchema()),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
-		onValidate: ({ formData }) => parseWithZod(formData, { schema }),
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: createSchema() }),
 	})
 
 	return (
@@ -106,10 +142,8 @@ function createUser({
 	email: string
 	password: string
 }) {
-	const salt = crypto.randomBytes(16).toString('hex')
-	const hash = crypto
-		.pbkdf2Sync(password, salt, 1000, 64, 'sha512')
-		.toString('hex')
+	const salt = generateSalt()
+	const hash = hashPassword({ password, salt })
 
 	return prisma.user.create({
 		data: {
@@ -119,4 +153,9 @@ function createUser({
 		},
 		select: { id: true, name: true },
 	})
+}
+
+async function isEmailUnique(email: string) {
+	const user = await prisma.user.findUnique({ where: { email } })
+	return user === null
 }

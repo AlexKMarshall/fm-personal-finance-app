@@ -2,7 +2,9 @@ import { z } from 'zod'
 
 const schema = z.object({
 	cookieSecret: z.string().min(32),
-	nodeEnv: z.union([z.literal('development'), z.literal('production')]),
+	nodeEnv: z
+		.union([z.literal('development'), z.literal('production')])
+		.default('development'),
 })
 
 const rawEnvironment = {
