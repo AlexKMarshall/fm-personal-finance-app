@@ -8,6 +8,7 @@ import type { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
+import { FieldDescription } from '~/components/FieldDescription'
 import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
 import { prisma } from '~/db/prisma.server'
@@ -110,9 +111,12 @@ export default function SignUp() {
 							autoComplete="new-password"
 						/>
 						{fields.password.errors ? null : (
-							<p className="self-end" id={fields.password.descriptionId}>
+							<FieldDescription
+								className="self-end"
+								id={fields.password.descriptionId}
+							>
 								Passwords must be at least 8 characters
-							</p>
+							</FieldDescription>
 						)}
 						<p
 							id={fields.password.errorId}
