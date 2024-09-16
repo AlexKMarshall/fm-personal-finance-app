@@ -3,7 +3,12 @@
 	"vcs": { "enabled": false, "clientKind": "git", "useIgnoreFile": false },
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["build/**", "node_modules/**"]
+		"ignore": [
+			"build/**",
+			"node_modules/**",
+			"test_results/**",
+			"playwright-report/**"
+		]
 	},
 	"formatter": {
 		"enabled": true,
