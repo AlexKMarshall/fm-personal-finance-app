@@ -1,4 +1,4 @@
-name: Code quality
+name: CI
 
 on:
   pull_request:
@@ -47,3 +47,62 @@ jobs:
 
       - name: Check quality
         run: pnpm exec turbo lint:ci format:ci typecheck
+
+  test:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    env:
+      COOKIE_SECRET: 'E2E_TESTS_DUMMY_COOKIE_SECRET_E2E_TESTS_DUMMY_COOKIE_SECRET'
+      DATABASE_URL: 'file:./test.db'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Corepack enable
+        shell: bash
+        run: corepack enable && corepack enable npm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setp database
+        run: pnpm exec turbo db:push
+
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+      - name: Run Playwright tests
+        run: pnpm exec turbo test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
