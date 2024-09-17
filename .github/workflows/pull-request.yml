@@ -39,6 +39,38 @@ jobs:
       - name: Check quality
         run: pnpm exec turbo lint:ci format:ci typecheck knip
 
+  chromatic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        id: pnpm-install
+        with:
+          run_install: false
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Corepack enable
+        shell: bash
+        run: corepack enable && corepack enable npm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+
   test:
     timeout-minutes: 15
     runs-on: ubuntu-latest
