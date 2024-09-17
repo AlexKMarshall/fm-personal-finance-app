@@ -118,16 +118,18 @@ export default function SignUp() {
 						<FieldError />
 					</TextField>
 				</div>
-				<Button type="submit" appearance="primary">
-					Create Account
-				</Button>
-				<p
-					id={form.errorId}
-					role="alert"
-					className="text-red-500 empty:sr-only"
-				>
-					{form.errors}
-				</p>
+				<div className="flex flex-col gap-2">
+					<Button type="submit" appearance="primary">
+						Create Account
+					</Button>
+					<p
+						id={form.errorId}
+						role="alert"
+						className="text-sm text-red empty:sr-only"
+					>
+						{form.errors}
+					</p>
+				</div>
 				<p className="self-center text-sm text-gray-500">
 					Already have an account?{' '}
 					<Link to="/login" className="font-bold text-gray-900 underline">
