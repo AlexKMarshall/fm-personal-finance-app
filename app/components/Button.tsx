@@ -5,7 +5,7 @@ const buttonStyles = tv({
 	base: 'rounded-lg p-4 text-sm font-bold leading-normal',
 	variants: {
 		appearance: {
-			primary: 'bg-black text-white hover:bg-gray-500',
+			primary: 'bg-gray-900 text-white hover:bg-gray-500',
 		},
 	},
 })

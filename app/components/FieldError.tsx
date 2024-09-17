@@ -7,7 +7,7 @@ import {
 import { tv } from 'tailwind-variants'
 
 const fieldErrorStyles = tv({
-	base: 'sr-only self-end text-xs leading-normal text-red-500 group-has-[[aria-invalid]]:not-sr-only',
+	base: 'sr-only self-end text-xs leading-normal text-red group-has-[[aria-invalid]]:not-sr-only',
 })
 
 export const FieldError = forwardRef<
