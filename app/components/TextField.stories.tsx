@@ -49,7 +49,7 @@ export const Invalid: Story = {
 			<Label>Field label</Label>
 			<Input />
 			<FieldDescription>Some description</FieldDescription>
-			<FieldError />
+			{/* <FieldError /> */}
 		</TextFieldComponent>
 	),
 	play: async ({ canvasElement }) => {
