@@ -91,16 +91,18 @@ export default function Login() {
 						<FieldError />
 					</TextField>
 				</div>
-				<Button type="submit" appearance="primary">
-					Login
-				</Button>
-				<p
-					id={form.errorId}
-					role="alert"
-					className="text-red-500 empty:sr-only"
-				>
-					{form.errors}
-				</p>
+				<div className="flex flex-col gap-2">
+					<Button type="submit" appearance="primary">
+						Login
+					</Button>
+					<p
+						id={form.errorId}
+						role="alert"
+						className="text-red text-sm empty:sr-only"
+					>
+						{form.errors}
+					</p>
+				</div>
 				<p className="self-center text-sm text-gray-500">
 					Need to create an account?{' '}
 					<Link to="/sign-up" className="font-bold text-gray-900 underline">
