@@ -7,7 +7,7 @@ import {
 import { tv } from 'tailwind-variants'
 
 const fieldDescriptionStyles = tv({
-	base: 'self-end text-xs leading-normal text-gray-500 group-has-[[aria-invalid]]:hidden',
+	base: 'self-end text-end text-xs leading-normal text-gray-500 group-has-[[aria-invalid]]:hidden',
 })
 
 export const FieldDescription = forwardRef<

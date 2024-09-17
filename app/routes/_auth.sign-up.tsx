@@ -8,6 +8,7 @@ import type { ActionFunctionArgs } from '@remix-run/node'
 import { Form, Link, redirect, useActionData } from '@remix-run/react'
 import { z } from 'zod'
 import { generateSalt, hashPassword, setAuthOnResponse } from '~/auth.server'
+import { Button } from '~/components/Button'
 import { FieldDescription } from '~/components/FieldDescription'
 import { FieldError } from '~/components/FieldError'
 import { Input } from '~/components/Input'
@@ -78,13 +79,16 @@ export default function SignUp() {
 	})
 
 	return (
-		<div className="max-w-lg">
-			<h1>Sign up</h1>
+		<div className="basis-[35rem] rounded-xl bg-white px-5 py-6 sm:px-6">
 			<Form
 				method="post"
 				className="flex flex-col gap-8"
+				aria-labelledby="sign-up"
 				{...getFormProps(form)}
 			>
+				<h1 className="text-3xl leading-tight" id="sign-up">
+					Sign up
+				</h1>
 				<div className="flex flex-col gap-4">
 					<TextField
 						{...getInputProps(fields.name, { type: 'text' })}
@@ -114,12 +118,21 @@ export default function SignUp() {
 						<FieldError />
 					</TextField>
 				</div>
-				<button type="submit">Create Account</button>
-				<p id={form.errorId} role="alert" className="text-red-500">
+				<Button type="submit" appearance="primary">
+					Create Account
+				</Button>
+				<p
+					id={form.errorId}
+					role="alert"
+					className="text-red-500 empty:sr-only"
+				>
 					{form.errors}
 				</p>
-				<p className="self-center">
-					Already have an account? <Link to="/login">Login</Link>
+				<p className="self-center text-sm text-gray-500">
+					Already have an account?{' '}
+					<Link to="/login" className="font-bold text-gray-900 underline">
+						Login
+					</Link>
 				</p>
 			</Form>
 		</div>
