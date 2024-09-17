@@ -7,7 +7,7 @@ import {
 import { tv } from 'tailwind-variants'
 
 const labelStyles = tv({
-	base: 'block text-xs font-bold leading-normal text-gray-500 group-has-[[aria-invalid]]:text-red-500',
+	base: 'block text-xs font-bold leading-normal text-gray-500 group-has-[[aria-invalid]]:text-red',
 })
 
 export const Label = forwardRef<HTMLLabelElement, ComponentProps<'label'>>(
