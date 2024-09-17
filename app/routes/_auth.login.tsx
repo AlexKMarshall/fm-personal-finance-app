@@ -98,7 +98,7 @@ export default function Login() {
 					<p
 						id={form.errorId}
 						role="alert"
-						className="text-red text-sm empty:sr-only"
+						className="text-sm text-red empty:sr-only"
 					>
 						{form.errors}
 					</p>
