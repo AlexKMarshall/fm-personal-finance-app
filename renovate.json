@@ -12,16 +12,19 @@
 	"packageRules": [
 		{
 			"matchDepTypes": ["devDependencies"],
-			"automerge": true
+			"automerge": true,
+			"schedule": ["before 6am"]
 		},
 		{
 			"matchUpdateTypes": ["patch"],
 			"matchCurrentVersion": "!/^0/",
-			"automerge": true
+			"automerge": true,
+			"schedule": ["before 6am"]
 		},
 		{
 			"matchUpdateTypes": ["pin"],
-			"automerge": true
+			"automerge": true,
+			"schedule": ["before 6am"]
 		}
 	]
 }
