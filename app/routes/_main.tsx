@@ -17,7 +17,7 @@ export default function Main() {
 			<p>{name}</p>
 			<nav>
 				<Link to="/overview">
-					<Icon name="Overview" className="text-green size-6" />
+					<Icon name="Overview" className="size-6 text-green" />
 					<span className="sr-only">Overview</span>
 				</Link>
 				<Link to="/transactions">
