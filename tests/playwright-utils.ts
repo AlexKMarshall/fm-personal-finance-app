@@ -1,6 +1,7 @@
-import { test as base, expect as baseExpect } from '@playwright/test'
+import setCookieParser from 'set-cookie-parser'
+import { test as base, expect as baseExpect, type Page } from '@playwright/test'
 import { makeUser } from './factories/user'
-import { generateSalt, hashPassword } from '~/auth.server'
+import { generateSalt, hashPassword, serializeAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 
 function makeSignupFixture({
@@ -31,9 +32,43 @@ function makeSignupFixture({
 		return { ...savedUser, password }
 	}
 }
+type SignupFixture = ReturnType<typeof makeSignupFixture>
+
+function makeLoginFixture({
+	signup,
+	page,
+}: {
+	signup: SignupFixture
+	page: Page
+}) {
+	return async function login({
+		user: userOverrides,
+	}: {
+		user?: Parameters<typeof makeUser>[0]
+	} = {}) {
+		const { id, name } = await signup({ user: userOverrides })
+
+		const serializedAuthCookie = await serializeAuthCookie({
+			userId: id,
+			name,
+		})
+		const parsedAuthCookie = setCookieParser.parseString(serializedAuthCookie)
+
+		await page.context().addCookies([
+			{
+				...(parsedAuthCookie as any),
+				domain: 'localhost',
+			},
+		])
+
+		return { id, name }
+	}
+}
+type LoginFixture = ReturnType<typeof makeLoginFixture>
 
 export const test = base.extend<{
-	signUp: ReturnType<typeof makeSignupFixture>
+	signUp: SignupFixture
+	login: LoginFixture
 }>({
 	// biome-ignore lint/correctness/noEmptyPattern: Playwright uses this pattern to pass the fixtures.
 	signUp: async ({}, use) => {
@@ -42,6 +77,9 @@ export const test = base.extend<{
 		await prisma.user.delete({
 			where: { id: userId },
 		})
+	},
+	login: async ({ signUp, page }, use) => {
+		await use(makeLoginFixture({ signup: signUp, page }))
 	},
 })
 
