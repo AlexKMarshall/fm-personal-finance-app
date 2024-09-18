@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import TailwindFormPlugin from '@tailwindcss/forms'
+import TailwindContainerQueriesPlugin from '@tailwindcss/container-queries'
 
 export default {
 	content: ['./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}'],
@@ -49,5 +50,5 @@ export default {
 			},
 		},
 	},
-	plugins: [TailwindFormPlugin],
+	plugins: [TailwindFormPlugin, TailwindContainerQueriesPlugin],
 } satisfies Config
