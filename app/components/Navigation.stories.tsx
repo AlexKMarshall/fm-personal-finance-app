@@ -7,7 +7,7 @@ const meta = {
 	component: NavigationComponent,
 	parameters: {
 		// Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
-		layout: 'centered',
+		// layout: 'centered',
 	},
 	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
@@ -21,8 +21,21 @@ export const TextField: Story = {
 	args: {},
 	render: (args) => (
 		<NavigationComponent {...args}>
-			<NavigationItem to="/overview" icon="Overview" />
-			<NavigationItem to="/transactions" icon="Transactions" />
+			<NavigationItem to="/overview" icon="Overview">
+				Overview
+			</NavigationItem>
+			<NavigationItem to="/transactions" icon="Transactions">
+				Transactions
+			</NavigationItem>
+			<NavigationItem to="/budgets" icon="Budgets">
+				Budgets
+			</NavigationItem>
+			<NavigationItem to="/pots" icon="Pots">
+				Pots
+			</NavigationItem>
+			<NavigationItem to="/recurring-bills" icon="RecurringBills">
+				Recurring Bills
+			</NavigationItem>
 		</NavigationComponent>
 	),
 }

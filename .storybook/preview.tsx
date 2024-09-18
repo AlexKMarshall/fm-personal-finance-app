@@ -24,7 +24,7 @@ const preview: Preview = {
 				},
 			])
 
-			return <RemixStub />
+			return <RemixStub initialEntries={['/overview']} />
 		},
 	],
 }
