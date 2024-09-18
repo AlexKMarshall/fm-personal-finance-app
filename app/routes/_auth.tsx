@@ -1,4 +1,16 @@
-import { Outlet } from '@remix-run/react'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { Outlet, redirect } from '@remix-run/react'
+import { getAuthFromRequest } from '~/auth.server'
+
+export async function loader({ request }: LoaderFunctionArgs) {
+	// Redirect the user home if they are already authenticated
+	const auth = await getAuthFromRequest(request)
+	if (auth) {
+		return redirect('/')
+	}
+
+	return null
+}
 
 export default function Auth() {
 	return (
@@ -7,11 +19,6 @@ export default function Auth() {
 				<img src="logo-large.svg" alt="finance" className="lg:hidden" />
 			</div>
 			<div className="hidden flex-1 p-5 [grid-template-areas:'stack'] *:[grid-area:stack] lg:grid">
-				{/* <img
-					src="illustration-authentication.svg"
-					alt=""
-					className="h-full w-auto rounded-xl bg-gray-900"
-				/> */}
 				<div className="flex flex-col items-start rounded-xl bg-gray-900 bg-[url('/illustration-authentication.svg')] bg-cover bg-no-repeat p-10">
 					<img src="logo-large.svg" alt="finance" />
 					<h2 className="mb-6 mt-auto text-3xl font-bold leading-tight text-white">

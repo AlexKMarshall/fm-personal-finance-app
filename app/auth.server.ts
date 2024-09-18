@@ -3,7 +3,7 @@ import { createCookie, redirect } from '@remix-run/node'
 import { environment } from './environment.server'
 import { z } from 'zod'
 
-const cookie = createCookie('auth', {
+const authCookie = createCookie('auth', {
 	secrets: [environment.cookieSecret],
 	// 30 days
 	maxAge: 30 * 24 * 60 * 60,
@@ -17,9 +17,20 @@ const authCookieSchema = z.object({
 	name: z.string(),
 })
 
-async function getAuthFromRequest(request: Request) {
-	const authCookie = await cookie.parse(request.headers.get('Cookie'))
-	const parsedAuthCookieResult = authCookieSchema.safeParse(authCookie)
+export function serializeAuthCookie(auth: z.infer<typeof authCookieSchema>) {
+	return authCookie.serialize(auth)
+}
+
+/**
+ * Retrieves and validates authentication data from request cookies.
+ *
+ * @param request - The incoming HTTP request.
+ * @returns Parsed authentication data or null if validation fails.
+ */
+export async function getAuthFromRequest(request: Request) {
+	const parsedAuthCookieResult = authCookieSchema.safeParse(
+		await authCookie.parse(request.headers.get('Cookie')),
+	)
 	if (!parsedAuthCookieResult.success) {
 		return null
 	}
@@ -37,7 +48,7 @@ export async function setAuthOnResponse(
 	response: Response,
 	auth: z.infer<typeof authCookieSchema>,
 ) {
-	const cookieHeader = await cookie.serialize(auth)
+	const cookieHeader = await serializeAuthCookie(auth)
 	response.headers.append('Set-Cookie', cookieHeader)
 	return response
 }
@@ -55,7 +66,7 @@ export async function requireAuthCookie(request: Request) {
 		throw redirect('/login', {
 			headers: {
 				// Clear the cookie
-				'Set-Cookie': await cookie.serialize('', { maxAge: 0 }),
+				'Set-Cookie': await authCookie.serialize('', { maxAge: 0 }),
 			},
 		})
 	}

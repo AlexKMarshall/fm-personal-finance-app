@@ -90,6 +90,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
+      '@types/set-cookie-parser':
+        specifier: ^2.4.10
+        version: 2.4.10
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -111,6 +114,9 @@ importers:
       prisma:
         specifier: 5.19.1
         version: 5.19.1
+      set-cookie-parser:
+        specifier: 2.7.0
+        version: 2.7.0
       storybook:
         specifier: 8.3.1
         version: 8.3.1
@@ -1226,6 +1232,9 @@ packages:
 
   '@types/serve-static@1.15.7':
     resolution: {integrity: sha512-W8Ym+h8nhuRwaKPaDw34QUkwsGi6Rc4yYqvKFo5rm2FUEhCFbzVWrxXUxuKK8TASjWsysJY0nsmNCGhCOIsrOw==}
+
+  '@types/set-cookie-parser@2.4.10':
+    resolution: {integrity: sha512-GGmQVGpQWUe5qglJozEjZV/5dyxbOOZ0LHe/lqyWssB88Y4svNfst0uqBVscdDeIKl5Jy5+aPSvy7mI9tYRguw==}
 
   '@types/unist@2.0.11':
     resolution: {integrity: sha512-CmBKiL6NNo/OqgmMn95Fk9Whlp2mtvIv+KNpQKN2F4SjvrEesubTRWGYSg+BnWZOnlCaSTU1sMpsBOzgbYhnsA==}
@@ -5001,6 +5010,10 @@ snapshots:
       '@types/http-errors': 2.0.4
       '@types/node': 22.5.5
       '@types/send': 0.17.4
+
+  '@types/set-cookie-parser@2.4.10':
+    dependencies:
+      '@types/node': 22.5.5
 
   '@types/unist@2.0.11': {}
 
