@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
+import { createRemixStub } from '@remix-run/testing'
 
 import { Navigation as NavigationComponent, NavigationItem } from './Navigation'
 
@@ -11,7 +12,22 @@ const meta = {
 	},
 	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
-	// More on argTypes: https://storybook.js.org/docs/api/argtypes
+	decorators: [
+		(Story) => {
+			const RemixStub = createRemixStub([
+				{
+					path: '/*',
+					action: () => ({ redirect: '/' }),
+					loader: () => ({ redirect: '/' }),
+					Component() {
+						return <Story />
+					},
+				},
+			])
+
+			return <RemixStub initialEntries={['/overview']} />
+		},
+	],
 } satisfies Meta<typeof NavigationComponent>
 
 export default meta

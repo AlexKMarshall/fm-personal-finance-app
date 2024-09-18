@@ -1,5 +1,4 @@
 import type { Preview } from '@storybook/react'
-import { createRemixStub } from '@remix-run/testing'
 import '../app/tailwind.css'
 
 const preview: Preview = {
@@ -11,22 +10,6 @@ const preview: Preview = {
 			},
 		},
 	},
-	decorators: [
-		(Story) => {
-			const RemixStub = createRemixStub([
-				{
-					path: '/*',
-					action: () => ({ redirect: '/' }),
-					loader: () => ({ redirect: '/' }),
-					Component() {
-						return <Story />
-					},
-				},
-			])
-
-			return <RemixStub initialEntries={['/overview']} />
-		},
-	],
 }
 
 export default preview
