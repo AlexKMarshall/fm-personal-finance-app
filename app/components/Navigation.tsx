@@ -16,7 +16,7 @@ export const Navigation = forwardRef<HTMLElement, ComponentProps<'nav'>>(
 )
 
 const navigationItemStyles = tv({
-	base: '@container group flex w-40 max-w-full flex-col items-center gap-1 rounded-t-lg border-b-4 border-transparent px-5 pb-2 pt-2 text-center text-xs font-bold leading-normal text-gray-300 hover:text-gray-100 aria-[current]:border-green aria-[current]:bg-white aria-[current]:text-gray-900',
+	base: 'group flex w-40 max-w-full flex-col items-center gap-1 rounded-t-lg border-b-4 border-transparent px-5 pb-2 pt-2 text-center text-xs font-bold leading-normal text-gray-300 @container hover:text-gray-100 aria-[current]:border-green aria-[current]:bg-white aria-[current]:text-gray-900',
 })
 
 export const NavigationItem = forwardRef<
@@ -42,7 +42,7 @@ export const NavigationItem = forwardRef<
 						name={icon}
 						className="size-6 group-aria-[current]:text-green"
 					/>
-					<span className="@[6rem]:not-sr-only sr-only">
+					<span className="sr-only @[6rem]:not-sr-only">
 						{typeof children === 'function'
 							? children(navLinkRenderProps)
 							: children}

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
 import { Icon as IconComponent } from './Icon'
-import type { ComponentProps } from 'react'
+import { iconNames } from '~/icons/icons'
 
 const meta = {
 	title: 'Icon',
@@ -18,13 +18,7 @@ const meta = {
 			control: {
 				type: 'select',
 			},
-			options: [
-				'Overview',
-				'Transactions',
-				'Budgets',
-				'Pots',
-				'RecurringBills',
-			] satisfies Array<ComponentProps<typeof IconComponent>['name']>,
+			options: iconNames,
 		},
 	},
 	args: {
