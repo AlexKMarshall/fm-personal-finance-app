@@ -22,6 +22,7 @@ export default defineConfig({
 			inputDir: 'app/icons',
 			outputDir: 'app/assets',
 			formatter: 'prettier',
+			pathToFormatterConfig: '.prettierrc',
 		}),
 	],
 })
