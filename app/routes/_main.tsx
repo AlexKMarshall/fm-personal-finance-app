@@ -18,7 +18,7 @@ export default function Main() {
 			<div className="flex flex-grow flex-col gap-8 px-4 py-6 [grid-area:main] sm:px-10 sm:py-8">
 				<Outlet />
 			</div>
-			<Sidebar className="mt-auto [grid-area:sidebar-mobile] lg:hidden">
+			<Sidebar className="sticky bottom-0 mt-auto [grid-area:sidebar-mobile] lg:hidden">
 				<SiteNavigation />
 			</Sidebar>
 		</div>
