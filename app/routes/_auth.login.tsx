@@ -70,7 +70,7 @@ export default function Login() {
 				aria-labelledby="sign-up"
 				{...getFormProps(form)}
 			>
-				<h1 className="text-3xl leading-tight" id="sign-up">
+				<h1 className="text-3xl font-bold leading-tight" id="sign-up">
 					Login
 				</h1>
 				<div className="flex flex-col gap-4">

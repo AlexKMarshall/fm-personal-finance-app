@@ -6,6 +6,7 @@ import { Sidebar } from '~/components/Sidebar'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	await requireAuthCookie(request)
+	return null
 }
 
 export default function Main() {
@@ -14,7 +15,7 @@ export default function Main() {
 			<Sidebar className="hidden [grid-area:sidebar-desktop] lg:flex">
 				<SiteNavigation />
 			</Sidebar>
-			<div className="flex-grow px-4 py-6 [grid-area:main]">
+			<div className="flex flex-grow flex-col gap-8 px-4 py-6 [grid-area:main] sm:px-10 sm:py-8">
 				<Outlet />
 			</div>
 			<Sidebar className="mt-auto [grid-area:sidebar-mobile] lg:hidden">
