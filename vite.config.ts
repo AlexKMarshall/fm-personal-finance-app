@@ -1,6 +1,7 @@
 import { vitePlugin as remix } from '@remix-run/dev'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { iconsSpritesheet } from 'vite-plugin-icons-spritesheet'
 
 const isStorybook = process.argv[1]?.includes('storybook')
 
@@ -15,5 +16,13 @@ export default defineConfig({
 				},
 			}),
 		tsconfigPaths(),
+		iconsSpritesheet({
+			withTypes: true,
+			typesOutputFile: 'app/icons/icons.ts',
+			inputDir: 'app/icons',
+			outputDir: 'app/assets',
+			formatter: 'prettier',
+			pathToFormatterConfig: '.prettierrc',
+		}),
 	],
 })

@@ -3,5 +3,6 @@
 	"tailwindFunctions": ["tv"],
 	"semi": false,
 	"singleQuote": true,
-	"useTabs": true
+	"useTabs": true,
+	"arrowParens": "always"
 }
