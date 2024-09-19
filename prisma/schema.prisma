@@ -15,7 +15,8 @@ model User {
   name  String
   email String @unique
 
-  Password Password?
+  Password    Password?
+  Transaction Transaction[]
 }
 
 model Password {
@@ -25,4 +26,32 @@ model Password {
 
   User   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
+}
+
+model Transaction {
+  id             String       @id @default(uuid())
+  amount         Int
+  date           DateTime
+  Category       Category     @relation(fields: [categoryId], references: [id])
+  User           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  categoryId     String
+  Counterparty   Counterparty @relation(fields: [counterpartyId], references: [id])
+  counterpartyId String
+  isRecurring    Boolean
+}
+
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+
+  Transaction Transaction[]
+}
+
+model Counterparty {
+  id        String @id @default(uuid())
+  name      String @unique
+  avatarUrl String
+
+  Transaction Transaction[]
 }

@@ -15,6 +15,7 @@ import { Input } from '~/components/Input'
 import { Label } from '~/components/Label'
 import { TextField } from '~/components/TextField'
 import { prisma } from '~/db/prisma.server'
+import dummyData from '~/data/data.json'
 
 function createSchema(options?: {
 	isEmailUnique: (email: string) => Promise<boolean>
@@ -61,6 +62,9 @@ export async function action({ request }: ActionFunctionArgs) {
 	}
 
 	const user = await createUser(submission.value)
+
+	await seedInitialUserData(user.id)
+
 	return setAuthOnResponse(redirect('/'), {
 		userId: user.id,
 		name: user.name,
@@ -166,4 +170,35 @@ function createUser({
 async function isEmailUnique(email: string) {
 	const user = await prisma.user.findUnique({ where: { email } })
 	return user === null
+}
+
+async function seedInitialUserData(userId: string) {
+	// Create transactions
+	await Promise.all(
+		dummyData.transactions.map((transaction) =>
+			prisma.transaction.create({
+				data: {
+					amount: transaction.amount * 100,
+					date: new Date(transaction.date),
+					isRecurring: transaction.recurring,
+					User: { connect: { id: userId } },
+					Counterparty: {
+						connectOrCreate: {
+							where: { name: transaction.name },
+							create: {
+								name: transaction.name,
+								avatarUrl: `avatars/${transaction.avatar.split('/').at(-1)}`,
+							},
+						},
+					},
+					Category: {
+						connectOrCreate: {
+							where: { name: transaction.category },
+							create: { name: transaction.category },
+						},
+					},
+				},
+			}),
+		),
+	)
 }

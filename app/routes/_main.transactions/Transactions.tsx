@@ -68,7 +68,9 @@ function TransactionsTable({
 								</div>
 							</td>
 							<td className="text-xs text-gray-500">{transaction.category}</td>
-							<td className="text-xs text-gray-500">{transaction.date}</td>
+							<td className="whitespace-nowrap text-xs text-gray-500">
+								{transaction.date}
+							</td>
 							<td
 								className={clsx('pr-4 text-right text-sm font-bold', {
 									'text-green': direction === 'credit',
@@ -120,7 +122,7 @@ export function Transaction({
 }) {
 	const direction = amount.startsWith('-') ? 'debit' : 'credit'
 	return (
-		<div className="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_category_date']">
+		<div className="grid grid-cols-[2rem_1fr_auto] gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_category_date']">
 			<img
 				src={avatar}
 				alt=""

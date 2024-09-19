@@ -88,9 +88,11 @@ test('cannot login with invalid password', async ({ page, signUp }) => {
 
 test('auth pages redirect to home if already authenticated', async ({
 	page,
+	signUp,
 	login,
 }) => {
-	await login()
+	const user = await signUp()
+	await login(user)
 
 	await page.goto('/sign-up')
 	await expect(

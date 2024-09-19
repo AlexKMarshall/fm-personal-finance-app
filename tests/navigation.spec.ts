@@ -1,7 +1,8 @@
 import { test, expect } from './playwright-utils'
 
-test('main navigation links', async ({ page, login }) => {
-	await login()
+test('main navigation links', async ({ page, login, signUp }) => {
+	const user = await signUp()
+	await login(user)
 
 	await page.goto('/')
 	const mainNav = await page.getByRole('navigation')
