@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 
-import { Transactions as TransactionsComponent } from './Transaction'
+import { Transactions as TransactionsComponent } from './Transactions'
 import serenitySpaAndWellness from '../../assets/story-assets/serenity-spa-and-wellness.jpg'
 import flavorFiesta from '../../assets/story-assets/flavor-fiesta.jpg'
 import masonMartinez from '../../assets/story-assets/mason-martinez.jpg'

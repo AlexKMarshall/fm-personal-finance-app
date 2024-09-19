@@ -3,7 +3,7 @@ import serinitySpaAndWellness from '~/assets/story-assets/serenity-spa-and-welln
 import flavorFiesta from '~/assets/story-assets/flavor-fiesta.jpg'
 import masonMartinez from '~/assets/story-assets/mason-martinez.jpg'
 
-import { Transactions } from './Transaction'
+import { Transactions } from './Transactions'
 import { Card } from '~/components/Card'
 
 export function loader() {
