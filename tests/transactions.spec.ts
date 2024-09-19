@@ -141,9 +141,11 @@ class TransactionsPage {
 			.filter({ hasText: formattedAmount })
 	}
 
-	filterByCategory(category: string) {
-		return this.page.getByRole('combobox', { name: /category/i }).selectOption({
-			label: category,
-		})
+	async filterByCategory(category: string) {
+		await this.page.getByLabel(/category/i).click()
+		return this.page
+			.getByRole('listbox', { name: /category/i })
+			.getByRole('option', { name: category })
+			.click()
 	}
 }

@@ -1,3 +1,11 @@
+import {
+	Select,
+	Button as RACButton,
+	SelectValue,
+	Popover,
+	ListBox,
+	ListBoxItem,
+} from 'react-aria-components'
 import { Form, useLoaderData } from '@remix-run/react'
 
 import { Transactions } from './Transactions'
@@ -8,8 +16,14 @@ import { requireAuthCookie } from '~/auth.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { Label } from '~/components/Label'
 import { z } from 'zod'
-import { getFormProps, getSelectProps, useForm } from '@conform-to/react'
+import {
+	getFormProps,
+	useForm,
+	useInputControl,
+	type FieldMetadata,
+} from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
+import type { ComponentProps } from 'react'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -39,7 +53,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	return {
 		transactions: formattedTransactions,
-		categories,
+		categories: [
+			{ id: '', name: 'All Transactions', value: '' },
+			...categories.map(({ id, name }) => ({
+				id,
+				name,
+				value: name.toLocaleLowerCase(),
+			})),
+		],
 	}
 }
 
@@ -63,26 +84,20 @@ export default function TransactionsRoute() {
 				<Form
 					{...getFormProps(form)}
 					replace
-					onChange={(event) => {
+					onInput={(event) => {
 						event.currentTarget.requestSubmit()
 					}}
 				>
-					<div className="flex gap-3">
-						<Label className="sr-only sm:not-sr-only" htmlFor="category">
-							Category
-						</Label>
-						<select {...getSelectProps(fields.category)} id="category">
-							<option value="">All Transactions</option>
-							{categories.map((category) => (
-								<option
-									key={category.id}
-									value={category.name.toLocaleLowerCase()}
-								>
-									{category.name}
-								</option>
-							))}
-						</select>
-					</div>
+					<WrapperSelect
+						className="flex gap-3"
+						meta={fields.category}
+						aria-labelledby="category-label"
+					>
+						<ListBox items={categories} className="bg-white p-4">
+							{(item) => <ListBoxItem id={item.value}>{item.name}</ListBoxItem>}
+						</ListBox>
+					</WrapperSelect>
+
 					<button type="submit">Filter</button>
 				</Form>
 				<Transactions transactions={transactions} />
@@ -146,4 +161,40 @@ function getCategories({ userId }: { userId: string }) {
 			name: 'asc',
 		},
 	})
+}
+
+function WrapperSelect({
+	meta,
+	children,
+	...props
+}: ComponentProps<typeof Select> & { meta: FieldMetadata<string> }) {
+	const control = useInputControl(meta)
+
+	return (
+		<Select
+			{...props}
+			selectedKey={control.value}
+			onSelectionChange={(value) => control.change(value as string)}
+			onBlur={() => control.blur()}
+			onFocus={() => control.focus()}
+		>
+			{(renderProps) => (
+				<>
+					<Label
+						className="sr-only sm:not-sr-only"
+						htmlFor="category"
+						id="category-label"
+					>
+						Category
+					</Label>
+					<RACButton>
+						<SelectValue />
+					</RACButton>
+					<Popover>
+						{typeof children === 'function' ? children(renderProps) : children}
+					</Popover>
+				</>
+			)}
+		</Select>
+	)
 }
