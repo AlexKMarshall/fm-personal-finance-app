@@ -91,7 +91,7 @@ importers:
         specifier: 18.3.0
         version: 18.3.0
       '@types/set-cookie-parser':
-        specifier: ^2.4.10
+        specifier: 2.4.10
         version: 2.4.10
       autoprefixer:
         specifier: 10.4.20
