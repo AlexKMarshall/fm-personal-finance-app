@@ -5,23 +5,18 @@ import { Card } from '~/components/Card'
 import { prisma } from '~/db/prisma.server'
 import type { LoaderFunctionArgs } from '@remix-run/node'
 import { requireAuthCookie } from '~/auth.server'
-import { format } from 'date-fns'
+import { formatCurrency, formatDate } from '~/utils/format'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
 	const transactions = await getTransactions({ userId })
 
-	const currencyFormatter = new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency: 'USD',
-	})
-
 	return transactions.map(({ id, Counterparty, Category, amount, date }) => ({
 		id,
 		name: Counterparty.name,
 		category: Category.name,
-		date: format(new Date(date), 'd MMMM yyyy'),
-		amount: currencyFormatter.format(amount / 100),
+		date: formatDate(date),
+		amount: formatCurrency(amount),
 		avatar: Counterparty.avatarUrl,
 	}))
 }

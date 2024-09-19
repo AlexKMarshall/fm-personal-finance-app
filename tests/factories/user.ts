@@ -5,7 +5,7 @@ export const makeUser: ObjectFactory<{
 	name: string
 	email: string
 	password: string
-}> = (overrides) => {
+}> = (overrides = {}) => {
 	const name = overrides?.name ?? faker.person.fullName()
 	const email = overrides?.email ?? faker.internet.email()
 	const password = overrides?.password ?? faker.internet.password()

@@ -3,6 +3,7 @@ import { test as base, expect as baseExpect, type Page } from '@playwright/test'
 import { makeUser } from './factories/user'
 import { generateSalt, hashPassword, serializeAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
+import { makeTransaction } from './factories/transaction'
 
 function makeSignupFixture({
 	onUserSaved,
@@ -27,6 +28,12 @@ function makeSignupFixture({
 				},
 			},
 		})
+		// Delete the dummy transactions that every new user gets, so we can test specific ones
+		await prisma.transaction.deleteMany({
+			where: {
+				userId: savedUser.id,
+			},
+		})
 		onUserSaved?.(savedUser.id)
 
 		return { ...savedUser, password }
@@ -34,23 +41,11 @@ function makeSignupFixture({
 }
 type SignupFixture = ReturnType<typeof makeSignupFixture>
 
-function makeLoginFixture({
-	signup,
-	page,
-}: {
-	signup: SignupFixture
-	page: Page
-}) {
-	return async function login({
-		user: userOverrides,
-	}: {
-		user?: Parameters<typeof makeUser>[0]
-	} = {}) {
-		const { id, name } = await signup({ user: userOverrides })
-
+function makeLoginFixture({ page }: { page: Page }) {
+	return async function login(user: { name: string; id: string }) {
 		const serializedAuthCookie = await serializeAuthCookie({
-			userId: id,
-			name,
+			userId: user.id,
+			name: user.name,
 		})
 		const parsedAuthCookie = setCookieParser.parseString(serializedAuthCookie)
 
@@ -60,15 +55,58 @@ function makeLoginFixture({
 				domain: 'localhost',
 			},
 		])
-
-		return { id, name }
 	}
 }
 type LoginFixture = ReturnType<typeof makeLoginFixture>
 
+function makeSeedDatabaseFixture() {
+	return async function seedDatabase({
+		user,
+		transactions,
+	}: {
+		user: { id: string }
+		transactions: Array<Parameters<typeof makeTransaction>[0]>
+	}) {
+		return Promise.all(
+			transactions
+				.map((transaction) => makeTransaction(transaction))
+				.map(({ Category, Counterparty, ...transaction }) =>
+					prisma.transaction.create({
+						data: {
+							...transaction,
+							User: {
+								connect: {
+									id: user.id,
+								},
+							},
+							Counterparty: {
+								connectOrCreate: {
+									where: {
+										name: Counterparty.name,
+									},
+									create: Counterparty,
+								},
+							},
+							Category: {
+								connectOrCreate: {
+									where: {
+										name: Category.name,
+									},
+									create: Category,
+								},
+							},
+						},
+					}),
+				),
+		)
+	}
+}
+type SeedDatabaseFixture = ReturnType<typeof makeSeedDatabaseFixture>
+
 export const test = base.extend<{
 	signUp: SignupFixture
 	login: LoginFixture
+	seedDatabase: SeedDatabaseFixture
 }>({
 	// biome-ignore lint/correctness/noEmptyPattern: Playwright uses this pattern to pass the fixtures.
 	signUp: async ({}, use) => {
@@ -78,8 +116,12 @@ export const test = base.extend<{
 			where: { id: userId },
 		})
 	},
-	login: async ({ signUp, page }, use) => {
-		await use(makeLoginFixture({ signup: signUp, page }))
+	login: async ({ page }, use) => {
+		await use(makeLoginFixture({ page }))
+	},
+	// biome-ignore lint/correctness/noEmptyPattern: Playwright uses this pattern to pass the fixtures.
+	seedDatabase: async ({}, use) => {
+		await use(makeSeedDatabaseFixture())
 	},
 })
 
