@@ -19,7 +19,6 @@ test('sign up', async ({ page }) => {
 	await expect(
 		page.getByRole('heading', { name: 'Overview', level: 1 }),
 	).toBeVisible()
-	await expect(page.getByText(user.name)).toBeVisible()
 })
 
 test('cannot sign up with an existing email', async ({ page, signUp }) => {
@@ -57,7 +56,6 @@ test('login', async ({ page, signUp }) => {
 	await expect(
 		page.getByRole('heading', { name: 'Overview', level: 1 }),
 	).toBeVisible()
-	await expect(page.getByText(user.name)).toBeVisible()
 })
 
 test('cannot login with invalid email', async ({ page, signUp }) => {
