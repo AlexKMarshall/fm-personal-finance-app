@@ -4,6 +4,7 @@ import { Transactions as TransactionsComponent } from './Transaction'
 import serenitySpaAndWellness from '../../assets/story-assets/serenity-spa-and-wellness.jpg'
 import flavorFiesta from '../../assets/story-assets/flavor-fiesta.jpg'
 import masonMartinez from '../../assets/story-assets/mason-martinez.jpg'
+import { allModes } from '.storybook/modes'
 
 const meta = {
 	title: 'Transactions',
@@ -11,6 +12,9 @@ const meta = {
 	parameters: {
 		// Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
 		layout: 'centered',
+		chromatic: {
+			modes: allModes,
+		},
 	},
 	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
