@@ -1,4 +1,24 @@
 import clsx from 'clsx'
+import { type ComponentProps } from 'react'
+
+export function Transactions({
+	transactions,
+}: {
+	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
+}) {
+	return (
+		<ul>
+			{transactions.map((transaction) => (
+				<li
+					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"
+					key={transaction.id}
+				>
+					<Transaction {...transaction} />
+				</li>
+			))}
+		</ul>
+	)
+}
 
 export function Transaction({
 	name,
@@ -13,7 +33,7 @@ export function Transaction({
 	amount: string
 	avatar: string
 }) {
-	const direction = amount.startsWith('-') ? 'debit' : ('credit' as const)
+	const direction = amount.startsWith('-') ? 'debit' : 'credit'
 	return (
 		<div className="grid grid-cols-[auto_1fr_auto] gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_category_date']">
 			<img
