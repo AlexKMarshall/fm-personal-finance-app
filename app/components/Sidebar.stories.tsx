@@ -3,12 +3,16 @@ import { createRemixStub } from '@remix-run/testing'
 
 import { Sidebar as SidebarComponent } from './Sidebar'
 import { Navigation, NavigationItem } from './Navigation'
+import { allModes } from '.storybook/modes'
 
 const meta = {
 	title: 'Sidebar',
 	component: SidebarComponent,
 	parameters: {
 		layout: 'fullscreen',
+		chromatic: {
+			modes: allModes,
+		},
 	},
 	tags: ['autodocs'],
 	decorators: [
