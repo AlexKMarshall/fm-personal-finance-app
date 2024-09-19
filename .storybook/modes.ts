@@ -5,6 +5,8 @@ export const allModes = {
 	smallMobile: {
 		viewport: 320,
 	},
-	tablet: 768,
-	desktop: 1440,
+	tablet: {
+		viewport: 768,
+	},
+	desktop: { viewport: 1440 },
 }
