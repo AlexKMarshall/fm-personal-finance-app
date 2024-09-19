@@ -33,7 +33,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const TextField: Story = {
+export const Navigation: Story = {
 	args: {},
 	render: (args) => (
 		<NavigationComponent {...args}>
