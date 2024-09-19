@@ -1,38 +1,29 @@
 import { useLoaderData } from '@remix-run/react'
-import serinitySpaAndWellness from '~/assets/story-assets/serenity-spa-and-wellness.jpg'
-import flavorFiesta from '~/assets/story-assets/flavor-fiesta.jpg'
-import masonMartinez from '~/assets/story-assets/mason-martinez.jpg'
 
 import { Transactions } from './Transactions'
 import { Card } from '~/components/Card'
+import { prisma } from '~/db/prisma.server'
+import type { LoaderFunctionArgs } from '@remix-run/node'
+import { requireAuthCookie } from '~/auth.server'
+import { format } from 'date-fns'
 
-export function loader() {
-	return [
-		{
-			id: '1',
-			name: 'Serenity Spa & Wellness',
-			category: 'Personal Care',
-			date: '29 Aug 2024',
-			amount: '-$25.00',
-			avatar: serinitySpaAndWellness,
-		},
-		{
-			id: '2',
-			name: 'Flavor Fiesta',
-			category: 'Dining',
-			date: '15 Sep 2024',
-			amount: '-$45.00',
-			avatar: flavorFiesta,
-		},
-		{
-			id: '3',
-			name: 'Mason Martinez',
-			category: 'Freelance',
-			date: '01 Oct 2024',
-			amount: '+$150.00',
-			avatar: masonMartinez,
-		},
-	]
+export async function loader({ request }: LoaderFunctionArgs) {
+	const { userId } = await requireAuthCookie(request)
+	const transactions = await getTransactions({ userId })
+
+	const currencyFormatter = new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+	})
+
+	return transactions.map(({ id, Counterparty, Category, amount, date }) => ({
+		id,
+		name: Counterparty.name,
+		category: Category.name,
+		date: format(new Date(date), 'd MMMM yyyy'),
+		amount: currencyFormatter.format(amount / 100),
+		avatar: Counterparty.avatarUrl,
+	}))
 }
 
 export default function TransactionsRoute() {
@@ -45,4 +36,28 @@ export default function TransactionsRoute() {
 			</Card>
 		</>
 	)
+}
+
+function getTransactions({ userId }: { userId: string }) {
+	return prisma.transaction.findMany({
+		where: {
+			userId,
+		},
+		select: {
+			id: true,
+			Counterparty: {
+				select: {
+					name: true,
+					avatarUrl: true,
+				},
+			},
+			amount: true,
+			date: true,
+			Category: {
+				select: {
+					name: true,
+				},
+			},
+		},
+	})
 }
