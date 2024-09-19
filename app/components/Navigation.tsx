@@ -4,7 +4,7 @@ import { Icon } from './Icon'
 import { tv } from 'tailwind-variants'
 
 const navigationStyles = tv({
-	base: 'flex justify-between overflow-x-auto bg-gray-900',
+	base: 'lg:overflow-x-none flex justify-between overflow-x-auto bg-gray-900 lg:flex-col',
 })
 
 export const Navigation = forwardRef<HTMLElement, ComponentProps<'nav'>>(
@@ -16,7 +16,7 @@ export const Navigation = forwardRef<HTMLElement, ComponentProps<'nav'>>(
 )
 
 const navigationItemStyles = tv({
-	base: 'group flex w-40 min-w-max flex-col items-center gap-1 rounded-t-lg border-b-4 border-transparent px-5 pb-2 pt-2 text-center text-xs font-bold leading-normal text-gray-300 hover:text-gray-100 aria-[current]:border-green aria-[current]:bg-white aria-[current]:text-gray-900',
+	base: 'group flex w-40 min-w-max flex-col items-center gap-1 rounded-tl-lg rounded-tr-lg border-b-4 border-transparent px-5 pb-2 pt-2 text-center text-xs font-bold leading-normal text-gray-300 hover:text-gray-100 aria-[current]:border-green aria-[current]:bg-white aria-[current]:text-gray-900 lg:w-full lg:flex-row lg:gap-4 lg:rounded-br-lg lg:rounded-tl-none lg:border-b-0 lg:border-l-4 lg:py-4 lg:pl-7 lg:pr-8',
 })
 
 export const NavigationItem = forwardRef<
