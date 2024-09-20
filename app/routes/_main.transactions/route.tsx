@@ -124,7 +124,7 @@ export default function TransactionsRoute() {
 						<Popover>
 							<ListBox
 								items={categories}
-								className="max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-lg"
+								className="shadow-black/25 max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px]"
 							>
 								{(item) => (
 									<ListBoxItem
