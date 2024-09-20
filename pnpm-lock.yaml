@@ -94,8 +94,8 @@ importers:
         specifier: 22.5.5
         version: 22.5.5
       '@types/react':
-        specifier: 18.3.7
-        version: 18.3.7
+        specifier: 18.3.8
+        version: 18.3.8
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
@@ -1260,8 +1260,8 @@ packages:
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
-  '@types/react@18.3.7':
-    resolution: {integrity: sha512-KUnDCJF5+AiZd8owLIeVHqmW9yM4sqmDVf2JRJiBMFkGvkoZ4/WyV2lL4zVsoinmRS/W3FeEdZLEWFRofnT2FQ==}
+  '@types/react@18.3.8':
+    resolution: {integrity: sha512-syBUrW3/XpnW4WJ41Pft+I+aPoDVbrBVQGEnbD7NijDGlVC+8gV/XKRY+7vMDlfPpbwYt0l1vd/Sj8bJGMbs9Q==}
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
@@ -4350,10 +4350,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mdx-js/react@3.0.1(@types/react@18.3.7)(react@18.3.1)':
+  '@mdx-js/react@3.0.1(@types/react@18.3.8)(react@18.3.1)':
     dependencies:
       '@types/mdx': 2.0.13
-      '@types/react': 18.3.7
+      '@types/react': 18.3.8
       react: 18.3.1
 
   '@nodelib/fs.scandir@2.1.5':
@@ -4696,12 +4696,12 @@ snapshots:
 
   '@storybook/addon-docs@8.3.1(storybook@8.3.1)':
     dependencies:
-      '@mdx-js/react': 3.0.1(@types/react@18.3.7)(react@18.3.1)
+      '@mdx-js/react': 3.0.1(@types/react@18.3.8)(react@18.3.1)
       '@storybook/blocks': 8.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.1)
       '@storybook/csf-plugin': 8.3.1(storybook@8.3.1)
       '@storybook/global': 5.0.0
       '@storybook/react-dom-shim': 8.3.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@8.3.1)
-      '@types/react': 18.3.7
+      '@types/react': 18.3.8
       fs-extra: 11.2.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -5090,9 +5090,9 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.3.7
+      '@types/react': 18.3.8
 
-  '@types/react@18.3.7':
+  '@types/react@18.3.8':
     dependencies:
       '@types/prop-types': 15.7.12
       csstype: 3.1.3
