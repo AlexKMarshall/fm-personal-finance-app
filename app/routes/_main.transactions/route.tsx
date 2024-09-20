@@ -108,13 +108,18 @@ export default function TransactionsRoute() {
 						>
 							Category
 						</Label>
-						<RACButton className="flex w-48 items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-sm">
+						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-48 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
 							<SelectValue>
-								{({ isPlaceholder, defaultChildren }) =>
-									isPlaceholder ? 'All Transactions' : defaultChildren
-								}
+								{({ isPlaceholder, defaultChildren }) => (
+									<>
+										<Icon name="Filter" className="size-5 sm:hidden" />
+										<span className="sr-only sm:not-sr-only">
+											{isPlaceholder ? 'All Transactions' : defaultChildren}
+										</span>
+									</>
+								)}
 							</SelectValue>
-							<Icon name="CaretDown" className="size-4" />
+							<Icon name="CaretDown" className="hidden size-4 sm:block" />
 						</RACButton>
 						<Popover>
 							<ListBox
