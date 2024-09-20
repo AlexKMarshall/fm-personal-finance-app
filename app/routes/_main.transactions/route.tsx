@@ -6,7 +6,7 @@ import {
 	ListBox,
 	ListBoxItem,
 } from 'react-aria-components'
-import { Form, useLoaderData } from '@remix-run/react'
+import { Form, useLoaderData, useSubmit } from '@remix-run/react'
 
 import { Transactions } from './Transactions'
 import { Card } from '~/components/Card'
@@ -23,7 +23,9 @@ import {
 	type FieldMetadata,
 } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import type { ComponentProps } from 'react'
+import { useRef, type ComponentProps } from 'react'
+import { Icon } from '~/components/Icon'
+import { tv } from 'tailwind-variants'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -32,6 +34,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	const submission = parseWithZod(searchParams, { schema: filterSchema })
 	if (submission.status !== 'success') {
+		console.error(submission.error)
 		throw new Error('Invalid search params')
 	}
 
@@ -61,6 +64,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				value: name.toLocaleLowerCase(),
 			})),
 		],
+		selectedCategory: submission.value.category,
 	}
 }
 
@@ -69,36 +73,65 @@ const filterSchema = z.object({
 })
 
 export default function TransactionsRoute() {
-	const { transactions, categories } = useLoaderData<typeof loader>()
-
-	const [form, fields] = useForm({
-		constraint: getZodConstraint(filterSchema),
-		onValidate: ({ formData }) =>
-			parseWithZod(formData, { schema: filterSchema }),
-	})
-
+	const { transactions, categories, selectedCategory } =
+		useLoaderData<typeof loader>()
+	const formRef = useRef<HTMLFormElement>(null)
+	const submit = useSubmit()
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-relaxed">Transactions</h1>
 			<Card>
-				<Form
-					{...getFormProps(form)}
-					replace
-					onInput={(event) => {
-						event.currentTarget.requestSubmit()
-					}}
-				>
-					<WrapperSelect
-						className="flex gap-3"
-						meta={fields.category}
+				<Form ref={formRef} replace className="mb-6 flex justify-end">
+					<Select
+						className="flex items-center gap-2"
+						name="category"
+						defaultSelectedKey={selectedCategory ?? ''}
 						aria-labelledby="category-label"
-					>
-						<ListBox items={categories} className="bg-white p-4">
-							{(item) => <ListBoxItem id={item.value}>{item.name}</ListBoxItem>}
-						</ListBox>
-					</WrapperSelect>
+						onSelectionChange={(value) => {
+							if (!formRef.current) {
+								return
+							}
+							const formData = new FormData(formRef.current!)
+							if (!value) {
+								formData.delete('category')
+							} else {
+								formData.set('category', String(value))
+							}
 
-					<button type="submit">Filter</button>
+							submit(formData, { replace: true })
+						}}
+					>
+						<Label
+							className="sr-only text-sm font-normal sm:not-sr-only"
+							htmlFor="category"
+							id="category-label"
+						>
+							Category
+						</Label>
+						<RACButton className="flex w-48 items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-sm">
+							<SelectValue>
+								{({ isPlaceholder, defaultChildren }) =>
+									isPlaceholder ? 'All Transactions' : defaultChildren
+								}
+							</SelectValue>
+							<Icon name="CaretDown" className="size-4" />
+						</RACButton>
+						<Popover>
+							<ListBox
+								items={categories}
+								className="max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-lg"
+							>
+								{(item) => (
+									<ListBoxItem
+										id={item.value}
+										className="cursor-pointer border-b border-gray-100 py-3 text-sm leading-normal outline-offset-1 first:pt-0 first:font-bold last:border-0 last:pb-0"
+									>
+										{item.name}
+									</ListBoxItem>
+								)}
+							</ListBox>
+						</Popover>
+					</Select>
 				</Form>
 				<Transactions transactions={transactions} />
 			</Card>
@@ -166,29 +199,27 @@ function getCategories({ userId }: { userId: string }) {
 function WrapperSelect({
 	meta,
 	children,
+	className,
 	...props
 }: ComponentProps<typeof Select> & { meta: FieldMetadata<string> }) {
-	const control = useInputControl(meta)
-
 	return (
-		<Select
-			{...props}
-			selectedKey={control.value}
-			onSelectionChange={(value) => control.change(value as string)}
-			onBlur={() => control.blur()}
-			onFocus={() => control.focus()}
-		>
+		<Select {...props}>
 			{(renderProps) => (
 				<>
 					<Label
-						className="sr-only sm:not-sr-only"
+						className="sr-only text-sm font-normal sm:not-sr-only"
 						htmlFor="category"
 						id="category-label"
 					>
 						Category
 					</Label>
-					<RACButton>
-						<SelectValue />
+					<RACButton className="flex w-48 items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-sm">
+						<SelectValue>
+							{({ isPlaceholder, defaultChildren }) =>
+								isPlaceholder ? 'All Transactions' : defaultChildren
+							}
+						</SelectValue>
+						<Icon name="CaretDown" className="size-4" />
 					</RACButton>
 					<Popover>
 						{typeof children === 'function' ? children(renderProps) : children}

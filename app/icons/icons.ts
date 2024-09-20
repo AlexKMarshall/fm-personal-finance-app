@@ -5,6 +5,7 @@ export const iconNames = [
 	'RecurringBills',
 	'Pots',
 	'Overview',
+	'CaretDown',
 	'Budgets',
 ] as const
 
