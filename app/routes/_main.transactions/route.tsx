@@ -16,16 +16,9 @@ import { requireAuthCookie } from '~/auth.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { Label } from '~/components/Label'
 import { z } from 'zod'
-import {
-	getFormProps,
-	useForm,
-	useInputControl,
-	type FieldMetadata,
-} from '@conform-to/react'
-import { getZodConstraint, parseWithZod } from '@conform-to/zod'
-import { useRef, type ComponentProps } from 'react'
+import { parseWithZod } from '@conform-to/zod'
+import { useRef } from 'react'
 import { Icon } from '~/components/Icon'
-import { tv } from 'tailwind-variants'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -34,7 +27,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	const submission = parseWithZod(searchParams, { schema: filterSchema })
 	if (submission.status !== 'success') {
-		console.error(submission.error)
 		throw new Error('Invalid search params')
 	}
 
@@ -124,7 +116,7 @@ export default function TransactionsRoute() {
 						<Popover>
 							<ListBox
 								items={categories}
-								className="shadow-black/25 max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px]"
+								className="max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px] shadow-black/25"
 							>
 								{(item) => (
 									<ListBoxItem
@@ -199,38 +191,4 @@ function getCategories({ userId }: { userId: string }) {
 			name: 'asc',
 		},
 	})
-}
-
-function WrapperSelect({
-	meta,
-	children,
-	className,
-	...props
-}: ComponentProps<typeof Select> & { meta: FieldMetadata<string> }) {
-	return (
-		<Select {...props}>
-			{(renderProps) => (
-				<>
-					<Label
-						className="sr-only text-sm font-normal sm:not-sr-only"
-						htmlFor="category"
-						id="category-label"
-					>
-						Category
-					</Label>
-					<RACButton className="flex w-48 items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-sm">
-						<SelectValue>
-							{({ isPlaceholder, defaultChildren }) =>
-								isPlaceholder ? 'All Transactions' : defaultChildren
-							}
-						</SelectValue>
-						<Icon name="CaretDown" className="size-4" />
-					</RACButton>
-					<Popover>
-						{typeof children === 'function' ? children(renderProps) : children}
-					</Popover>
-				</>
-			)}
-		</Select>
-	)
 }
