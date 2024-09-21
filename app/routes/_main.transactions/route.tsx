@@ -121,7 +121,7 @@ export default function TransactionsRoute() {
 								{(item) => (
 									<ListBoxItem
 										id={item.value}
-										className="cursor-pointer border-b border-gray-100 py-3 text-sm leading-normal outline-offset-1 first:pt-0 first:font-bold last:border-0 last:pb-0"
+										className="cursor-pointer border-b border-gray-100 py-3 text-sm leading-normal outline-offset-1 first:pt-0 last:border-0 last:pb-0 data-[selected]:font-bold"
 									>
 										{item.name}
 									</ListBoxItem>
