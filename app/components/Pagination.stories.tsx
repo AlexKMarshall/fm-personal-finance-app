@@ -15,7 +15,7 @@ const meta = {
 	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
 	decorators: [
-		(Story) => {
+		(Story, { args }) => {
 			const RemixStub = createRemixStub([
 				{
 					path: '/*',
@@ -27,7 +27,10 @@ const meta = {
 				},
 			])
 
-			return <RemixStub initialEntries={['/overview']} />
+			const totalPages = args.total / 10
+			const middlePage = Math.floor(totalPages / 2)
+
+			return <RemixStub initialEntries={[`/overview?page=${middlePage}`]} />
 		},
 	],
 	// More on argTypes: https://storybook.js.org/docs/api/argtypes
