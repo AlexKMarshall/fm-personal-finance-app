@@ -37,14 +37,10 @@ export function Pagination({
 	const { page: currentPage, size } = parsedSearchParamsResult.value
 	const pageCount = Math.ceil(total / size)
 
-	// const maxPages = 7
-
-	const pages = generatePages({ currentPage, pageCount })
-
 	return (
-		<div className="flex gap-4">
+		<div className="flex gap-2 sm:gap-4">
 			<Link
-				className="group inline-flex items-center gap-4 rounded-lg border border-beige-500 px-4 py-2 text-sm leading-normal hover:bg-beige-500 hover:text-white"
+				className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white sm:px-4 sm:py-2"
 				to={{
 					search: setSearchParamsString(searchParams, {
 						page: Math.max(currentPage - 1, 1),
@@ -55,26 +51,21 @@ export function Pagination({
 					name="CaretLeft"
 					className="size-4 text-gray-500 group-hover:text-white"
 				/>
-				Prev
+				<span className="sr-only sm:not-sr-only">Prev</span>
 			</Link>
-			<div className="flex gap-2">
-				{pages.map((page) => {
-					if (typeof page === 'number') {
-						return (
-							<Link
-								key={page}
-								to={{
-									search: setSearchParamsString(searchParams, { page }),
-								}}
-								aria-current={currentPage === page ? 'page' : undefined}
-								className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500 hover:bg-beige-500 hover:text-white aria-[current]:border-transparent aria-[current]:bg-gray-900 aria-[current]:text-white"
-							>
-								{page}
-							</Link>
-						)
-					}
-					return <span key={page}>&hellip;</span>
-				})}
+			<div className="hidden sm:block">
+				<PageNumbers
+					currentPage={currentPage}
+					pageCount={pageCount}
+					maxPages={7}
+				/>
+			</div>
+			<div className="sm:hidden">
+				<PageNumbers
+					currentPage={currentPage}
+					pageCount={pageCount}
+					maxPages={5}
+				/>
 			</div>
 			<Link
 				to={{
@@ -82,14 +73,56 @@ export function Pagination({
 						page: Math.min(currentPage + 1, pageCount),
 					}),
 				}}
-				className="group inline-flex items-center gap-4 rounded-lg border border-beige-500 px-4 py-2 text-sm leading-normal hover:bg-beige-500 hover:text-white"
+				className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white sm:px-4 sm:py-2"
 			>
-				Next
+				<span className="sr-only sm:not-sr-only">Next</span>
 				<Icon
 					name="CaretRight"
 					className="size-4 text-gray-500 group-hover:text-white"
 				/>
 			</Link>
+		</div>
+	)
+}
+
+function PageNumbers({
+	currentPage,
+	pageCount,
+	maxPages,
+}: {
+	currentPage: number
+	pageCount: number
+	maxPages: 5 | 7
+}) {
+	const [searchParams] = useSearchParams()
+	const pages = generatePages({ currentPage, pageCount, maxPages })
+
+	return (
+		<div className="flex gap-2">
+			{pages.map((page) => {
+				if (typeof page === 'number') {
+					return (
+						<Link
+							key={page}
+							to={{
+								search: setSearchParamsString(searchParams, { page }),
+							}}
+							aria-current={currentPage === page ? 'page' : undefined}
+							className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500 hover:bg-beige-500 hover:text-white aria-[current]:border-transparent aria-[current]:bg-gray-900 aria-[current]:text-white"
+						>
+							{page}
+						</Link>
+					)
+				}
+				return (
+					<span
+						className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500"
+						key={page}
+					>
+						&hellip;
+					</span>
+				)
+			})}
 		</div>
 	)
 }
@@ -104,18 +137,30 @@ function getRange(start: number, end: number) {
 function generatePages({
 	currentPage,
 	pageCount,
+	maxPages = 7,
 }: {
 	currentPage: number
 	pageCount: number
+	maxPages?: 5 | 7
 }) {
-	let delta: number
-	if (pageCount <= 7) {
+	let delta: number = 0
+	if (pageCount <= maxPages) {
 		// delta === 7: [1 2 3 4 5 6 7]
-		delta = 7
+		// delta === 5: [1 2 3 4 5]
+		delta = maxPages
 	} else {
+		// Case when maxPages is 7
 		// delta === 2: [1 ... 4 5 6 ... 10]
 		// delta === 4: [1 2 3 4 5 ... 10]
-		delta = currentPage > 4 && currentPage < pageCount - 3 ? 2 : 4
+		// Case when maxPages is 5
+		// delta === 0: [1 ... 4 ...10]
+		// delta === 2: [1 2 3 ... 10]
+		// delta === 2: [1 ...8 9 10]
+		if (maxPages === 7) {
+			delta = currentPage > 4 && currentPage < pageCount - 3 ? 2 : 4
+		} else if (maxPages === 5) {
+			delta = currentPage > 2 && currentPage < pageCount - 1 ? 0 : 2
+		}
 	}
 
 	const range = {
