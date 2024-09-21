@@ -38,49 +38,53 @@ export function Pagination({
 	const pageCount = Math.ceil(total / size)
 
 	return (
-		<div className="flex gap-2 sm:gap-4">
-			<Link
-				className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white sm:px-4 sm:py-2"
-				to={{
-					search: setSearchParamsString(searchParams, {
-						page: Math.max(currentPage - 1, 1),
-					}),
-				}}
-			>
-				<Icon
-					name="CaretLeft"
-					className="size-4 text-gray-500 group-hover:text-white"
-				/>
-				<span className="sr-only sm:not-sr-only">Prev</span>
-			</Link>
-			<div className="hidden sm:block">
+		<div className="flex justify-between gap-2 @container sm:gap-4">
+			<div className="flex flex-grow justify-start @container">
+				<Link
+					className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white @[8rem]:px-4 @[8rem]:py-2"
+					to={{
+						search: setSearchParamsString(searchParams, {
+							page: Math.max(currentPage - 1, 1),
+						}),
+					}}
+				>
+					<Icon
+						name="CaretLeft"
+						className="size-4 text-gray-500 group-hover:text-white"
+					/>
+					<span className="sr-only @[8rem]:not-sr-only">Prev</span>
+				</Link>
+			</div>
+			<div className="hidden @xl:block">
 				<PageNumbers
 					currentPage={currentPage}
 					pageCount={pageCount}
 					maxPages={7}
 				/>
 			</div>
-			<div className="sm:hidden">
+			<div className="hidden @sm:block @xl:hidden">
 				<PageNumbers
 					currentPage={currentPage}
 					pageCount={pageCount}
 					maxPages={5}
 				/>
 			</div>
-			<Link
-				to={{
-					search: setSearchParamsString(searchParams, {
-						page: Math.min(currentPage + 1, pageCount),
-					}),
-				}}
-				className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white sm:px-4 sm:py-2"
-			>
-				<span className="sr-only sm:not-sr-only">Next</span>
-				<Icon
-					name="CaretRight"
-					className="size-4 text-gray-500 group-hover:text-white"
-				/>
-			</Link>
+			<div className="flex flex-grow justify-end @container">
+				<Link
+					to={{
+						search: setSearchParamsString(searchParams, {
+							page: Math.min(currentPage + 1, pageCount),
+						}),
+					}}
+					className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white @[8rem]:px-4 @[8rem]:py-2"
+				>
+					<span className="sr-only @[8rem]:not-sr-only">Next</span>
+					<Icon
+						name="CaretRight"
+						className="size-4 text-gray-500 group-hover:text-white"
+					/>
+				</Link>
+			</div>
 		</div>
 	)
 }
