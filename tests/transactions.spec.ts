@@ -190,6 +190,59 @@ test('sort transactions', async ({ page, signUp, login, seedDatabase }) => {
 		transactionOne.Counterparty.name,
 	])
 })
+test('filter and sort combination', async ({
+	signUp,
+	login,
+	seedDatabase,
+	page,
+}) => {
+	// We want to make sure that changing one control doesn't remove any others
+	const user = await signUp()
+	const transactionOne = makeTransaction({
+		amount: 10_000,
+		date: new Date('2021-01-01'),
+		Counterparty: { name: 'A company' },
+		Category: { name: 'Category One' },
+	})
+	const transactionTwo = makeTransaction({
+		amount: 5_000,
+		date: new Date('2021-01-02'),
+		Counterparty: { name: 'B company' },
+		Category: { name: 'Category One' },
+	})
+	const transactionThree = makeTransaction({
+		amount: -10_000,
+		date: new Date('2021-01-03'),
+		Counterparty: { name: 'C company' },
+		Category: { name: 'Category Two' },
+	})
+
+	await seedDatabase({
+		user,
+		transactions: [transactionOne, transactionTwo, transactionThree],
+	})
+	await login(user)
+
+	const transactionsPage = new TransactionsPage(page)
+
+	await transactionsPage.goto()
+
+	const transactionsUi = transactionsPage.transactions()
+
+	await transactionsPage.filterByCategory('Category One')
+	await transactionsPage.sortBy('A to Z')
+
+	await expect(transactionsUi).toContainText([
+		transactionOne.Counterparty.name,
+		transactionTwo.Counterparty.name,
+	])
+	await expect(
+		transactionsPage.transaction({
+			name: transactionThree.Counterparty.name,
+			amount: transactionThree.amount,
+		}),
+	).toBeHidden()
+})
 
 class TransactionsPage {
 	constructor(private page: Page) {}
@@ -229,7 +282,7 @@ class TransactionsPage {
 	}
 
 	async filterByCategory(category: string) {
-		await this.page.getByLabel(/category/i).click()
+		await this.page.getByRole('button', { name: /category/i }).click()
 		return this.page
 			.getByRole('listbox', { name: /category/i })
 			.getByRole('option', { name: category })
@@ -237,7 +290,7 @@ class TransactionsPage {
 	}
 
 	async sortBy(sort: string) {
-		await this.page.getByLabel(/sort/i).click()
+		await this.page.getByRole('button', { name: /sort by/i }).click()
 		return this.page
 			.getByRole('listbox', { name: /sort by/i })
 			.getByRole('option', { name: sort })

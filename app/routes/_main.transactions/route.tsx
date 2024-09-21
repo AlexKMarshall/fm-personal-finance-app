@@ -125,7 +125,7 @@ export default function TransactionsRoute() {
 						>
 							Sort by
 						</Label>
-						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-48 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
+						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-32 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
 							<Icon name="Sort" className="size-5 sm:hidden" />
 							<SelectValue className="sr-only sm:not-sr-only" />
 							<Icon name="CaretDown" className="hidden size-4 sm:block" />
@@ -136,7 +136,7 @@ export default function TransactionsRoute() {
 									id,
 									label,
 								}))}
-								className="max-h-80 w-48 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px] shadow-black/25"
+								className="max-h-80 w-32 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px] shadow-black/25"
 							>
 								{(item) => (
 									<ListBoxItem
