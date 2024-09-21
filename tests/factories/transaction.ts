@@ -12,7 +12,7 @@ const makeCounterparty: ObjectFactory<{ name: string; avatarUrl: string }> = (
 	}
 }
 
-const makeCategory: ObjectFactory<{ name: string }> = (overrides) => {
+export const makeCategory: ObjectFactory<{ name: string }> = (overrides) => {
 	const name = overrides?.name ?? faker.commerce.department()
 	return {
 		name,

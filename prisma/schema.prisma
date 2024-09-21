@@ -15,8 +15,8 @@ model User {
   name  String
   email String @unique
 
-  Password    Password?
-  Transaction Transaction[]
+  Password     Password?
+  Transactions Transaction[]
 }
 
 model Password {
@@ -45,7 +45,7 @@ model Category {
   id   String @id @default(uuid())
   name String @unique
 
-  Transaction Transaction[]
+  Transactions Transaction[]
 }
 
 model Counterparty {
@@ -53,5 +53,5 @@ model Counterparty {
   name      String @unique
   avatarUrl String
 
-  Transaction Transaction[]
+  Transactions Transaction[]
 }

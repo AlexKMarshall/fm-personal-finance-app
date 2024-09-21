@@ -19,6 +19,7 @@ export default {
 				900: '#201F24',
 			},
 			white: '#FFFFFF',
+			black: '#000000',
 			green: '#277C78',
 			yellow: '#F2CDAC',
 			cyan: '#82C9D7',
