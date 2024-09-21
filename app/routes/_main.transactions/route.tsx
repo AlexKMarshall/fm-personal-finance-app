@@ -1,3 +1,4 @@
+import { matchSorter } from 'match-sorter'
 import {
 	Select,
 	Button as RACButton,
@@ -20,6 +21,7 @@ import { parseWithZod } from '@conform-to/zod'
 import { useRef } from 'react'
 import { Icon } from '~/components/Icon'
 import type { Prisma } from '@prisma/client'
+import { Input } from '~/components/Input'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -31,11 +33,14 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		throw new Error('Invalid search params')
 	}
 
+	const { category, sort, search } = submission.value
+
 	const [transactions, categories] = await Promise.all([
 		getTransactions({
 			userId,
-			category: submission.value.category,
-			sort: submission.value.sort,
+			category,
+			sort,
+			search,
 		}),
 		getCategories({ userId }),
 	])
@@ -61,8 +66,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				value: name.toLocaleLowerCase(),
 			})),
 		],
-		selectedCategory: submission.value.category,
-		selectedSort: submission.value.sort,
+		selectedCategory: category,
+		selectedSort: sort,
+		search,
 	}
 }
 
@@ -87,10 +93,11 @@ const sortOptions = {
 const filterSchema = z.object({
 	category: z.string().optional(),
 	sort: z.enum(sortKeys).optional().default('date:desc'),
+	search: z.string().optional(),
 })
 
 export default function TransactionsRoute() {
-	const { transactions, categories, selectedCategory, selectedSort } =
+	const { transactions, categories, selectedCategory, selectedSort, search } =
 		useLoaderData<typeof loader>()
 	const formRef = useRef<HTMLFormElement>(null)
 	const submit = useSubmit()
@@ -98,17 +105,39 @@ export default function TransactionsRoute() {
 		<>
 			<h1 className="text-3xl font-bold leading-relaxed">Transactions</h1>
 			<Card>
-				<Form ref={formRef} replace className="mb-6 flex justify-end gap-6">
+				<Form ref={formRef} replace className="mb-6 flex flex-wrap gap-6">
+					<Input
+						type="search"
+						name="search"
+						placeholder="Search transaction"
+						aria-label="Search transaction"
+						className="mr-auto basis-80"
+						defaultValue={search ?? ''}
+						onChange={(event) => {
+							if (!formRef.current) {
+								return
+							}
+							const formData = new FormData(formRef.current)
+							const search = event.currentTarget.value
+							if (search) {
+								formData.set('search', search)
+							} else {
+								formData.delete('search')
+							}
+
+							submit(formData, { replace: true })
+						}}
+					/>
 					<Select
 						className="flex items-center gap-2"
 						name="sort"
-						defaultSelectedKey={selectedSort ?? 'latest'}
+						defaultSelectedKey={selectedSort ?? 'date:desc'}
 						aria-labelledby="sort-label"
 						onSelectionChange={(value) => {
 							if (!formRef.current) {
 								return
 							}
-							const formData = new FormData(formRef.current!)
+							const formData = new FormData(formRef.current)
 							if (!value) {
 								formData.delete('sort')
 							} else {
@@ -158,7 +187,7 @@ export default function TransactionsRoute() {
 							if (!formRef.current) {
 								return
 							}
-							const formData = new FormData(formRef.current!)
+							const formData = new FormData(formRef.current)
 							if (!value) {
 								formData.delete('category')
 							} else {
@@ -211,14 +240,16 @@ export default function TransactionsRoute() {
 	)
 }
 
-function getTransactions({
+async function getTransactions({
 	userId,
 	category,
 	sort = 'date:desc',
+	search,
 }: {
 	userId: string
 	category?: string
 	sort?: SortKey
+	search?: string
 }) {
 	function getTransactionOrderBy(
 		sort: SortKey,
@@ -239,40 +270,45 @@ function getTransactions({
 		}
 	}
 
-	return prisma.transaction
-		.findMany({
-			where: {
-				userId,
-			},
-			select: {
-				id: true,
-				Counterparty: {
-					select: {
-						name: true,
-						avatarUrl: true,
-					},
-				},
-				amount: true,
-				date: true,
-				Category: {
-					select: {
-						name: true,
-					},
+	const sortedTransactions = await prisma.transaction.findMany({
+		where: {
+			userId,
+		},
+		select: {
+			id: true,
+			Counterparty: {
+				select: {
+					name: true,
+					avatarUrl: true,
 				},
 			},
-			orderBy: getTransactionOrderBy(sort),
-		})
-		.then(
-			// Filter in memory as SQLite/Prisma doesn't support case-insensitive filtering
-			// The data sets should be small enough for this to be acceptably fast
-			(transactions) =>
-				transactions.filter((transaction) =>
-					category
-						? transaction.Category.name.toLocaleLowerCase() ===
-							category.toLocaleLowerCase()
-						: true,
-				),
-		)
+			amount: true,
+			date: true,
+			Category: {
+				select: {
+					name: true,
+				},
+			},
+		},
+		orderBy: getTransactionOrderBy(sort),
+	})
+	const filteredTransactions = sortedTransactions.filter((transaction) =>
+		category
+			? transaction.Category.name.toLocaleLowerCase() ===
+				category.toLocaleLowerCase()
+			: true,
+	)
+
+	if (!search) {
+		return filteredTransactions
+	}
+
+	const searchedTransactions = matchSorter(filteredTransactions, search, {
+		keys: ['Counterparty.name'],
+		baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+	})
+
+	return searchedTransactions
 }
 
 function getCategories({ userId }: { userId: string }) {
