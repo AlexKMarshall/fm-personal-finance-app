@@ -2,6 +2,7 @@
 
 export const iconNames = [
 	'Transactions',
+	'Sort',
 	'RecurringBills',
 	'Pots',
 	'Overview',
