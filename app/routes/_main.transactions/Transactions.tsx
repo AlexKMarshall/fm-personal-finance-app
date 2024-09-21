@@ -30,7 +30,10 @@ function TransactionsTable({
 	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
 }) {
 	return (
-		<table className={transactionsTableStyles({ className })}>
+		<table
+			className={transactionsTableStyles({ className })}
+			data-testid="transactions"
+		>
 			<thead>
 				<tr className="border-b border-gray-100">
 					<th className="w-1/2 py-3 pl-4 text-left text-xs font-normal text-gray-500">
@@ -94,7 +97,7 @@ export function TransactionsList({
 	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
 }) {
 	return (
-		<ul className={className}>
+		<ul className={className} data-testid="transactions-mobile">
 			{transactions.map((transaction) => (
 				<li
 					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"

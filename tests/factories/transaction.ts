@@ -29,8 +29,8 @@ export const makeTransaction: ObjectFactory<{
 	const amount =
 		overrides?.amount ?? faker.number.int({ min: 10, max: 100_000 })
 	const date = overrides?.date ?? new Date(faker.date.past().toISOString())
-	const Counterparty = overrides?.Counterparty ?? makeCounterparty()
-	const Category = overrides?.Category ?? makeCategory()
+	const Counterparty = makeCounterparty(overrides?.Counterparty)
+	const Category = makeCategory(overrides?.Category)
 	const isRecurring = overrides?.isRecurring ?? faker.datatype.boolean()
 	return {
 		amount,

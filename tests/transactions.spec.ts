@@ -111,6 +111,86 @@ test('filter by category', async ({ page, signUp, login, seedDatabase }) => {
 	}
 })
 
+test('sort transactions', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const transactionOne = makeTransaction({
+		amount: 10_000,
+		date: new Date('2021-01-01'),
+		Counterparty: { name: 'B company' },
+	})
+	const transactionTwo = makeTransaction({
+		amount: 5_000,
+		date: new Date('2021-01-02'),
+		Counterparty: { name: 'A company' },
+	})
+	const transactionThree = makeTransaction({
+		amount: -10_000,
+		date: new Date('2021-01-03'),
+		Counterparty: { name: 'C company' },
+	})
+
+	await seedDatabase({
+		user,
+		transactions: [transactionOne, transactionTwo, transactionThree],
+	})
+	await login(user)
+
+	const transactionsPage = new TransactionsPage(page)
+
+	await transactionsPage.goto()
+
+	const transactionsUi = transactionsPage.transactions()
+
+	// By default transactions are sorted with latest first
+	await expect(transactionsUi).toContainText([
+		transactionThree.Counterparty.name,
+		transactionTwo.Counterparty.name,
+		transactionOne.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('Oldest')
+	await expect(transactionsUi).toContainText([
+		transactionOne.Counterparty.name,
+		transactionTwo.Counterparty.name,
+		transactionThree.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('A to Z')
+	await expect(transactionsUi).toContainText([
+		transactionTwo.Counterparty.name,
+		transactionOne.Counterparty.name,
+		transactionThree.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('Z to A')
+	await expect(transactionsUi).toContainText([
+		transactionThree.Counterparty.name,
+		transactionOne.Counterparty.name,
+		transactionTwo.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('Lowest')
+	await expect(transactionsUi).toContainText([
+		transactionThree.Counterparty.name,
+		transactionTwo.Counterparty.name,
+		transactionOne.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('Highest')
+	await expect(transactionsUi).toContainText([
+		transactionOne.Counterparty.name,
+		transactionTwo.Counterparty.name,
+		transactionThree.Counterparty.name,
+	])
+
+	await transactionsPage.sortBy('Latest')
+	await expect(transactionsUi).toContainText([
+		transactionThree.Counterparty.name,
+		transactionTwo.Counterparty.name,
+		transactionOne.Counterparty.name,
+	])
+})
+
 class TransactionsPage {
 	constructor(private page: Page) {}
 
@@ -141,11 +221,26 @@ class TransactionsPage {
 			.filter({ hasText: formattedAmount })
 	}
 
+	transactions() {
+		if (this.isSmallScreen()) {
+			return this.page.getByTestId('transactions-mobile').getByRole('listitem')
+		}
+		return this.page.getByTestId('transactions').getByRole('row')
+	}
+
 	async filterByCategory(category: string) {
 		await this.page.getByLabel(/category/i).click()
 		return this.page
 			.getByRole('listbox', { name: /category/i })
 			.getByRole('option', { name: category })
+			.click()
+	}
+
+	async sortBy(sort: string) {
+		await this.page.getByLabel(/sort/i).click()
+		return this.page
+			.getByRole('listbox', { name: /sort by/i })
+			.getByRole('option', { name: sort })
 			.click()
 	}
 }

@@ -1,1 +1,3 @@
-export type ObjectFactory<Model> = (overrides?: Partial<Model>) => Model
+import { type PartialDeep } from 'type-fest'
+
+export type ObjectFactory<Model> = (overrides?: PartialDeep<Model>) => Model
