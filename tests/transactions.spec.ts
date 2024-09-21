@@ -190,31 +190,17 @@ test('sort transactions', async ({ page, signUp, login, seedDatabase }) => {
 		transactionOne.Counterparty.name,
 	])
 })
-test('filter and sort combination', async ({
-	signUp,
-	login,
-	seedDatabase,
-	page,
-}) => {
-	// We want to make sure that changing one control doesn't remove any others
+
+test('search transactions', async ({ page, signUp, login, seedDatabase }) => {
 	const user = await signUp()
 	const transactionOne = makeTransaction({
-		amount: 10_000,
-		date: new Date('2021-01-01'),
-		Counterparty: { name: 'A company' },
-		Category: { name: 'Category One' },
+		Counterparty: { name: 'Cat food company' },
 	})
 	const transactionTwo = makeTransaction({
-		amount: 5_000,
-		date: new Date('2021-01-02'),
-		Counterparty: { name: 'B company' },
-		Category: { name: 'Category One' },
+		Counterparty: { name: 'Dog food company' },
 	})
 	const transactionThree = makeTransaction({
-		amount: -10_000,
-		date: new Date('2021-01-03'),
-		Counterparty: { name: 'C company' },
-		Category: { name: 'Category Two' },
+		Counterparty: { name: 'Cat grooming company' },
 	})
 
 	await seedDatabase({
@@ -227,21 +213,112 @@ test('filter and sort combination', async ({
 
 	await transactionsPage.goto()
 
+	const transactionOneUi = transactionsPage.transaction({
+		name: transactionOne.Counterparty.name,
+		amount: transactionOne.amount,
+	})
+	const transactionTwoUi = transactionsPage.transaction({
+		name: transactionTwo.Counterparty.name,
+		amount: transactionTwo.amount,
+	})
+	const transactionThreeUi = transactionsPage.transaction({
+		name: transactionThree.Counterparty.name,
+		amount: transactionThree.amount,
+	})
+
+	await transactionsPage.search('cat')
+	await expect(transactionOneUi).toBeVisible()
+	await expect(transactionTwoUi).toBeHidden()
+	await expect(transactionThreeUi).toBeVisible()
+
+	await transactionsPage.search('food')
+	await expect(transactionOneUi).toBeVisible()
+	await expect(transactionTwoUi).toBeVisible()
+	await expect(transactionThreeUi).toBeHidden()
+})
+
+test('filter,search, and sort combination', async ({
+	signUp,
+	login,
+	seedDatabase,
+	page,
+}) => {
+	// We want to make sure that changing one control doesn't remove any others
+	const user = await signUp()
+	const transactionOne = makeTransaction({
+		amount: 100,
+		date: new Date('2021-01-01'),
+		Counterparty: { name: 'Cat food' },
+		Category: { name: 'Category One' },
+	})
+	const transactionTwo = makeTransaction({
+		amount: 200,
+		date: new Date('2021-01-02'),
+		Counterparty: { name: 'Dog food' },
+		Category: { name: 'Category One' },
+	})
+	const transactionThree = makeTransaction({
+		amount: 300,
+		date: new Date('2021-01-02'),
+		Counterparty: { name: 'Cat food' },
+		Category: { name: 'Category Two' },
+	})
+	const transactionFour = makeTransaction({
+		amount: 400,
+		date: new Date('2021-01-02'),
+		Counterparty: { name: 'Fishing supplies' },
+		Category: { name: 'Category One' },
+	})
+	const transactionFive = makeTransaction({
+		amount: 500,
+		date: new Date('2021-01-03'),
+		Counterparty: { name: 'Fishing supplies' },
+		Category: { name: 'Category Two' },
+	})
+
+	await seedDatabase({
+		user,
+		transactions: [
+			transactionOne,
+			transactionTwo,
+			transactionThree,
+			transactionFour,
+			transactionFive,
+		],
+	})
+	await login(user)
+
+	const transactionsPage = new TransactionsPage(page)
+
+	await transactionsPage.goto()
+
 	const transactionsUi = transactionsPage.transactions()
 
 	await transactionsPage.filterByCategory('Category One')
-	await transactionsPage.sortBy('A to Z')
+	await transactionsPage.sortBy('Oldest')
+	await transactionsPage.search('food')
 
-	await expect(transactionsUi).toContainText([
-		transactionOne.Counterparty.name,
-		transactionTwo.Counterparty.name,
-	])
-	await expect(
-		transactionsPage.transaction({
-			name: transactionThree.Counterparty.name,
-			amount: transactionThree.amount,
-		}),
-	).toBeHidden()
+	const visibleTransactions = [transactionOne, transactionTwo]
+	const hiddenTransactions = [
+		transactionThree,
+		transactionFour,
+		transactionFive,
+	]
+
+	// Visible transactions appear in order
+	await expect(transactionsUi).toContainText(
+		visibleTransactions.map((t) => t.Counterparty.name),
+	)
+
+	// The rest are hidden
+	for (const transaction of hiddenTransactions) {
+		await expect(
+			transactionsPage.transaction({
+				name: transaction.Counterparty.name,
+				amount: transaction.amount,
+			}),
+		).toBeHidden()
+	}
 })
 
 class TransactionsPage {
@@ -295,5 +372,11 @@ class TransactionsPage {
 			.getByRole('listbox', { name: /sort by/i })
 			.getByRole('option', { name: sort })
 			.click()
+	}
+
+	search(search: string) {
+		return this.page
+			.getByRole('searchbox', { name: /search transaction/i })
+			.fill(search)
 	}
 }
