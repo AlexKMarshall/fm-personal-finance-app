@@ -3,6 +3,7 @@ import { useSearchParams, Link } from '@remix-run/react'
 
 import { z } from 'zod'
 import { Icon } from './Icon'
+import { tv } from 'tailwind-variants'
 
 const paginationSchema = z.object({
 	page: z.coerce.number().optional().default(1),
@@ -19,6 +20,30 @@ function setSearchParamsString(
 
 	return newSearchParams.toString()
 }
+
+const paginationStyles = tv({
+	base: 'flex justify-between gap-2 @container sm:gap-4',
+	slots: {
+		number:
+			'aria-[current]:border-transparent aria-[current]:bg-gray-900 aria-[current]:text-white',
+		skip: 'cursor-default',
+		increment: 'group @[8rem]:px-4 @[8rem]:py-2',
+		incrementText: 'sr-only @[8rem]:not-sr-only',
+		icon: 'size-4 text-gray-500 group-hover:text-white group-aria-disabled:group-hover:text-gray-500',
+	},
+	compoundSlots: [
+		{
+			slots: ['number', 'skip', 'increment'],
+			className:
+				'inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal',
+		},
+		{
+			slots: ['increment', 'number'],
+			className:
+				'hover:bg-beige-500 hover:text-white aria-disabled:cursor-default aria-disabled:hover:bg-white aria-disabled:hover:text-gray-900',
+		},
+	],
+})
 
 export function Pagination({
 	total,
@@ -37,23 +62,23 @@ export function Pagination({
 	const { page: currentPage, size } = parsedSearchParamsResult.value
 	const pageCount = Math.ceil(total / size)
 
+	const { base, increment, icon, incrementText } = paginationStyles()
+
 	return (
-		<div className="flex justify-between gap-2 @container sm:gap-4">
+		<div className={base()}>
 			<div className="flex flex-grow justify-start @container">
 				<Link
-					className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white @[8rem]:px-4 @[8rem]:py-2"
+					className={increment()}
 					to={{
 						search: setSearchParamsString(searchParams, {
 							page: Math.max(currentPage - 1, 1),
 						}),
 					}}
+					aria-disabled={currentPage === 1 ? true : undefined}
 					preventScrollReset
 				>
-					<Icon
-						name="CaretLeft"
-						className="size-4 text-gray-500 group-hover:text-white"
-					/>
-					<span className="sr-only @[8rem]:not-sr-only">Prev</span>
+					<Icon name="CaretLeft" className={icon()} />
+					<span className={incrementText()}>Prev</span>
 				</Link>
 			</div>
 			<div className="hidden @xl:block">
@@ -78,13 +103,11 @@ export function Pagination({
 						}),
 					}}
 					preventScrollReset
-					className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white @[8rem]:px-4 @[8rem]:py-2"
+					className={increment()}
+					aria-disabled={currentPage === pageCount ? true : undefined}
 				>
-					<span className="sr-only @[8rem]:not-sr-only">Next</span>
-					<Icon
-						name="CaretRight"
-						className="size-4 text-gray-500 group-hover:text-white"
-					/>
+					<span className={incrementText()}>Next</span>
+					<Icon name="CaretRight" className={icon()} />
 				</Link>
 			</div>
 		</div>
@@ -103,6 +126,8 @@ function PageNumbers({
 	const [searchParams] = useSearchParams()
 	const pages = generatePages({ currentPage, pageCount, maxPages })
 
+	const { number, skip } = paginationStyles()
+
 	return (
 		<div className="flex gap-2">
 			{pages.map((page) => {
@@ -115,17 +140,14 @@ function PageNumbers({
 							}}
 							aria-current={currentPage === page ? 'page' : undefined}
 							preventScrollReset
-							className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500 hover:bg-beige-500 hover:text-white aria-[current]:border-transparent aria-[current]:bg-gray-900 aria-[current]:text-white"
+							className={number()}
 						>
 							{page}
 						</Link>
 					)
 				}
 				return (
-					<span
-						className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500"
-						key={page}
-					>
+					<span className={skip()} key={page}>
 						&hellip;
 					</span>
 				)
