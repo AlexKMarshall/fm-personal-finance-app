@@ -2,9 +2,14 @@
 
 export const iconNames = [
 	'Transactions',
+	'Sort',
 	'RecurringBills',
 	'Pots',
 	'Overview',
+	'Filter',
+	'CaretRight',
+	'CaretLeft',
+	'CaretDown',
 	'Budgets',
 ] as const
 
