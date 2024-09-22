@@ -117,13 +117,13 @@ export default function TransactionsRoute() {
 		<>
 			<h1 className="text-3xl font-bold leading-relaxed">Transactions</h1>
 			<Card>
-				<Form ref={formRef} replace className="mb-6 flex flex-wrap gap-6">
+				<Form ref={formRef} replace className="mb-6 flex gap-6 @container">
 					<Input
 						type="search"
 						name="search"
 						placeholder="Search transaction"
 						aria-label="Search transaction"
-						className="mr-auto basis-80"
+						className="mr-auto min-w-0 flex-shrink basis-80"
 						defaultValue={search ?? ''}
 						onChange={(event) => {
 							if (!formRef.current) {
@@ -160,18 +160,18 @@ export default function TransactionsRoute() {
 						}}
 					>
 						<Label
-							className="sr-only text-sm font-normal sm:not-sr-only"
+							className="sr-only text-sm font-normal @[38rem]:not-sr-only"
 							htmlFor="sort"
 							id="sort-label"
 						>
-							Sort by
+							<span className="whitespace-nowrap">Sort by</span>
 						</Label>
-						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-32 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
-							<Icon name="Sort" className="size-5 sm:hidden" />
-							<SelectValue className="sr-only sm:not-sr-only" />
+						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm @[38rem]:w-32 @[38rem]:border @[38rem]:border-beige-500 @[38rem]:px-5 @[38rem]:py-3">
+							<Icon name="Sort" className="size-5 @[38rem]:hidden" />
+							<SelectValue className="sr-only @[38rem]:not-sr-only" />
 							<Icon
 								name="CaretDown"
-								className="hidden size-4 group-data-[open]:rotate-180 sm:block"
+								className="hidden size-4 group-data-[open]:rotate-180 @[38rem]:block"
 							/>
 						</RACButton>
 						<Popover>
@@ -213,18 +213,18 @@ export default function TransactionsRoute() {
 						}}
 					>
 						<Label
-							className="sr-only text-sm font-normal sm:not-sr-only"
+							className="sr-only text-sm font-normal @[38rem]:not-sr-only"
 							htmlFor="category"
 							id="category-label"
 						>
 							Category
 						</Label>
-						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-48 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
-							<Icon name="Filter" className="size-5 sm:hidden" />
-							<SelectValue className="sr-only sm:not-sr-only" />
+						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm @[38rem]:w-48 @[38rem]:border @[38rem]:border-beige-500 @[38rem]:px-5 @[38rem]:py-3">
+							<Icon name="Filter" className="size-5 @[38rem]:hidden" />
+							<SelectValue className="sr-only @[38rem]:not-sr-only" />
 							<Icon
 								name="CaretDown"
-								className="hidden size-4 group-data-[open]:rotate-180 sm:block"
+								className="hidden size-4 group-data-[open]:rotate-180 @[38rem]:block"
 							/>
 						</RACButton>
 						<Popover>
