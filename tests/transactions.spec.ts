@@ -320,6 +320,27 @@ test('filter,search, and sort combination', async ({
 		).toBeHidden()
 	}
 })
+test('pagination', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	// 2 full pages and one partial page
+	const transactions = Array.from({ length: 25 }, () => makeTransaction())
+	await seedDatabase({ user, transactions })
+	await login(user)
+
+	const transactionsPage = new TransactionsPage(page)
+
+	await transactionsPage.goto()
+
+	const transactionsUi = transactionsPage.transactions()
+
+	await expect(transactionsUi).toHaveCount(10)
+
+	await transactionsPage.nextPage()
+	await expect(transactionsUi).toHaveCount(10)
+
+	await transactionsPage.nextPage()
+	await expect(transactionsUi).toHaveCount(5)
+})
 
 class TransactionsPage {
 	constructor(private page: Page) {}
@@ -355,7 +376,10 @@ class TransactionsPage {
 		if (this.isSmallScreen()) {
 			return this.page.getByTestId('transactions-mobile').getByRole('listitem')
 		}
-		return this.page.getByTestId('transactions').getByRole('row')
+		return this.page
+			.getByTestId('transactions')
+			.getByRole('row')
+			.filter({ hasNotText: 'Recipient / Sender' }) // Exclude the header row, for some reason filtering by hasNot role 'columnheader' isn't working
 	}
 
 	async filterByCategory(category: string) {
@@ -378,5 +402,13 @@ class TransactionsPage {
 		return this.page
 			.getByRole('searchbox', { name: /search transaction/i })
 			.fill(search)
+	}
+
+	nextPage() {
+		return this.page.getByRole('link', { name: /next/i }).click()
+	}
+
+	previousPage() {
+		return this.page.getByRole('link', { name: /prev/i }).click()
 	}
 }
