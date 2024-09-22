@@ -75,6 +75,6 @@
 		"vite-tsconfig-paths": "5.0.1"
 	},
 	"engines": {
-		"node": "22.8.0"
+		"node": "22.9.0"
 	}
 }
