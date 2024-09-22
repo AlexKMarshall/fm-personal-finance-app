@@ -1,0 +1,17 @@
+node_modules
+
+/.cache
+/build
+.env
+
+.turbo
+
+# Prisma
+dev.db
+dev.db-journal
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+*storybook.log

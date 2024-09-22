@@ -15,9 +15,12 @@ const rawEnvironment = {
 const parsedEnvironmentResult = schema.safeParse(rawEnvironment)
 
 if (!parsedEnvironmentResult.success) {
-	throw new Error('Environment variables invalid', {
-		cause: parsedEnvironmentResult.error,
-	})
+	throw new Error(
+		`Environment variables invalid ${JSON.stringify(parsedEnvironmentResult.error, null, 2)}`,
+		{
+			cause: parsedEnvironmentResult.error,
+		},
+	)
 }
 
 export const environment = parsedEnvironmentResult.data
