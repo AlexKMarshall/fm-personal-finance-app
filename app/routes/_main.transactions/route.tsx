@@ -22,6 +22,7 @@ import { useRef } from 'react'
 import { Icon } from '~/components/Icon'
 import type { Prisma } from '@prisma/client'
 import { Input } from '~/components/Input'
+import { Pagination } from '~/components/Pagination'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -33,14 +34,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		throw new Error('Invalid search params')
 	}
 
-	const { category, sort, search } = submission.value
+	const { category, sort, search, page, size } = submission.value
 
-	const [transactions, categories] = await Promise.all([
+	const [{ count, items: transactions }, categories] = await Promise.all([
 		getTransactions({
 			userId,
 			category,
 			sort,
 			search,
+			page,
+			size,
 		}),
 		getCategories({ userId }),
 	])
@@ -69,6 +72,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		selectedCategory: category,
 		selectedSort: sort,
 		search,
+		count,
 	}
 }
 
@@ -94,11 +98,19 @@ const filterSchema = z.object({
 	category: z.string().optional(),
 	sort: z.enum(sortKeys).optional().default('date:desc'),
 	search: z.string().optional(),
+	page: z.coerce.number().default(1),
+	size: z.coerce.number().default(10),
 })
 
 export default function TransactionsRoute() {
-	const { transactions, categories, selectedCategory, selectedSort, search } =
-		useLoaderData<typeof loader>()
+	const {
+		transactions,
+		categories,
+		selectedCategory,
+		selectedSort,
+		search,
+		count,
+	} = useLoaderData<typeof loader>()
 	const formRef = useRef<HTMLFormElement>(null)
 	const submit = useSubmit()
 	return (
@@ -129,7 +141,7 @@ export default function TransactionsRoute() {
 						}}
 					/>
 					<Select
-						className="flex items-center gap-2"
+						className="group flex items-center gap-2"
 						name="sort"
 						defaultSelectedKey={selectedSort ?? 'date:desc'}
 						aria-labelledby="sort-label"
@@ -157,7 +169,10 @@ export default function TransactionsRoute() {
 						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-32 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
 							<Icon name="Sort" className="size-5 sm:hidden" />
 							<SelectValue className="sr-only sm:not-sr-only" />
-							<Icon name="CaretDown" className="hidden size-4 sm:block" />
+							<Icon
+								name="CaretDown"
+								className="hidden size-4 group-data-[open]:rotate-180 sm:block"
+							/>
 						</RACButton>
 						<Popover>
 							<ListBox
@@ -179,7 +194,7 @@ export default function TransactionsRoute() {
 						</Popover>
 					</Select>
 					<Select
-						className="flex items-center gap-2"
+						className="group flex items-center gap-2"
 						name="category"
 						defaultSelectedKey={selectedCategory ?? ''}
 						aria-labelledby="category-label"
@@ -205,17 +220,12 @@ export default function TransactionsRoute() {
 							Category
 						</Label>
 						<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm sm:w-48 sm:border sm:border-beige-500 sm:px-5 sm:py-3">
-							<SelectValue>
-								{({ isPlaceholder, defaultChildren }) => (
-									<>
-										<Icon name="Filter" className="size-5 sm:hidden" />
-										<span className="sr-only sm:not-sr-only">
-											{isPlaceholder ? 'All Transactions' : defaultChildren}
-										</span>
-									</>
-								)}
-							</SelectValue>
-							<Icon name="CaretDown" className="hidden size-4 sm:block" />
+							<Icon name="Filter" className="size-5 sm:hidden" />
+							<SelectValue className="sr-only sm:not-sr-only" />
+							<Icon
+								name="CaretDown"
+								className="hidden size-4 group-data-[open]:rotate-180 sm:block"
+							/>
 						</RACButton>
 						<Popover>
 							<ListBox
@@ -234,7 +244,8 @@ export default function TransactionsRoute() {
 						</Popover>
 					</Select>
 				</Form>
-				<Transactions transactions={transactions} />
+				<Transactions transactions={transactions} className="mb-12" />
+				<Pagination total={count} />
 			</Card>
 		</>
 	)
@@ -245,11 +256,15 @@ async function getTransactions({
 	category,
 	sort = 'date:desc',
 	search,
+	page,
+	size,
 }: {
 	userId: string
 	category?: string
 	sort?: SortKey
 	search?: string
+	page: number
+	size: number
 }) {
 	function getTransactionOrderBy(
 		sort: SortKey,
@@ -300,7 +315,7 @@ async function getTransactions({
 	)
 
 	if (!search) {
-		return filteredTransactions
+		return paginate(filteredTransactions, { page, size })
 	}
 
 	const searchedTransactions = matchSorter(filteredTransactions, search, {
@@ -308,7 +323,21 @@ async function getTransactions({
 		baseSort: (a, b) => (a.index < b.index ? -1 : 1),
 	})
 
-	return searchedTransactions
+	return paginate(searchedTransactions, { page, size })
+}
+
+function paginate<T>(
+	items: T[],
+	{ page, size }: { page: number; size: number },
+) {
+	const start = (page - 1) * size
+	const end = start + size
+	const paginatedItems = items.slice(start, end)
+
+	return {
+		items: paginatedItems,
+		count: items.length,
+	}
 }
 
 function getCategories({ userId }: { userId: string }) {

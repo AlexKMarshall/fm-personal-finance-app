@@ -4,11 +4,13 @@ import { tv } from 'tailwind-variants'
 
 export function Transactions({
 	transactions,
+	className,
 }: {
 	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
+	className?: string
 }) {
 	return (
-		<div>
+		<div className={className}>
 			<TransactionsTable
 				transactions={transactions}
 				className="hidden sm:table"

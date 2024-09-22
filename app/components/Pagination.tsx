@@ -47,6 +47,7 @@ export function Pagination({
 							page: Math.max(currentPage - 1, 1),
 						}),
 					}}
+					preventScrollReset
 				>
 					<Icon
 						name="CaretLeft"
@@ -76,6 +77,7 @@ export function Pagination({
 							page: Math.min(currentPage + 1, pageCount),
 						}),
 					}}
+					preventScrollReset
 					className="group inline-flex min-h-10 min-w-10 items-center justify-center gap-4 rounded-lg border border-beige-500 text-sm leading-normal hover:bg-beige-500 hover:text-white @[8rem]:px-4 @[8rem]:py-2"
 				>
 					<span className="sr-only @[8rem]:not-sr-only">Next</span>
@@ -112,6 +114,7 @@ function PageNumbers({
 								search: setSearchParamsString(searchParams, { page }),
 							}}
 							aria-current={currentPage === page ? 'page' : undefined}
+							preventScrollReset
 							className="grid aspect-square size-10 place-items-center rounded-lg border border-beige-500 hover:bg-beige-500 hover:text-white aria-[current]:border-transparent aria-[current]:bg-gray-900 aria-[current]:text-white"
 						>
 							{page}
