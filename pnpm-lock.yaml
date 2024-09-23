@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@conform-to/react':
-        specifier: 1.2.1
-        version: 1.2.1(react@18.3.1)
+        specifier: 1.2.2
+        version: 1.2.2(react@18.3.1)
       '@conform-to/zod':
         specifier: 1.2.2
         version: 1.2.2(zod@3.23.8)
@@ -393,14 +393,11 @@ packages:
     resolution: {integrity: sha512-7bPIliISedeIpnVKbzktysFYW5n56bN91kxuOj1XXKixmjbUHRUMvcXd4K2liN6MiR5ZqJtmtcPsZ6CebbGlEA==}
     engines: {node: '>=16.0.0', yarn: '>=1.22.18'}
 
-  '@conform-to/dom@1.2.1':
-    resolution: {integrity: sha512-/G9LDwxqSV23a3y8hdXNhZ9ilQZAKyYgtNozGWzTNu+Y/r7P3y3qQcF3lET6qwNJAVyzt32SCoiwfriv05gXtA==}
-
   '@conform-to/dom@1.2.2':
     resolution: {integrity: sha512-f05EClpNP31o6lX4LYmmLqgsiTOHdGfY7z2XXK6U6rRp+EtxrkUBdrFlIGsfkf7e9AFO19h3/Cb/cXHVd1k1FA==}
 
-  '@conform-to/react@1.2.1':
-    resolution: {integrity: sha512-eoqnfdo31n+Rmzb7R6dzPWtV62GcQOM2PnPIwTacqSRWmL3x8WPOWoQAHaWHLk6DvcGxpaD16hHA8+itrraxCw==}
+  '@conform-to/react@1.2.2':
+    resolution: {integrity: sha512-1JBECb3NKi5/IlexaYLgnAxGJ55MRuO2sEQ10cJfUK2bfltNbTIQnYUDG6pU886A4lda/q6UH/adPsjiB/4Gkg==}
     peerDependencies:
       react: '>=18'
 
@@ -4948,13 +4945,11 @@ snapshots:
       - '@chromatic-com/playwright'
       - react
 
-  '@conform-to/dom@1.2.1': {}
-
   '@conform-to/dom@1.2.2': {}
 
-  '@conform-to/react@1.2.1(react@18.3.1)':
+  '@conform-to/react@1.2.2(react@18.3.1)':
     dependencies:
-      '@conform-to/dom': 1.2.1
+      '@conform-to/dom': 1.2.2
       react: 18.3.1
 
   '@conform-to/zod@1.2.2(zod@3.23.8)':
