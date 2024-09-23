@@ -50,6 +50,35 @@ test('Only recurring bills are shown', async ({
 	await expect(nonRecurringTransactionUI).toBeHidden()
 })
 
+test('Only one instance of a recurring bill is shown', async ({
+	page,
+	signUp,
+	login,
+	seedDatabase,
+}) => {
+	const user = await signUp()
+	const thisMonthBill = makeTransaction({
+		date: new Date('2024-01-10'),
+		isRecurring: true,
+	})
+	const lastMonthBill = makeTransaction({
+		...thisMonthBill,
+		date: new Date('2023-12-10'),
+	})
+
+	await seedDatabase({
+		transactions: [thisMonthBill, lastMonthBill],
+		user,
+	})
+	await login(user)
+
+	const recurringBillsPage = new RecurringBillsPage(page)
+
+	await recurringBillsPage.goto()
+
+	await expect(recurringBillsPage.recurringBills()).toHaveCount(1)
+})
+
 class RecurringBillsPage {
 	constructor(private page: Page) {}
 
@@ -78,5 +107,17 @@ class RecurringBillsPage {
 			.getByRole('row')
 			.filter({ hasText: name })
 			.filter({ hasText: formattedAmount })
+	}
+
+	recurringBills() {
+		if (this.isSmallScreen()) {
+			return this.page
+				.getByTestId('recurring-bills-mobile')
+				.getByRole('listitem')
+		}
+		return this.page
+			.getByTestId('recurring-bills')
+			.getByRole('row')
+			.filter({ hasNotText: 'Bill Title' }) // Exclude the header row, for some reason filtering by hasNot role 'columnheader' isn't working
 	}
 }

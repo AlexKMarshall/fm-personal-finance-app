@@ -3,7 +3,7 @@ import { useLoaderData } from '@remix-run/react'
 import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
 import { prisma } from '~/db/prisma.server'
-import { formatCurrency, formatDate } from '~/utils/format'
+import { formatCurrency, formatDayOfMonth } from '~/utils/format'
 import { RecurringBills } from './RecurringBills'
 import { addDays, addMonths, isBefore, startOfMonth, subMonths } from 'date-fns'
 
@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		({ id, Counterparty, amount, date, status }) => ({
 			id,
 			name: Counterparty.name,
-			date: formatDate(date),
+			date: `Monthly - ${formatDayOfMonth(date)}`,
 			amount: formatCurrency(Math.abs(amount)),
 			avatar: Counterparty.avatarUrl,
 			status,
