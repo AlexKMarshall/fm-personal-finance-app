@@ -7,6 +7,8 @@ export const iconNames = [
 	'Pots',
 	'Overview',
 	'Filter',
+	'Exclamation',
+	'Check',
 	'CaretRight',
 	'CaretLeft',
 	'CaretDown',

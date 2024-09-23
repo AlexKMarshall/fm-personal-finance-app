@@ -10,3 +10,7 @@ export function formatCurrency(amountInCents: number) {
 export function formatDate(date: Date | string) {
 	return format(new Date(date), 'd MMMM yyyy')
 }
+
+export function formatDayOfMonth(date: Date | string) {
+	return format(new Date(date), 'do')
+}
