@@ -116,7 +116,7 @@ export default function TransactionsRoute() {
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-relaxed">Transactions</h1>
-			<Card>
+			<Card theme="light">
 				<Form ref={formRef} replace className="mb-6 flex gap-6 @container">
 					<Input
 						type="search"

@@ -33,7 +33,7 @@ export default function Overview() {
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-relaxed">Recurring bills</h1>
-			<Card>
+			<Card theme="light">
 				<RecurringBills recurringBills={recurringBills} />
 			</Card>
 		</>
