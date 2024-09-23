@@ -7,6 +7,8 @@ import { formatCurrency, formatDayOfMonth } from '~/utils/format'
 import { RecurringBills } from './RecurringBills'
 import { addDays, addMonths, isBefore, startOfMonth, subMonths } from 'date-fns'
 import { Icon } from '~/components/Icon'
+import { tv } from 'tailwind-variants'
+import { useContext, createContext, type ReactNode } from 'react'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -29,12 +31,43 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	const totalBills = formatCurrency(
 		recurringBills.reduce((total, { amount }) => total + Math.abs(amount), 0),
 	)
+	const paidBills = {
+		count: recurringBills.filter((bill) => bill.status === 'paid').length,
+		total: formatCurrency(
+			recurringBills
+				.filter((bill) => bill.status === 'paid')
+				.reduce((total, { amount }) => total + Math.abs(amount), 0),
+		),
+	}
+	const upcomingBills = {
+		count: recurringBills.filter((bill) => bill.status === 'upcoming').length,
+		total: formatCurrency(
+			recurringBills
+				.filter((bill) => bill.status === 'upcoming')
+				.reduce((total, { amount }) => total + Math.abs(amount), 0),
+		),
+	}
+	const soonBills = {
+		count: recurringBills.filter((bill) => bill.status === 'soon').length,
+		total: formatCurrency(
+			recurringBills
+				.filter((bill) => bill.status === 'soon')
+				.reduce((total, { amount }) => total + Math.abs(amount), 0),
+		),
+	}
 
-	return json({ recurringBills: formattedRecurringBills, totalBills })
+	return json({
+		recurringBills: formattedRecurringBills,
+		totalBills,
+		paidBills,
+		upcomingBills,
+		soonBills,
+	})
 }
 
 export default function Overview() {
-	const { recurringBills, totalBills } = useLoaderData<typeof loader>()
+	const { recurringBills, totalBills, paidBills, upcomingBills, soonBills } =
+		useLoaderData<typeof loader>()
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-tight">Recurring Bills</h1>
@@ -51,11 +84,107 @@ export default function Overview() {
 				</div>
 			</Card>
 			<Card theme="light">
+				<h2 className="font-bold">Summary</h2>
+				<dl>
+					<SummaryItem>
+						<SummaryItem.Title>Total Paid</SummaryItem.Title>
+						<SummaryItem.Amount
+							count={paidBills.count}
+							total={paidBills.total}
+						/>
+					</SummaryItem>
+					<SummaryItem>
+						<SummaryItem.Title>Total Upcoming</SummaryItem.Title>
+						<SummaryItem.Amount
+							count={upcomingBills.count}
+							total={upcomingBills.total}
+						/>
+					</SummaryItem>
+					<SummaryItem color="red">
+						<SummaryItem.Title>Due Soon</SummaryItem.Title>
+						<SummaryItem.Amount
+							count={soonBills.count}
+							total={soonBills.total}
+						/>
+					</SummaryItem>
+				</dl>
+			</Card>
+			<Card theme="light">
 				<RecurringBills recurringBills={recurringBills} />
 			</Card>
 		</>
 	)
 }
+
+const summaryItemStyles = tv({
+	slots: {
+		base: 'flex justify-between',
+		title: 'text-xs',
+		amount: 'text-xs font-bold',
+	},
+	variants: {
+		color: {
+			gray: {
+				title: 'text-gray-500',
+			},
+			red: {
+				title: 'text-red',
+				amount: 'text-red',
+			},
+		},
+	},
+	defaultVariants: {
+		color: 'gray',
+	},
+})
+
+const SummaryItemContext = createContext<{ color: 'gray' | 'red' } | null>(null)
+function useSummaryItemContext() {
+	const context = useContext(SummaryItemContext)
+	if (!context) {
+		throw new Error('useSummaryItemContext must be used within a SummaryItem')
+	}
+	return context
+}
+
+function SummaryItem({
+	className,
+	color = 'gray',
+	children,
+}: {
+	className?: string
+	color?: 'gray' | 'red'
+	children: ReactNode
+}) {
+	const styles = summaryItemStyles({ color })
+	return (
+		<SummaryItemContext.Provider value={{ color }}>
+			<div
+				className={styles.base({ className, color })}
+				data-testid="definitionListItem"
+			>
+				{children}
+			</div>
+		</SummaryItemContext.Provider>
+	)
+}
+
+function SummaryItemTitle({ children }: { children: ReactNode }) {
+	const { color } = useSummaryItemContext()
+	const styles = summaryItemStyles({ color })
+	return <dt className={styles.title({ color })}>{children}</dt>
+}
+function SummaryItemAmount({ count, total }: { count: number; total: string }) {
+	const { color } = useSummaryItemContext()
+	const styles = summaryItemStyles({ color })
+	return (
+		<dd className={styles.amount({ color })}>
+			{count} ({total})
+		</dd>
+	)
+}
+SummaryItem.Title = SummaryItemTitle
+SummaryItem.Amount = SummaryItemAmount
 
 async function getLatestTransactionDate(userId: string) {
 	const latestTransaction = await prisma.transaction.findFirst({
