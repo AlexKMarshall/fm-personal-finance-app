@@ -22,7 +22,7 @@
 		"build-storybook": "storybook build"
 	},
 	"dependencies": {
-		"@conform-to/react": "1.2.1",
+		"@conform-to/react": "1.2.2",
 		"@conform-to/zod": "1.2.1",
 		"@prisma/client": "5.19.1",
 		"@remix-run/node": "2.12.1",
