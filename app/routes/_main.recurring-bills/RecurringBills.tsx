@@ -137,12 +137,12 @@ export function RecurringBill({
 			<p className="text-sm font-bold leading-normal [grid-area:name]">
 				{name}
 			</p>
-			<p className="flex gap-2 text-xs leading-normal text-green [grid-area:date]">
+			<p className="flex items-center gap-2 text-xs leading-normal text-green [grid-area:date]">
 				{date} <BillStatusIcon status={status} />
 			</p>
 			<p
 				className={clsx(
-					'justify-self-end text-sm font-bold leading-normal [grid-area:amount]',
+					'items-center justify-self-end text-sm font-bold leading-normal [grid-area:amount]',
 					{
 						'text-red': status === 'overdue' || status === 'soon',
 					},
