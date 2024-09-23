@@ -115,7 +115,7 @@ export default function TransactionsRoute() {
 	const submit = useSubmit()
 	return (
 		<>
-			<h1 className="text-3xl font-bold leading-relaxed">Transactions</h1>
+			<h1 className="text-3xl font-bold leading-tight">Transactions</h1>
 			<Card theme="light">
 				<Form ref={formRef} replace className="mb-6 flex gap-6 @container">
 					<Input
