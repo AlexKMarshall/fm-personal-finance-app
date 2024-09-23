@@ -79,6 +79,31 @@ test('Only one instance of a recurring bill is shown', async ({
 	await expect(recurringBillsPage.recurringBills()).toHaveCount(1)
 })
 
+test('calculated totals', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const billOne = makeTransaction({
+		date: new Date('2024-01-10'),
+		isRecurring: true,
+		amount: 100 * 100,
+	})
+	const billTwo = makeTransaction({
+		date: new Date('2024-01-20'),
+		isRecurring: true,
+		amount: 200 * 100,
+	})
+	await seedDatabase({
+		transactions: [billOne, billTwo],
+		user,
+	})
+	await login(user)
+
+	const recurringBillsPage = new RecurringBillsPage(page)
+
+	await recurringBillsPage.goto()
+
+	await expect(recurringBillsPage.totalBillsSection()).toContainText('$300.00')
+})
+
 class RecurringBillsPage {
 	constructor(private page: Page) {}
 
@@ -119,5 +144,11 @@ class RecurringBillsPage {
 			.getByTestId('recurring-bills')
 			.getByRole('row')
 			.filter({ hasNotText: 'Bill Title' }) // Exclude the header row, for some reason filtering by hasNot role 'columnheader' isn't working
+	}
+
+	totalBillsSection() {
+		return this.page
+			.getByTestId('total-bills')
+			.filter({ has: this.page.getByRole('heading', { name: /total bills/i }) })
 	}
 }

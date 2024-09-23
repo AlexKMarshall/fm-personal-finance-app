@@ -4,6 +4,7 @@ export const iconNames = [
 	'Transactions',
 	'Sort',
 	'RecurringBills',
+	'RecurringBillsOutline',
 	'Pots',
 	'Overview',
 	'Filter',
