@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { type ComponentProps } from 'react'
+import { type ComponentProps, type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 
 export function Transactions({
@@ -153,5 +153,67 @@ export function Transaction({
 				{date}
 			</p>
 		</div>
+	)
+}
+
+export function TransactionCardSimple({
+	name,
+	date,
+	amount,
+	avatar,
+}: {
+	name: string
+	date: string
+	amount: string
+	avatar: string
+}) {
+	const direction = amount.startsWith('-') ? 'debit' : 'credit'
+	return (
+		<div className="grid grid-cols-[2rem_1fr_auto] items-center gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_name_date']">
+			<img
+				src={avatar}
+				alt=""
+				className="size-8 shrink-0 self-center rounded-full [grid-area:avatar]"
+			/>
+			<p className="text-sm font-bold leading-normal [grid-area:name]">
+				{name}
+			</p>
+			<p
+				className={clsx(
+					'justify-self-end text-sm font-bold leading-normal [grid-area:amount]',
+					{
+						'text-green': direction === 'credit',
+					},
+				)}
+			>
+				{amount}
+			</p>
+			<p className="justify-self-end text-xs leading-normal text-gray-500 [grid-area:date]">
+				{date}
+			</p>
+		</div>
+	)
+}
+
+export function List<ItemType extends { id: string }>({
+	className,
+	items,
+	renderItem,
+}: {
+	className?: string
+	items: Array<ItemType>
+	renderItem: (item: ItemType) => ReactNode
+}) {
+	return (
+		<ul className={className} data-testid="transactions-mobile">
+			{items.map((item) => (
+				<li
+					className="border-b border-gray-100 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
+					key={item.id}
+				>
+					{renderItem(item)}
+				</li>
+			))}
+		</ul>
 	)
 }
