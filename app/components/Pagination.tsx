@@ -62,6 +62,10 @@ export function Pagination({
 	const { page: currentPage, size } = parsedSearchParamsResult.value
 	const pageCount = Math.ceil(total / size)
 
+	if (pageCount <= 1) {
+		return null
+	}
+
 	const { base, increment, icon, incrementText } = paginationStyles()
 
 	return (
