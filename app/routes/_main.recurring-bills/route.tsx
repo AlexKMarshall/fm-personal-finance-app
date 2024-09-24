@@ -68,7 +68,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		userId,
 		currentDate,
 		sort,
-		search,
 	})
 
 	const formattedRecurringBills = recurringBills.map(
@@ -197,8 +196,8 @@ export default function Overview() {
 						<Input
 							type="search"
 							name="search"
-							placeholder="Search transaction"
-							aria-label="Search transaction"
+							placeholder="Search bills"
+							aria-label="Search bills"
 							className="mr-auto min-w-0 flex-shrink basis-80"
 							defaultValue={search ?? ''}
 							onChange={(event) => {
