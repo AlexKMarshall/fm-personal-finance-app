@@ -197,6 +197,73 @@ test('sort bills', async ({ page, signUp, login, seedDatabase }) => {
 		paidBill.Counterparty.name,
 	])
 })
+test('search bills', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const billOne = makeTransaction({
+		date: new Date('2024-01-10'),
+		isRecurring: true,
+		Counterparty: { name: 'Cat Food Inc' },
+		amount: 100 * 100,
+	})
+	const billTwo = makeTransaction({
+		date: new Date('2023-12-12'),
+		isRecurring: true,
+		Counterparty: { name: 'Dog Food Inc' },
+		amount: 200 * 100,
+	})
+	const billThree = makeTransaction({
+		date: new Date('2023-12-20'),
+		isRecurring: true,
+		Counterparty: { name: 'Fish Grooming Esq' },
+		amount: 300 * 100,
+	})
+
+	await seedDatabase({
+		transactions: [billOne, billTwo, billThree],
+		user,
+	})
+	await login(user)
+
+	const recurringBillsPage = new RecurringBillsPage(page)
+
+	await recurringBillsPage.goto()
+
+	const billOneUi = await recurringBillsPage.recurringBill({
+		name: billOne.Counterparty.name,
+		amount: billOne.amount,
+	})
+	const billTwoUi = await recurringBillsPage.recurringBill({
+		name: billTwo.Counterparty.name,
+		amount: billTwo.amount,
+	})
+	const billThreeUi = await recurringBillsPage.recurringBill({
+		name: billThree.Counterparty.name,
+		amount: billThree.amount,
+	})
+
+	// Everything is visible to start
+	await expect(billOneUi).toBeVisible()
+	await expect(billTwoUi).toBeVisible()
+	await expect(billThreeUi).toBeVisible()
+	// And the total is correct
+	await expect(recurringBillsPage.totalBillsSection()).toContainText('$600.00')
+
+	await recurringBillsPage.search('Cat')
+	// Only the first bill is visible
+	await expect(billOneUi).toBeVisible()
+	await expect(billTwoUi).toBeHidden()
+	await expect(billThreeUi).toBeHidden()
+	// The total is unchanged
+	await expect(recurringBillsPage.totalBillsSection()).toContainText('$600.00')
+
+	await recurringBillsPage.search('food')
+	// Only the first two bills are visible
+	await expect(billOneUi).toBeVisible()
+	await expect(billTwoUi).toBeVisible()
+	await expect(billThreeUi).toBeHidden()
+	// The total is unchanged
+	await expect(recurringBillsPage.totalBillsSection()).toContainText('$600.00')
+})
 
 class RecurringBillsPage {
 	constructor(private page: Page) {}
@@ -271,5 +338,11 @@ class RecurringBillsPage {
 			.getByRole('listbox', { name: /sort by/i })
 			.getByRole('option', { name: sort })
 			.click()
+	}
+
+	async search(searchTerm: string) {
+		await this.page
+			.getByRole('searchbox', { name: /search bills/i })
+			.fill(searchTerm)
 	}
 }

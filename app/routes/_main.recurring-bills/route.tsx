@@ -22,6 +22,8 @@ import { parseWithZod } from '@conform-to/zod'
 import { paginate } from '~/utils/pagination'
 import { Pagination } from '~/components/Pagination'
 import { Label } from '~/components/Label'
+import { matchSorter } from 'match-sorter'
+import { Input } from '~/components/Input'
 
 const sortKeys = [
 	'date:desc',
@@ -45,6 +47,7 @@ const filterSchema = z.object({
 	page: z.coerce.number().default(1),
 	size: z.coerce.number().default(10),
 	sort: z.enum(sortKeys).optional().default('date:desc'),
+	search: z.string().optional(),
 })
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -57,11 +60,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		throw new Error('Invalid search params')
 	}
 
-	const { page, size, sort } = submission.value
+	const { page, size, sort, search } = submission.value
 
 	const currentDate = await getLatestTransactionDate(userId)
 
-	const recurringBills = await getRecurringBills({ userId, currentDate, sort })
+	const recurringBills = await getRecurringBills({
+		userId,
+		currentDate,
+		sort,
+	})
 
 	const formattedRecurringBills = recurringBills.map(
 		({ id, Counterparty, amount, date, status }) => ({
@@ -102,13 +109,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		),
 	}
 
+	// We search here rather than when getting the bills as search shouldn't impact the totals
+	const searchedBills = search
+		? matchSorter(formattedRecurringBills, search, {
+				keys: ['name'],
+				baseSort: (a, b) => (a.index < b.index ? -1 : 1),
+			})
+		: formattedRecurringBills
+
 	return json({
-		recurringBills: paginate(formattedRecurringBills, { page, size }),
+		recurringBills: paginate(searchedBills, { page, size }),
 		totalBills,
 		paidBills,
 		upcomingBills,
 		soonBills,
 		selectedSort: sort,
+		search,
 	})
 }
 
@@ -120,6 +136,7 @@ export default function Overview() {
 		upcomingBills,
 		soonBills,
 		selectedSort,
+		search,
 	} = useLoaderData<typeof loader>()
 	const formRef = useRef<HTMLFormElement>(null)
 	const submit = useSubmit()
@@ -176,6 +193,28 @@ export default function Overview() {
 						replace
 						className="mb-6 flex justify-end gap-6 @container"
 					>
+						<Input
+							type="search"
+							name="search"
+							placeholder="Search bills"
+							aria-label="Search bills"
+							className="mr-auto min-w-0 flex-shrink basis-80"
+							defaultValue={search ?? ''}
+							onChange={(event) => {
+								if (!formRef.current) {
+									return
+								}
+								const formData = new FormData(formRef.current)
+								const search = event.currentTarget.value
+								if (search) {
+									formData.set('search', search)
+								} else {
+									formData.delete('search')
+								}
+
+								submit(formData, { replace: true })
+							}}
+						/>
 						<Select
 							className="group flex items-center gap-2"
 							name="sort"
