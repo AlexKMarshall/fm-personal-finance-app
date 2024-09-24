@@ -23,6 +23,7 @@ import { Icon } from '~/components/Icon'
 import type { Prisma } from '@prisma/client'
 import { Input } from '~/components/Input'
 import { Pagination } from '~/components/Pagination'
+import { paginate } from '~/utils/pagination'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -324,20 +325,6 @@ async function getTransactions({
 	})
 
 	return paginate(searchedTransactions, { page, size })
-}
-
-function paginate<T>(
-	items: T[],
-	{ page, size }: { page: number; size: number },
-) {
-	const start = (page - 1) * size
-	const end = start + size
-	const paginatedItems = items.slice(start, end)
-
-	return {
-		items: paginatedItems,
-		count: items.length,
-	}
 }
 
 function getCategories({ userId }: { userId: string }) {

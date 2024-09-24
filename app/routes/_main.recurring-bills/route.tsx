@@ -1,5 +1,13 @@
+import {
+	Select,
+	Button as RACButton,
+	SelectValue,
+	Popover,
+	ListBox,
+	ListBoxItem,
+} from 'react-aria-components'
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Form, useLoaderData, useSubmit } from '@remix-run/react'
 import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
 import { prisma } from '~/db/prisma.server'
@@ -8,14 +16,52 @@ import { RecurringBills } from './RecurringBills'
 import { addDays, addMonths, isBefore, startOfMonth, subMonths } from 'date-fns'
 import { Icon } from '~/components/Icon'
 import { tv } from 'tailwind-variants'
-import { useContext, createContext, type ReactNode } from 'react'
+import { useContext, createContext, type ReactNode, useRef } from 'react'
+import { z } from 'zod'
+import { parseWithZod } from '@conform-to/zod'
+import { paginate } from '~/utils/pagination'
+import { Pagination } from '~/components/Pagination'
+import { Label } from '~/components/Label'
+
+const sortKeys = [
+	'date:desc',
+	'date:asc',
+	'name:asc',
+	'name:desc',
+	'amount:desc',
+	'amount:asc',
+] as const
+type SortKey = (typeof sortKeys)[number]
+const sortOptions = {
+	'date:desc': 'Latest',
+	'date:asc': 'Oldest',
+	'name:asc': 'A to Z',
+	'name:desc': 'Z to A',
+	'amount:desc': 'Highest',
+	'amount:asc': 'Lowest',
+} satisfies Record<SortKey, string>
+
+const filterSchema = z.object({
+	page: z.coerce.number().default(1),
+	size: z.coerce.number().default(10),
+	sort: z.enum(sortKeys).optional().default('date:desc'),
+})
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
 
+	const searchParams = new URL(request.url).searchParams
+
+	const submission = parseWithZod(searchParams, { schema: filterSchema })
+	if (submission.status !== 'success') {
+		throw new Error('Invalid search params')
+	}
+
+	const { page, size, sort } = submission.value
+
 	const currentDate = await getLatestTransactionDate(userId)
 
-	const recurringBills = await getRecurringBills({ userId, currentDate })
+	const recurringBills = await getRecurringBills({ userId, currentDate, sort })
 
 	const formattedRecurringBills = recurringBills.map(
 		({ id, Counterparty, amount, date, status }) => ({
@@ -57,17 +103,26 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	}
 
 	return json({
-		recurringBills: formattedRecurringBills,
+		recurringBills: paginate(formattedRecurringBills, { page, size }),
 		totalBills,
 		paidBills,
 		upcomingBills,
 		soonBills,
+		selectedSort: sort,
 	})
 }
 
 export default function Overview() {
-	const { recurringBills, totalBills, paidBills, upcomingBills, soonBills } =
-		useLoaderData<typeof loader>()
+	const {
+		recurringBills,
+		totalBills,
+		paidBills,
+		upcomingBills,
+		soonBills,
+		selectedSort,
+	} = useLoaderData<typeof loader>()
+	const formRef = useRef<HTMLFormElement>(null)
+	const submit = useSubmit()
 	return (
 		<div className="flex flex-col gap-6 @container">
 			<h1 className="text-3xl font-bold leading-tight">Recurring Bills</h1>
@@ -116,7 +171,67 @@ export default function Overview() {
 					</Card>
 				</div>
 				<Card theme="light">
-					<RecurringBills recurringBills={recurringBills} />
+					<Form
+						ref={formRef}
+						replace
+						className="mb-6 flex justify-end gap-6 @container"
+					>
+						<Select
+							className="group flex items-center gap-2"
+							name="sort"
+							defaultSelectedKey={selectedSort ?? 'date:desc'}
+							aria-labelledby="sort-label"
+							onSelectionChange={(value) => {
+								if (!formRef.current) {
+									return
+								}
+								const formData = new FormData(formRef.current)
+								if (!value) {
+									formData.delete('sort')
+								} else {
+									formData.set('sort', String(value))
+								}
+
+								submit(formData, { replace: true })
+							}}
+						>
+							<Label
+								className="sr-only text-sm font-normal @[38rem]:not-sr-only"
+								htmlFor="sort"
+								id="sort-label"
+							>
+								<span className="whitespace-nowrap">Sort by</span>
+							</Label>
+							<RACButton className="flex items-center justify-between gap-4 rounded-lg text-sm @[38rem]:w-32 @[38rem]:border @[38rem]:border-beige-500 @[38rem]:px-5 @[38rem]:py-3">
+								<Icon name="Sort" className="size-5 @[38rem]:hidden" />
+								<SelectValue className="sr-only @[38rem]:not-sr-only" />
+								<Icon
+									name="CaretDown"
+									className="hidden size-4 group-data-[open]:rotate-180 @[38rem]:block"
+								/>
+							</RACButton>
+							<Popover>
+								<ListBox
+									items={Object.entries(sortOptions).map(([id, label]) => ({
+										id,
+										label,
+									}))}
+									className="max-h-80 w-32 overflow-y-auto rounded-lg bg-white px-5 py-3 shadow-[0px_4px_24px] shadow-black/25"
+								>
+									{(item) => (
+										<ListBoxItem
+											id={item.id}
+											className="cursor-pointer border-b border-gray-100 py-3 text-sm leading-normal outline-offset-1 first:pt-0 last:border-0 last:pb-0 data-[selected]:font-bold"
+										>
+											{item.label}
+										</ListBoxItem>
+									)}
+								</ListBox>
+							</Popover>
+						</Select>
+					</Form>
+					<RecurringBills recurringBills={recurringBills.items} />
+					<Pagination total={recurringBills.count} />
 				</Card>
 			</div>
 		</div>
@@ -204,9 +319,11 @@ async function getLatestTransactionDate(userId: string) {
 async function getRecurringBills({
 	userId,
 	currentDate,
+	sort = 'date:desc',
 }: {
 	userId: string
 	currentDate: Date
+	sort?: SortKey
 }) {
 	const startOfCurrentMonth = startOfMonth(currentDate)
 	const thisMonthBills = await prisma.transaction.findMany({
@@ -258,7 +375,22 @@ async function getRecurringBills({
 			const status = getBillStatus({ billDate: bill.date, currentDate })
 			return { ...bill, status }
 		}),
-	].sort((a, b) => (isBefore(a.date, b.date) ? 1 : -1))
+	].sort((a, b) => {
+		switch (sort) {
+			case 'date:desc':
+				return a.date > b.date ? -1 : 1
+			case 'date:asc':
+				return a.date < b.date ? -1 : 1
+			case 'name:asc':
+				return a.Counterparty.name.localeCompare(b.Counterparty.name)
+			case 'name:desc':
+				return b.Counterparty.name.localeCompare(a.Counterparty.name)
+			case 'amount:desc':
+				return Math.abs(a.amount) > Math.abs(b.amount) ? -1 : 1
+			case 'amount:asc':
+				return Math.abs(a.amount) < Math.abs(b.amount) ? -1 : 1
+		}
+	})
 }
 
 function getBillStatus({
