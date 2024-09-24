@@ -117,6 +117,86 @@ test('calculated totals and summary', async ({
 	await expect(recurringBillsPage.totalUpcoming()).toContainText('$300.00')
 	await expect(recurringBillsPage.dueSoon()).toContainText('$200.00')
 })
+test('sort bills', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const paidBill = makeTransaction({
+		date: new Date('2024-01-10'),
+		isRecurring: true,
+		amount: -100 * 100,
+		Counterparty: { name: 'C company' },
+	})
+	const soonBill = makeTransaction({
+		date: new Date('2023-12-12'),
+		isRecurring: true,
+		amount: -200 * 100,
+		Counterparty: { name: 'B company' },
+	})
+	const upcomingBill = makeTransaction({
+		date: new Date('2023-12-20'),
+		isRecurring: true,
+		amount: -300 * 100,
+		Counterparty: { name: 'A company' },
+	})
+
+	await seedDatabase({
+		transactions: [paidBill, soonBill, upcomingBill],
+		user,
+	})
+	await login(user)
+
+	const recurringBillsPage = new RecurringBillsPage(page)
+
+	await recurringBillsPage.goto()
+
+	// Default sort is latest first
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		upcomingBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		paidBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('Oldest')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		paidBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		upcomingBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('A to Z')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		upcomingBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		paidBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('Z to A')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		paidBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		upcomingBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('Highest')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		upcomingBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		paidBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('Lowest')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		paidBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		upcomingBill.Counterparty.name,
+	])
+
+	await recurringBillsPage.sortBy('Latest')
+	await expect(recurringBillsPage.recurringBills()).toContainText([
+		upcomingBill.Counterparty.name,
+		soonBill.Counterparty.name,
+		paidBill.Counterparty.name,
+	])
+})
 
 class RecurringBillsPage {
 	constructor(private page: Page) {}
@@ -183,5 +263,13 @@ class RecurringBillsPage {
 	}
 	dueSoon() {
 		return this.definition('Due Soon')
+	}
+
+	async sortBy(sort: string) {
+		await this.page.getByRole('button', { name: /sort by/i }).click()
+		return this.page
+			.getByRole('listbox', { name: /sort by/i })
+			.getByRole('option', { name: sort })
+			.click()
 	}
 }
