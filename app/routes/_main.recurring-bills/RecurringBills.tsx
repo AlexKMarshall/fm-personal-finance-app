@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { type ComponentProps } from 'react'
 import { tv } from 'tailwind-variants'
 import { Icon } from '~/components/Icon'
+import { List } from '../_main.transactions/Transactions'
 
 export function RecurringBills({
 	recurringBills,
@@ -16,8 +17,9 @@ export function RecurringBills({
 				recurringBills={recurringBills}
 				className="max-sm:hidden"
 			/>
-			<RecurringBillsList
-				recurringBills={recurringBills}
+			<List
+				items={recurringBills}
+				renderItem={(recurringBill) => <RecurringBill {...recurringBill} />}
 				className="sm:hidden"
 			/>
 		</div>
@@ -90,27 +92,6 @@ function RecurringBillsTable({
 				})}
 			</tbody>
 		</table>
-	)
-}
-
-export function RecurringBillsList({
-	className,
-	recurringBills,
-}: {
-	className?: string
-	recurringBills: Array<ComponentProps<typeof RecurringBill> & { id: string }>
-}) {
-	return (
-		<ul className={className} data-testid="recurring-bills-mobile">
-			{recurringBills.map((transaction) => (
-				<li
-					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"
-					key={transaction.id}
-				>
-					<RecurringBill {...transaction} />
-				</li>
-			))}
-		</ul>
 	)
 }
 

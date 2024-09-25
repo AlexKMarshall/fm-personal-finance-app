@@ -15,7 +15,11 @@ export function Transactions({
 				transactions={transactions}
 				className="hidden sm:table"
 			/>
-			<TransactionsList transactions={transactions} className="sm:hidden" />
+			<List
+				items={transactions}
+				className="sm:hidden"
+				renderItem={(transaction) => <Transaction {...transaction} />}
+			/>
 		</div>
 	)
 }
@@ -88,27 +92,6 @@ function TransactionsTable({
 				})}
 			</tbody>
 		</table>
-	)
-}
-
-export function TransactionsList({
-	className,
-	transactions,
-}: {
-	className?: string
-	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
-}) {
-	return (
-		<ul className={className} data-testid="transactions-mobile">
-			{transactions.map((transaction) => (
-				<li
-					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"
-					key={transaction.id}
-				>
-					<Transaction {...transaction} />
-				</li>
-			))}
-		</ul>
 	)
 }
 
