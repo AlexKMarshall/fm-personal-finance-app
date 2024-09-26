@@ -2,7 +2,7 @@ import { makeCategory } from './category'
 import type { ObjectFactory } from './utils'
 import { faker } from '@faker-js/faker'
 
-export const makeColor: ObjectFactory<{ name: string }> = (overrides) => {
+const makeColor: ObjectFactory<{ name: string }> = (overrides) => {
 	const colors = [
 		'Green',
 		'Yellow',

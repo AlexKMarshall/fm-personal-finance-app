@@ -15,8 +15,12 @@ test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 	const budgetOneUi = await budgetsPage.budget(budgetOne.Category.name)
 	const budgetTwoUi = await budgetsPage.budget(budgetTwo.Category.name)
 
-	await expect(budgetOneUi).toContainText(`Maximum of $500.00`)
-	await expect(budgetTwoUi).toContainText(`Maximum of $1,000.00`)
+	await expect(
+		budgetOneUi.getByRole('heading', { name: 'Maximum of $500.00' }),
+	).toBeVisible()
+	await expect(
+		budgetTwoUi.getByRole('heading', { name: 'Maximum of $1,000.00' }),
+	).toBeVisible()
 })
 
 class BudgetsPage {
