@@ -21,6 +21,7 @@ export function RecurringBills({
 				items={recurringBills}
 				renderItem={(recurringBill) => <RecurringBill {...recurringBill} />}
 				className="sm:hidden"
+				testId="recurring-bills-mobile"
 			/>
 		</div>
 	)
