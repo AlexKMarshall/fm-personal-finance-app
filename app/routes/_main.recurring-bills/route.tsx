@@ -10,10 +10,8 @@ import { json, type LoaderFunctionArgs } from '@remix-run/node'
 import { Form, useLoaderData, useSubmit } from '@remix-run/react'
 import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
-import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDayOfMonth } from '~/utils/format'
 import { RecurringBills } from './RecurringBills'
-import { addDays, addMonths, isBefore, startOfMonth, subMonths } from 'date-fns'
 import { Icon } from '~/components/Icon'
 import { tv } from 'tailwind-variants'
 import { useContext, createContext, type ReactNode, useRef } from 'react'
@@ -24,16 +22,14 @@ import { Pagination } from '~/components/Pagination'
 import { Label } from '~/components/Label'
 import { matchSorter } from 'match-sorter'
 import { Input } from '~/components/Input'
+import {
+	getLatestTransactionDate,
+	getRecurringBills,
+	getRecurringBillSummary,
+	sortKeys,
+	type SortKey,
+} from './queries'
 
-const sortKeys = [
-	'date:desc',
-	'date:asc',
-	'name:asc',
-	'name:desc',
-	'amount:desc',
-	'amount:asc',
-] as const
-type SortKey = (typeof sortKeys)[number]
 const sortOptions = {
 	'date:desc': 'Latest',
 	'date:asc': 'Oldest',
@@ -81,33 +77,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}),
 	)
 
-	const totalBills = formatCurrency(
-		recurringBills.reduce((total, { amount }) => total + Math.abs(amount), 0),
-	)
-	const paidBills = {
-		count: recurringBills.filter((bill) => bill.status === 'paid').length,
-		total: formatCurrency(
-			recurringBills
-				.filter((bill) => bill.status === 'paid')
-				.reduce((total, { amount }) => total + Math.abs(amount), 0),
-		),
-	}
-	const upcomingBills = {
-		count: recurringBills.filter((bill) => bill.status === 'upcoming').length,
-		total: formatCurrency(
-			recurringBills
-				.filter((bill) => bill.status === 'upcoming')
-				.reduce((total, { amount }) => total + Math.abs(amount), 0),
-		),
-	}
-	const soonBills = {
-		count: recurringBills.filter((bill) => bill.status === 'soon').length,
-		total: formatCurrency(
-			recurringBills
-				.filter((bill) => bill.status === 'soon')
-				.reduce((total, { amount }) => total + Math.abs(amount), 0),
-		),
-	}
+	const { all, paid, upcoming, soon } = getRecurringBillSummary(recurringBills)
 
 	// We search here rather than when getting the bills as search shouldn't impact the totals
 	const searchedBills = search
@@ -119,25 +89,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 	return json({
 		recurringBills: paginate(searchedBills, { page, size }),
-		totalBills,
-		paidBills,
-		upcomingBills,
-		soonBills,
+		all: { ...all, total: formatCurrency(all.total) },
+		paid: { ...paid, total: formatCurrency(paid.total) },
+		upcoming: { ...upcoming, total: formatCurrency(upcoming.total) },
+		soon: { ...soon, total: formatCurrency(soon.total) },
 		selectedSort: sort,
 		search,
 	})
 }
 
 export default function Overview() {
-	const {
-		recurringBills,
-		totalBills,
-		paidBills,
-		upcomingBills,
-		soonBills,
-		selectedSort,
-		search,
-	} = useLoaderData<typeof loader>()
+	const { recurringBills, all, paid, upcoming, soon, selectedSort, search } =
+		useLoaderData<typeof loader>()
 	const formRef = useRef<HTMLFormElement>(null)
 	const submit = useSubmit()
 	return (
@@ -154,7 +117,7 @@ export default function Overview() {
 							<h2 id="total-bills" className="text-sm leading-normal">
 								Total Bills
 							</h2>
-							<p className="text-3xl font-bold leading-tight">{totalBills}</p>
+							<p className="text-3xl font-bold leading-tight">{all.total}</p>
 						</div>
 					</Card>
 					<Card theme="light" className="flex-1">
@@ -162,16 +125,13 @@ export default function Overview() {
 						<dl>
 							<SummaryItem className="border-b border-gray-100 py-4 first:pt-0 last:border-b-0 last:pb-0">
 								<SummaryItem.Title>Total Paid</SummaryItem.Title>
-								<SummaryItem.Amount
-									count={paidBills.count}
-									total={paidBills.total}
-								/>
+								<SummaryItem.Amount count={paid.count} total={paid.total} />
 							</SummaryItem>
 							<SummaryItem className="border-b border-gray-100 py-4 first:pt-0 last:border-b-0 last:pb-0">
 								<SummaryItem.Title>Total Upcoming</SummaryItem.Title>
 								<SummaryItem.Amount
-									count={upcomingBills.count}
-									total={upcomingBills.total}
+									count={upcoming.count}
+									total={upcoming.total}
 								/>
 							</SummaryItem>
 							<SummaryItem
@@ -179,10 +139,7 @@ export default function Overview() {
 								className="border-b border-gray-100 py-4 first:pt-0 last:border-b-0 last:pb-0"
 							>
 								<SummaryItem.Title>Due Soon</SummaryItem.Title>
-								<SummaryItem.Amount
-									count={soonBills.count}
-									total={soonBills.total}
-								/>
+								<SummaryItem.Amount count={soon.count} total={soon.total} />
 							</SummaryItem>
 						</dl>
 					</Card>
@@ -346,104 +303,3 @@ function SummaryItemAmount({ count, total }: { count: number; total: string }) {
 }
 SummaryItem.Title = SummaryItemTitle
 SummaryItem.Amount = SummaryItemAmount
-
-async function getLatestTransactionDate(userId: string) {
-	const latestTransaction = await prisma.transaction.findFirst({
-		where: { userId },
-		orderBy: { date: 'desc' },
-	})
-	return latestTransaction?.date ?? new Date()
-}
-
-async function getRecurringBills({
-	userId,
-	currentDate,
-	sort = 'date:desc',
-}: {
-	userId: string
-	currentDate: Date
-	sort?: SortKey
-}) {
-	const startOfCurrentMonth = startOfMonth(currentDate)
-	const thisMonthBills = await prisma.transaction.findMany({
-		where: {
-			userId,
-			isRecurring: true,
-			date: { gte: startOfCurrentMonth },
-		},
-		orderBy: { date: 'desc' },
-		select: {
-			id: true,
-			Counterparty: { select: { name: true, avatarUrl: true } },
-			amount: true,
-			date: true,
-		},
-	})
-	const startOfLastMonth = startOfMonth(subMonths(currentDate, 1))
-	const lastMonthBills = await prisma.transaction.findMany({
-		where: {
-			userId,
-			isRecurring: true,
-			date: { gte: startOfLastMonth, lt: startOfCurrentMonth },
-		},
-		orderBy: { date: 'desc' },
-		select: {
-			id: true,
-			Counterparty: { select: { name: true, avatarUrl: true } },
-			amount: true,
-			date: true,
-		},
-	})
-
-	// The bills from last month that haven't appeared this month yet
-	const expectedBills = lastMonthBills
-		.filter(
-			(lastMonthBill) =>
-				!thisMonthBills.some(
-					(thisMonthBill) =>
-						thisMonthBill.Counterparty.name === lastMonthBill.Counterparty.name,
-				),
-		)
-		.map((bill) => ({ ...bill, date: addMonths(bill.date, 1) }))
-
-	// Expected bills can either be 'overdue', 'soon' or 'upcoming'
-	// This month's bills are all 'paid'
-	return [
-		...thisMonthBills.map((bill) => ({ ...bill, status: 'paid' as const })),
-		...expectedBills.map((bill) => {
-			const status = getBillStatus({ billDate: bill.date, currentDate })
-			return { ...bill, status }
-		}),
-	].sort((a, b) => {
-		switch (sort) {
-			case 'date:desc':
-				return a.date > b.date ? -1 : 1
-			case 'date:asc':
-				return a.date < b.date ? -1 : 1
-			case 'name:asc':
-				return a.Counterparty.name.localeCompare(b.Counterparty.name)
-			case 'name:desc':
-				return b.Counterparty.name.localeCompare(a.Counterparty.name)
-			case 'amount:desc':
-				return Math.abs(a.amount) > Math.abs(b.amount) ? -1 : 1
-			case 'amount:asc':
-				return Math.abs(a.amount) < Math.abs(b.amount) ? -1 : 1
-		}
-	})
-}
-
-function getBillStatus({
-	billDate,
-	currentDate,
-}: {
-	billDate: Date
-	currentDate: Date
-}) {
-	if (isBefore(billDate, currentDate)) {
-		return 'overdue' as const
-	}
-	if (isBefore(billDate, addDays(currentDate, 5))) {
-		return 'soon' as const
-	}
-	return 'upcoming' as const
-}

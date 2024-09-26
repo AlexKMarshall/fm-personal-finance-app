@@ -54,6 +54,18 @@ export default function Overview() {
 					)}
 				/>
 			</Card>
+			<Card theme="light">
+				<div className="flex items-center justify-between gap-4">
+					<h2 className="text-xl font-bold leading-tight">Recurring Bills</h2>
+					<Link
+						to="/recurring-bills"
+						className="flex items-center gap-3 text-xs text-gray-500"
+					>
+						See Details
+						<Icon name="CaretRight" className="size-2" />
+					</Link>
+				</div>
+			</Card>
 		</>
 	)
 }
