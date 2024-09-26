@@ -108,6 +108,14 @@ function TransactionsTable({
 	)
 }
 
+const listStyles = tv({
+	slots: {
+		base: '',
+		listItem:
+			'border-b border-gray-500/15 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0',
+	},
+})
+
 export function List<ItemType extends { id: string }>({
 	className,
 	items,
@@ -119,13 +127,11 @@ export function List<ItemType extends { id: string }>({
 	renderItem: (item: ItemType) => ReactNode
 	testId?: string
 }) {
+	const styles = listStyles()
 	return (
-		<ul className={className} data-testid={testId}>
+		<ul className={styles.base({ className })} data-testid={testId}>
 			{items.map((item) => (
-				<li
-					className="border-b border-gray-100 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
-					key={item.id}
-				>
+				<li className={styles.listItem()} key={item.id}>
 					{renderItem(item)}
 				</li>
 			))}

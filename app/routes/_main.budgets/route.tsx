@@ -1,10 +1,13 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import clsx from 'clsx'
 import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
+import { Icon } from '~/components/Icon'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
+import { List } from '../_main.transactions/Transactions'
+import { Transaction } from '~/components/Transaction'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -22,7 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 				0,
 			),
 		),
-		recentTransactions: budget.Category.Transactions.slice(0, 5).map(
+		recentTransactions: budget.Category.Transactions.slice(0, 3).map(
 			(transaction) => ({
 				id: transaction.id,
 				amount: formatCurrency(transaction.amount),
@@ -59,6 +62,27 @@ export default function BudgetsRoute() {
 							Maximum of {budget.amount}
 						</h3>
 					</div>
+					<Card theme="neutral" className="flex flex-col gap-5">
+						<div className="flex items-center justify-between gap-4">
+							<h3 className="font-bold">Latest Spending</h3>
+							<Link
+								to={{
+									pathname: '/transactions',
+									search: `?category=${budget.category}`,
+								}}
+								className="flex items-center gap-3 text-sm text-gray-500"
+							>
+								See All
+								<Icon name="CaretRight" className="size-2" />
+							</Link>
+						</div>
+						<List
+							items={budget.recentTransactions}
+							renderItem={(transaction) => (
+								<Transaction {...transaction} showCategory={false} />
+							)}
+						/>
+					</Card>
 				</Card>
 			))}
 		</>
