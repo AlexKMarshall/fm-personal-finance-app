@@ -15,7 +15,12 @@ export function Transactions({
 				transactions={transactions}
 				className="hidden sm:table"
 			/>
-			<TransactionsList transactions={transactions} className="sm:hidden" />
+			<List
+				items={transactions}
+				className="sm:hidden"
+				renderItem={(transaction) => <Transaction {...transaction} />}
+				testId="transactions-mobile"
+			/>
 		</div>
 	)
 }
@@ -88,27 +93,6 @@ function TransactionsTable({
 				})}
 			</tbody>
 		</table>
-	)
-}
-
-export function TransactionsList({
-	className,
-	transactions,
-}: {
-	className?: string
-	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
-}) {
-	return (
-		<ul className={className} data-testid="transactions-mobile">
-			{transactions.map((transaction) => (
-				<li
-					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"
-					key={transaction.id}
-				>
-					<Transaction {...transaction} />
-				</li>
-			))}
-		</ul>
 	)
 }
 
@@ -199,13 +183,15 @@ export function List<ItemType extends { id: string }>({
 	className,
 	items,
 	renderItem,
+	testId,
 }: {
 	className?: string
 	items: Array<ItemType>
 	renderItem: (item: ItemType) => ReactNode
+	testId?: string
 }) {
 	return (
-		<ul className={className} data-testid="transactions-mobile">
+		<ul className={className} data-testId={testId}>
 			{items.map((item) => (
 				<li
 					className="border-b border-gray-100 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
