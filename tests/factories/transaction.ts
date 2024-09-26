@@ -1,3 +1,4 @@
+import { makeCategory } from './category'
 import type { ObjectFactory } from './utils'
 import { faker } from '@faker-js/faker'
 
@@ -9,13 +10,6 @@ const makeCounterparty: ObjectFactory<{ name: string; avatarUrl: string }> = (
 	return {
 		name,
 		avatarUrl,
-	}
-}
-
-export const makeCategory: ObjectFactory<{ name: string }> = (overrides) => {
-	const name = overrides?.name ?? faker.commerce.department()
-	return {
-		name,
 	}
 }
 

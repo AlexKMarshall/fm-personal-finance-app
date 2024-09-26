@@ -174,8 +174,8 @@ async function isEmailUnique(email: string) {
 
 async function seedInitialUserData(userId: string) {
 	// Create transactions
-	await Promise.all(
-		dummyData.transactions.map((transaction) =>
+	await Promise.all([
+		...dummyData.transactions.map((transaction) =>
 			prisma.transaction.create({
 				data: {
 					amount: transaction.amount * 100,
@@ -200,5 +200,27 @@ async function seedInitialUserData(userId: string) {
 				},
 			}),
 		),
-	)
+		...dummyData.budgets.map((budget) =>
+			prisma.budget.create({
+				data: {
+					amount: budget.maximum * 100,
+					User: {
+						connect: { id: userId },
+					},
+					Category: {
+						connectOrCreate: {
+							where: { name: budget.category },
+							create: { name: budget.category },
+						},
+					},
+					Color: {
+						connectOrCreate: {
+							where: { name: budget.theme },
+							create: { name: budget.theme },
+						},
+					},
+				},
+			}),
+		),
+	])
 }

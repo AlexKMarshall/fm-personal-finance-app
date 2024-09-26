@@ -17,6 +17,7 @@ model User {
 
   Password     Password?
   Transactions Transaction[]
+  Budget       Budget[]
 }
 
 model Password {
@@ -41,11 +42,25 @@ model Transaction {
   isRecurring    Boolean
 }
 
+model Budget {
+  id        String   @id @default(uuid())
+  amount    Int
+  createdAt DateTime @default(now())
+
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  Category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+  Color      Color    @relation(fields: [colorId], references: [id])
+  colorId    String
+}
+
 model Category {
   id   String @id @default(uuid())
   name String @unique
 
   Transactions Transaction[]
+  Budget       Budget[]
 }
 
 model Counterparty {
@@ -54,4 +69,10 @@ model Counterparty {
   avatarUrl String
 
   Transactions Transaction[]
+}
+
+model Color {
+  id     String   @id @default(uuid())
+  name   String   @unique
+  Budget Budget[]
 }

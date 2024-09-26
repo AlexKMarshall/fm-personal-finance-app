@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
 
 const cardStyles = tv({
@@ -15,10 +15,15 @@ export function Card({
 	className,
 	children,
 	theme,
+	...props
 }: {
 	className?: string
 	children?: ReactNode
 	theme: 'light' | 'dark'
-}) {
-	return <div className={cardStyles({ className, theme })}>{children}</div>
+} & ComponentProps<'div'>) {
+	return (
+		<div className={cardStyles({ className, theme })} {...props}>
+			{children}
+		</div>
+	)
 }
