@@ -1,7 +1,8 @@
 import type { Page } from '@playwright/test'
-import { makeCategory, makeTransaction } from './factories/transaction'
+import { makeTransaction } from './factories/transaction'
 import { test, expect } from './playwright-utils.js'
 import { formatCurrency } from '~/utils/format'
+import { makeCategory } from './factories/category'
 
 test('shows a list of transactions', async ({
 	page,

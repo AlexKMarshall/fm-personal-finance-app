@@ -4,6 +4,7 @@ import { makeUser } from './factories/user'
 import { generateSalt, hashPassword, serializeAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 import { makeTransaction } from './factories/transaction'
+import { makeBudget } from './factories/budget'
 
 function makeSignupFixture({
 	onUserSaved,
@@ -30,6 +31,12 @@ function makeSignupFixture({
 		})
 		// Delete the dummy transactions that every new user gets, so we can test specific ones
 		await prisma.transaction.deleteMany({
+			where: {
+				userId: savedUser.id,
+			},
+		})
+		// Delete the dummy budgets that every new user gets, so we can test specific ones
+		await prisma.budget.deleteMany({
 			where: {
 				userId: savedUser.id,
 			},
@@ -62,13 +69,15 @@ type LoginFixture = ReturnType<typeof makeLoginFixture>
 function makeSeedDatabaseFixture() {
 	return async function seedDatabase({
 		user,
-		transactions,
+		transactions = [],
+		budgets = [],
 	}: {
 		user: { id: string }
-		transactions: Array<Parameters<typeof makeTransaction>[0]>
+		transactions?: Array<Parameters<typeof makeTransaction>[0]>
+		budgets?: Array<Parameters<typeof makeBudget>[0]>
 	}) {
-		return Promise.all(
-			transactions
+		return Promise.all([
+			...transactions
 				.map((transaction) => makeTransaction(transaction))
 				.map(({ Category, Counterparty, ...transaction }) =>
 					prisma.transaction.create({
@@ -98,7 +107,37 @@ function makeSeedDatabaseFixture() {
 						},
 					}),
 				),
-		)
+			...budgets
+				.map((budget) => makeBudget(budget))
+				.map(({ Category, Color, ...budget }) =>
+					prisma.budget.create({
+						data: {
+							...budget,
+							Category: {
+								connectOrCreate: {
+									where: {
+										name: Category.name,
+									},
+									create: Category,
+								},
+							},
+							Color: {
+								connectOrCreate: {
+									where: {
+										name: Color.name,
+									},
+									create: Color,
+								},
+							},
+							User: {
+								connect: {
+									id: user.id,
+								},
+							},
+						},
+					}),
+				),
+		])
 	}
 }
 type SeedDatabaseFixture = ReturnType<typeof makeSeedDatabaseFixture>

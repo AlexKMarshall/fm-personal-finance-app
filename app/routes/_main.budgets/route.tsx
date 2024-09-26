@@ -27,7 +27,12 @@ export default function BudgetsRoute() {
 		<>
 			<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
 			{budgets.map((budget) => (
-				<Card key={budget.id} theme="light" className="flex flex-col gap-5">
+				<Card
+					key={budget.id}
+					theme="light"
+					className="flex flex-col gap-5"
+					data-testid="budget"
+				>
 					<div className="flex items-center gap-4">
 						<ColorIndicator color={budget.color} />
 						<h2 className="text-xl font-bold leading-tight">
