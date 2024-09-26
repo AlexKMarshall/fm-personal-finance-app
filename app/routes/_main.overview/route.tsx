@@ -85,15 +85,24 @@ export default function Overview() {
 					</Link>
 				</div>
 				<dl className="flex flex-col gap-3">
-					<div className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-green bg-beige-100 px-4 py-5">
+					<div
+						className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-green bg-beige-100 px-4 py-5"
+						data-testid="definitionListItem"
+					>
 						<dt className="text-sm text-gray-500">Paid Bills</dt>
 						<dd className="text-sm font-bold">{recurringBills.paid}</dd>
 					</div>
-					<div className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-yellow bg-beige-100 px-4 py-5">
+					<div
+						className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-yellow bg-beige-100 px-4 py-5"
+						data-testid="definitionListItem"
+					>
 						<dt className="text-sm text-gray-500">Total Upcoming</dt>
 						<dd className="text-sm font-bold">{recurringBills.upcoming}</dd>
 					</div>
-					<div className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-cyan bg-beige-100 px-4 py-5">
+					<div
+						className="flex items-center justify-between gap-4 rounded-lg border-l-4 border-l-cyan bg-beige-100 px-4 py-5"
+						data-testid="definitionListItem"
+					>
 						<dt className="text-sm text-gray-500">Due Soon</dt>
 						<dd className="text-sm font-bold">{recurringBills.soon}</dd>
 					</div>
