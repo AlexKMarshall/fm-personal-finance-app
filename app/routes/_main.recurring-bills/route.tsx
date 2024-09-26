@@ -98,7 +98,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	})
 }
 
-export default function Overview() {
+export default function RecurringBillsRoute() {
 	const { recurringBills, all, paid, upcoming, soon, selectedSort, search } =
 		useLoaderData<typeof loader>()
 	const formRef = useRef<HTMLFormElement>(null)
