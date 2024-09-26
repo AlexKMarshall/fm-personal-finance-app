@@ -191,7 +191,7 @@ export function List<ItemType extends { id: string }>({
 	testId?: string
 }) {
 	return (
-		<ul className={className} data-testId={testId}>
+		<ul className={className} data-testid={testId}>
 			{items.map((item) => (
 				<li
 					className="border-b border-gray-100 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
