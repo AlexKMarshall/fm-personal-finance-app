@@ -78,9 +78,7 @@ export default function BudgetsRoute() {
 						</div>
 						<List
 							items={budget.recentTransactions}
-							renderItem={(transaction) => (
-								<Transaction {...transaction} showCategory={false} />
-							)}
+							renderItem={(transaction) => <Transaction {...transaction} />}
 						/>
 					</Card>
 				</Card>

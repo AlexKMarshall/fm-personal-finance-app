@@ -46,7 +46,6 @@ export function Transaction({
 	date: string
 	amount: string
 	avatar: string
-	showCategory: boolean
 }) {
 	const direction = amount.startsWith('-') ? 'debit' : 'credit'
 	const showCategory = Boolean(category)

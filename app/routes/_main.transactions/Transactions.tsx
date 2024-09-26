@@ -28,9 +28,7 @@ export function Transactions({
 			<List
 				items={transactions}
 				className="sm:hidden"
-				renderItem={(transaction) => (
-					<Transaction {...transaction} showCategory />
-				)}
+				renderItem={(transaction) => <Transaction {...transaction} />}
 				testId="transactions-mobile"
 			/>
 		</div>

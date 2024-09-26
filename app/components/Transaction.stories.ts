@@ -27,17 +27,14 @@ export const Transaction: Story = {
 		date: '29 Aug 2024',
 		amount: '-$25.00',
 		avatar: serenitySpaAndWellness,
-		showCategory: true,
 	},
 }
 
 export const HiddenCategory: Story = {
 	args: {
 		name: 'Serenity Spa & Wellness',
-		category: 'Personal Care',
 		date: '29 Aug 2024',
 		amount: '-$25.00',
 		avatar: serenitySpaAndWellness,
-		showCategory: false,
 	},
 }

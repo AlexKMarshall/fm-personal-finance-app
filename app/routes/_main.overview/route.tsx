@@ -24,10 +24,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	})
 
 	const formattedTransactions = transactions.map(
-		({ id, Counterparty, Category, amount, date }) => ({
+		({ id, Counterparty, amount, date }) => ({
 			id,
 			name: Counterparty.name,
-			category: Category.name,
 			date: formatDate(date),
 			amount: formatCurrency(amount),
 			avatar: Counterparty.avatarUrl,
@@ -69,9 +68,7 @@ export default function Overview() {
 				</div>
 				<List
 					items={transactions}
-					renderItem={(transaction) => (
-						<Transaction {...transaction} showCategory={false} />
-					)}
+					renderItem={(transaction) => <Transaction {...transaction} />}
 				/>
 			</Card>
 			<Card theme="light" className="flex flex-col gap-8">
