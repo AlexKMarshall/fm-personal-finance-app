@@ -45,8 +45,8 @@ export async function getTransactions({
 	category?: string
 	sort?: SortKey
 	search?: string
-	page: number
-	size: number
+	page?: number
+	size?: number
 }) {
 	const sortedTransactions = await prisma.transaction.findMany({
 		where: {

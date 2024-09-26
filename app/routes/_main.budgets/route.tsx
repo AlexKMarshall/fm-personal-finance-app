@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
 import { prisma } from '~/db/prisma.server'
-import { formatCurrency } from '~/utils/format'
+import { formatCurrency, formatDate } from '~/utils/format'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -16,6 +16,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		amount: formatCurrency(budget.amount),
 		category: budget.Category.name,
 		color: budget.Color.name,
+		spent: formatCurrency(
+			budget.Category.Transactions.reduce(
+				(total, transaction) => total + transaction.amount,
+				0,
+			),
+		),
+		recentTransactions: budget.Category.Transactions.slice(0, 5).map(
+			(transaction) => ({
+				id: transaction.id,
+				amount: formatCurrency(transaction.amount),
+				date: formatDate(transaction.date),
+				name: transaction.Counterparty.name,
+				avatar: transaction.Counterparty.avatarUrl,
+			}),
+		),
 	}))
 
 	return json({ budgets: formattedBudgets })
@@ -107,6 +122,22 @@ function getBudgets(userId: string) {
 			Category: {
 				select: {
 					name: true,
+					Transactions: {
+						where: {
+							userId,
+						},
+						select: {
+							id: true,
+							Counterparty: {
+								select: { name: true, avatarUrl: true },
+							},
+							amount: true,
+							date: true,
+						},
+						orderBy: {
+							date: 'desc',
+						},
+					},
 				},
 			},
 			Color: {
