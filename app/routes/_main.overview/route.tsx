@@ -3,7 +3,7 @@ import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
 import { getTransactions } from '../_main.transactions/queries.server'
 import { Link, useLoaderData } from '@remix-run/react'
-import { List, TransactionCardSimple } from '../_main.transactions/Transactions'
+import { List } from '../_main.transactions/Transactions'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { Icon } from '~/components/Icon'
 import {
@@ -11,6 +11,7 @@ import {
 	getRecurringBills,
 	getRecurringBillSummary,
 } from '../_main.recurring-bills/queries'
+import { Transaction } from '~/components/Transaction'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -69,7 +70,7 @@ export default function Overview() {
 				<List
 					items={transactions}
 					renderItem={(transaction) => (
-						<TransactionCardSimple {...transaction} />
+						<Transaction {...transaction} showCategory={false} />
 					)}
 				/>
 			</Card>
