@@ -7,6 +7,7 @@ const cardStyles = tv({
 		theme: {
 			light: 'bg-white text-gray-900',
 			dark: 'bg-gray-900 text-white',
+			neutral: 'text-gray-900, bg-beige-100',
 		},
 	},
 })
@@ -19,7 +20,7 @@ export function Card({
 }: {
 	className?: string
 	children?: ReactNode
-	theme: 'light' | 'dark'
+	theme: 'light' | 'dark' | 'neutral'
 } & ComponentProps<'div'>) {
 	return (
 		<div className={cardStyles({ className, theme })} {...props}>
