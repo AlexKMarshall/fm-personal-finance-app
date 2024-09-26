@@ -3,7 +3,7 @@ import { requireAuthCookie } from '~/auth.server'
 import { Card } from '~/components/Card'
 import { getTransactions } from '../_main.transactions/queries.server'
 import { Link, useLoaderData } from '@remix-run/react'
-import { List, TransactionCardSimple } from '../_main.transactions/Transactions'
+import { List } from '../_main.transactions/Transactions'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { Icon } from '~/components/Icon'
 import {
@@ -11,6 +11,7 @@ import {
 	getRecurringBills,
 	getRecurringBillSummary,
 } from '../_main.recurring-bills/queries'
+import { Transaction } from '~/components/Transaction'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -23,10 +24,9 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	})
 
 	const formattedTransactions = transactions.map(
-		({ id, Counterparty, Category, amount, date }) => ({
+		({ id, Counterparty, amount, date }) => ({
 			id,
 			name: Counterparty.name,
-			category: Category.name,
 			date: formatDate(date),
 			amount: formatCurrency(amount),
 			avatar: Counterparty.avatarUrl,
@@ -68,9 +68,7 @@ export default function Overview() {
 				</div>
 				<List
 					items={transactions}
-					renderItem={(transaction) => (
-						<TransactionCardSimple {...transaction} />
-					)}
+					renderItem={(transaction) => <Transaction {...transaction} />}
 				/>
 			</Card>
 			<Card theme="light" className="flex flex-col gap-8">

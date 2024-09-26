@@ -30,3 +30,10 @@ export const DarkCard: Story = {
 		theme: 'dark',
 	},
 }
+
+export const Neutral: Story = {
+	args: {
+		children: 'Some content',
+		theme: 'neutral',
+	},
+}
