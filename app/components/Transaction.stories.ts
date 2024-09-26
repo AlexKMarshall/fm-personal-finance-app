@@ -2,11 +2,16 @@ import type { Meta, StoryObj } from '@storybook/react'
 import serenitySpaAndWellness from '~/assets/story-assets/serenity-spa-and-wellness.jpg'
 
 import { Transaction as TransactionComponent } from './Transaction'
+import { allModes } from '.storybook/modes'
 
 const meta = {
 	title: 'Transaction',
 	component: TransactionComponent,
-	parameters: {},
+	parameters: {
+		chromatic: {
+			modes: allModes,
+		},
+	},
 	// This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
 	tags: ['autodocs'],
 	// More on argTypes: https://storybook.js.org/docs/api/argtypes
