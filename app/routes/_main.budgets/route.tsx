@@ -8,33 +8,36 @@ import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { List } from '../_main.transactions/Transactions'
 import { Transaction } from '~/components/Transaction'
+import { isSameMonth } from 'date-fns'
+import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
+	const currentDate = await getLatestTransactionDate(userId)
 
-	const budgets = await getBudgets(userId)
+	const budgets = await getBudgets({ userId, currentDate })
 
-	const formattedBudgets = budgets.map((budget) => ({
-		id: budget.id,
-		amount: formatCurrency(budget.amount),
-		category: budget.Category.name,
-		color: budget.Color.name,
-		spent: formatCurrency(
-			budget.Category.Transactions.reduce(
-				(total, transaction) => total + transaction.amount,
-				0,
+	const formattedBudgets = budgets.map((budget) => {
+		const spentPercent = Math.min(budget.spent / budget.amount, 1) * 100
+		return {
+			id: budget.id,
+			amount: formatCurrency(budget.amount),
+			category: budget.Category.name,
+			color: budget.Color.name,
+			spent: formatCurrency(budget.spent),
+			spentPercent,
+			free: formatCurrency(budget.free),
+			recentTransactions: budget.Category.Transactions.slice(0, 3).map(
+				(transaction) => ({
+					id: transaction.id,
+					amount: formatCurrency(transaction.amount),
+					date: formatDate(transaction.date),
+					name: transaction.Counterparty.name,
+					avatar: transaction.Counterparty.avatarUrl,
+				}),
 			),
-		),
-		recentTransactions: budget.Category.Transactions.slice(0, 3).map(
-			(transaction) => ({
-				id: transaction.id,
-				amount: formatCurrency(transaction.amount),
-				date: formatDate(transaction.date),
-				name: transaction.Counterparty.name,
-				avatar: transaction.Counterparty.avatarUrl,
-			}),
-		),
-	}))
+		}
+	})
 
 	return json({ budgets: formattedBudgets })
 }
@@ -57,10 +60,52 @@ export default function BudgetsRoute() {
 							{budget.category}
 						</h2>
 					</div>
-					<div>
+					<div className="flex flex-col gap-4">
 						<h3 className="text-sm text-gray-500">
 							Maximum of {budget.amount}
 						</h3>
+						<div aria-hidden className="h-8 w-full rounded bg-beige-100 p-1">
+							<div
+								style={{ width: `${budget.spentPercent}%` }}
+								className={`h-full rounded ${getBackgroundColor(budget.color)}`}
+							/>
+						</div>
+						<dl className="grid grid-cols-2 gap-4">
+							<div className="flex gap-4">
+								<span
+									aria-hidden
+									className={`h-full w-1 rounded-lg ${getBackgroundColor(budget.color)}`}
+								/>
+								<div
+									className="flex flex-col gap-1"
+									data-testid="definitionListItem"
+								>
+									<dt className="text-xs leading-normal text-gray-500">
+										Spent
+									</dt>
+									<dd className="text-sm font-bold leading-normal">
+										{budget.spent}
+									</dd>
+								</div>
+							</div>
+							<div className="flex gap-4">
+								<span
+									aria-hidden
+									className="h-full w-1 rounded-lg bg-beige-100"
+								/>
+								<div
+									className="flex flex-col gap-1"
+									data-testid="definitionListItem"
+								>
+									<dt className="text-xs leading-normal text-gray-500">
+										Spent
+									</dt>
+									<dd className="text-sm font-bold leading-normal">
+										{budget.spent}
+									</dd>
+								</div>
+							</div>
+						</dl>
 					</div>
 					<Card theme="neutral" className="flex flex-col gap-5">
 						<div className="flex items-center justify-between gap-4">
@@ -133,8 +178,14 @@ function ColorIndicator({ color }: { color: string }) {
 	)
 }
 
-function getBudgets(userId: string) {
-	return prisma.budget.findMany({
+async function getBudgets({
+	userId,
+	currentDate,
+}: {
+	userId: string
+	currentDate: Date
+}) {
+	const budgets = await prisma.budget.findMany({
 		where: {
 			userId,
 		},
@@ -171,5 +222,19 @@ function getBudgets(userId: string) {
 		orderBy: {
 			createdAt: 'desc',
 		},
+	})
+
+	return budgets.map((budget) => {
+		const currentMonthTransactions = budget.Category.Transactions.filter(
+			(transaction) => isSameMonth(transaction.date, currentDate),
+		)
+		const spent = Math.abs(
+			currentMonthTransactions.reduce(
+				(total, transaction) => total + transaction.amount,
+				0,
+			),
+		)
+		const free = Math.max(budget.amount - spent, 0)
+		return { ...budget, spent, free }
 	})
 }

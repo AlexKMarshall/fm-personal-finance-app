@@ -10,7 +10,7 @@ import {
 	getLatestTransactionDate,
 	getRecurringBills,
 	getRecurringBillSummary,
-} from '../_main.recurring-bills/queries'
+} from '../_main.recurring-bills/recurring-bills.queries'
 import { Transaction } from '~/components/Transaction'
 
 export async function loader({ request }: LoaderFunctionArgs) {

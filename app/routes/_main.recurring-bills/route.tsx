@@ -28,7 +28,7 @@ import {
 	getRecurringBillSummary,
 	sortKeys,
 	type SortKey,
-} from './queries'
+} from './recurring-bills.queries'
 
 const sortOptions = {
 	'date:desc': 'Latest',
