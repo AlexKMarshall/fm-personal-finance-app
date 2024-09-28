@@ -78,7 +78,7 @@ export default function BudgetsRoute() {
 								/>
 								<div
 									className="flex flex-col gap-1"
-									data-testid="definitionListItem"
+									data-testid="descriptionListItem"
 								>
 									<dt className="text-xs leading-normal text-gray-500">
 										Spent
@@ -95,13 +95,11 @@ export default function BudgetsRoute() {
 								/>
 								<div
 									className="flex flex-col gap-1"
-									data-testid="definitionListItem"
+									data-testid="descriptionListItem"
 								>
-									<dt className="text-xs leading-normal text-gray-500">
-										Spent
-									</dt>
+									<dt className="text-xs leading-normal text-gray-500">Free</dt>
 									<dd className="text-sm font-bold leading-normal">
-										{budget.spent}
+										{budget.free}
 									</dd>
 								</div>
 							</div>

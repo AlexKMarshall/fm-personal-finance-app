@@ -6,7 +6,7 @@ import type { Page } from '@playwright/test'
 test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 	const user = await signUp()
 	const budgetOne = makeBudget({ amount: 500 * 100 })
-	// The most recent 3 transactions are displayed but all transactions count towards the total
+	// The most recent 3 transactions are displayed but all transactions for this month count towards the total
 	const budgetOneTransactionOne = makeTransaction({
 		amount: 100 * 100,
 		Category: budgetOne.Category,
@@ -30,24 +30,24 @@ test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 
 	const budgetTwo = makeBudget({ amount: 1000 * 100 })
 	const budgetTwoTransactionOne = makeTransaction({
-		amount: 500 * 100,
+		amount: 100 * 100,
 		Category: budgetTwo.Category,
 		date: new Date('2024-01-10'),
 	})
 	const budgetTwoTransactionTwo = makeTransaction({
-		amount: 500 * 100,
+		amount: 200 * 100,
 		Category: budgetTwo.Category,
 		date: new Date('2024-01-09'),
 	})
 	const budgetTwoTransactionThree = makeTransaction({
-		amount: 500 * 100,
+		amount: 300 * 100,
 		Category: budgetTwo.Category,
-		date: new Date('2024-01-08'),
+		date: new Date('2023-12-08'),
 	})
 	const budgetTwoTransactionFour = makeTransaction({
-		amount: 500 * 100,
+		amount: 400 * 100,
 		Category: budgetTwo.Category,
-		date: new Date('2024-01-07'),
+		date: new Date('2023-12-07'),
 	})
 
 	await seedDatabase({
@@ -94,6 +94,11 @@ test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 		}),
 	).toBeHidden()
 
+	await expect(budgetsPage.spent(budgetOne.Category.name)).toHaveText(
+		'$1,000.00',
+	)
+	await expect(budgetsPage.free(budgetOne.Category.name)).toHaveText('$0.00')
+
 	await expect(
 		budgetTwoUi.getByRole('heading', { name: 'Maximum of $1,000.00' }),
 	).toBeVisible()
@@ -116,6 +121,12 @@ test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 			name: budgetTwoTransactionFour.Counterparty.name,
 		}),
 	).toBeHidden()
+	await expect(budgetsPage.spent(budgetTwo.Category.name)).toContainText(
+		'$300.00',
+	)
+	await expect(budgetsPage.free(budgetTwo.Category.name)).toContainText(
+		'$700.00',
+	)
 })
 
 class BudgetsPage {
@@ -137,6 +148,19 @@ class BudgetsPage {
 		return this.page
 			.getByTestId('budget')
 			.filter({ has: this.page.getByRole('heading', { name: category }) })
+	}
+
+	spent(category: string) {
+		return this.budget(category)
+			.getByTestId('descriptionListItem')
+			.filter({ has: this.page.getByRole('term').getByText('Spent') })
+			.getByRole('definition')
+	}
+	free(category: string) {
+		return this.budget(category)
+			.getByTestId('descriptionListItem')
+			.filter({ has: this.page.getByRole('term').getByText('Free') })
+			.getByRole('definition')
 	}
 
 	transaction({ category, name }: { category: string; name: string }) {
