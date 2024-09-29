@@ -5,15 +5,10 @@ import { requireAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
-import {
-	Budget,
-	ColorIndicator,
-	colorMap,
-	getBackgroundColor,
-	getColor,
-} from './Budget'
+import { Budget, ColorIndicator, getColor } from './Budget'
 import { Card } from '~/components/Card'
 import * as d3 from 'd3'
+import clsx from 'clsx'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -64,18 +59,35 @@ export async function loader({ request }: LoaderFunctionArgs) {
 export default function BudgetsRoute() {
 	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
 	const pie = d3
-		.pie<{ category: string; color: string; amount: number }>()
+		.pie<{
+			category: string
+			color: string
+			amount: number
+			spentPercent: number
+		}>()
 		.value((d) => d.amount)
 	const arcs = pie(
-		budgets.map(({ category, color, amountNumber }) => ({
+		budgets.map(({ category, color, amountNumber, spentPercent }) => ({
 			category,
 			color,
 			amount: amountNumber,
+			spentPercent,
 		})),
 	)
 	const arcGenerator = d3.arc()
-	const paths = arcs.map((arc) =>
-		arcGenerator({ ...arc, innerRadius: 80, outerRadius: 120 }),
+	const innerPaths = arcs.map((arc) =>
+		arcGenerator({
+			...arc,
+			innerRadius: 80,
+			outerRadius: 80 + (120 - 80) * ((100 - arc.data.spentPercent) / 100),
+		}),
+	)
+	const outerPaths = arcs.map((arc) =>
+		arcGenerator({
+			...arc,
+			innerRadius: 79 + (120 - 80) * ((100 - arc.data.spentPercent) / 100),
+			outerRadius: 120,
+		}),
 	)
 
 	return (
@@ -90,13 +102,27 @@ export default function BudgetsRoute() {
 				>
 					<div className="grid place-items-center p-5 [grid-template-areas:'stack'] *:[grid-area:stack]">
 						<svg viewBox="0 0 240 240">
-							{paths.map((path, index) => (
+							{outerPaths.map((path, index) => (
 								<path
 									transform="translate(120, 120)"
 									key={index}
 									d={path ?? ''}
 									fill="currentColor"
 									className={getColor(budgets[index]?.color ?? '').foreground}
+									stroke="currentColor"
+									strokeWidth="0"
+								/>
+							))}
+							{innerPaths.map((path, index) => (
+								<path
+									transform="translate(120, 120)"
+									key={index}
+									d={path ?? ''}
+									fill="currentColor"
+									className={clsx(
+										getColor(budgets[index]?.color ?? '').foreground,
+										'opacity-50',
+									)}
 									stroke="currentColor"
 									strokeWidth="0"
 								/>
