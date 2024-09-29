@@ -2,13 +2,12 @@ import { type LoaderFunctionArgs, json } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { isSameMonth } from 'date-fns'
 import { requireAuthCookie } from '~/auth.server'
+import { Card } from '~/components/Card'
+import { Donut } from '~/components/Donut'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
-import { Budget, ColorIndicator, getColor } from './Budget'
-import { Card } from '~/components/Card'
-import * as d3 from 'd3'
-import clsx from 'clsx'
+import { Budget, ColorIndicator } from './Budget'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -58,37 +57,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function BudgetsRoute() {
 	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
-	const pie = d3
-		.pie<{
-			category: string
-			color: string
-			amount: number
-			spentPercent: number
-		}>()
-		.value((d) => d.amount)
-	const arcs = pie(
-		budgets.map(({ category, color, amountNumber, spentPercent }) => ({
-			category,
-			color,
-			amount: amountNumber,
-			spentPercent,
-		})),
-	)
-	const arcGenerator = d3.arc()
-	const innerPaths = arcs.map((arc) =>
-		arcGenerator({
-			...arc,
-			innerRadius: 80,
-			outerRadius: 80 + (120 - 80) * ((100 - arc.data.spentPercent) / 100),
-		}),
-	)
-	const outerPaths = arcs.map((arc) =>
-		arcGenerator({
-			...arc,
-			innerRadius: 80 + (120 - 80) * ((100 - arc.data.spentPercent) / 100),
-			outerRadius: 120,
-		}),
-	)
 
 	return (
 		<>
@@ -101,33 +69,16 @@ export default function BudgetsRoute() {
 					role="group"
 				>
 					<div className="grid place-items-center p-5 [grid-template-areas:'stack'] *:[grid-area:stack]">
-						<svg viewBox="0 0 240 240">
-							{outerPaths.map((path, index) => (
-								<path
-									transform="translate(120, 120)"
-									key={index}
-									d={path ?? ''}
-									fill="currentColor"
-									className={getColor(budgets[index]?.color ?? '').foreground}
-									stroke="currentColor"
-									strokeWidth="0"
-								/>
-							))}
-							{innerPaths.map((path, index) => (
-								<path
-									transform="translate(120, 120)"
-									key={index}
-									d={path ?? ''}
-									fill="currentColor"
-									className={clsx(
-										getColor(budgets[index]?.color ?? '').foreground,
-										'opacity-50',
-									)}
-									stroke="currentColor"
-									strokeWidth="0"
-								/>
-							))}
-						</svg>
+						<Donut
+							values={budgets.map(
+								({ id, color, amountNumber, spentPercent }) => ({
+									id,
+									color,
+									value: amountNumber,
+									utilization: spentPercent / 100,
+								}),
+							)}
+						/>
 						<div className="grid place-items-center p-10 sm:p-20">
 							<p className="flex flex-col items-center text-center">
 								<span className="text-3xl font-bold leading-tight">
