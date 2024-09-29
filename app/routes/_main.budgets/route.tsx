@@ -5,8 +5,15 @@ import { requireAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
-import { Budget, ColorIndicator } from './Budget'
+import {
+	Budget,
+	ColorIndicator,
+	colorMap,
+	getBackgroundColor,
+	getColor,
+} from './Budget'
 import { Card } from '~/components/Card'
+import * as d3 from 'd3'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -19,8 +26,10 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		return {
 			id: budget.id,
 			amount: formatCurrency(budget.amount),
+			amountNumber: budget.amount,
 			category: budget.Category.name,
 			color: budget.Color.name,
+			spentNumber: budget.spent,
 			spent: formatCurrency(budget.spent),
 			spentPercent,
 			free: formatCurrency(budget.free),
@@ -41,16 +50,46 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function BudgetsRoute() {
 	const { budgets } = useLoaderData<typeof loader>()
+	const pie = d3
+		.pie<{ category: string; color: string; amount: number }>()
+		.value((d) => d.amount)
+	const arcs = pie(
+		budgets.map(({ category, color, amountNumber }) => ({
+			category,
+			color,
+			amount: amountNumber,
+		})),
+	)
+	const arcGenerator = d3.arc()
+	const paths = arcs.map((arc) =>
+		arcGenerator({ ...arc, innerRadius: 80, outerRadius: 120 }),
+	)
+
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
 			<div className="relative flex flex-col gap-6 lg:flex-row lg:items-start">
 				<Card
 					theme="light"
-					className="top-4 lg:sticky"
+					className="top-4 flex flex-col gap-8 lg:sticky"
 					aria-labelledby="spending-summary"
 					role="group"
 				>
+					<div className="p-5">
+						<svg viewBox="0 0 240 240">
+							{paths.map((path, index) => (
+								<path
+									transform="translate(120, 120)"
+									key={index}
+									d={path ?? ''}
+									fill="currentColor"
+									className={getColor(budgets[index]?.color ?? '').foreground}
+									stroke="currentColor"
+									strokeWidth="0"
+								/>
+							))}
+						</svg>
+					</div>
 					<h2
 						id="spending-summary"
 						className="mb-6 text-xl font-bold leading-tight"
@@ -83,7 +122,7 @@ export default function BudgetsRoute() {
 				</Card>
 				<div className="flex flex-1 flex-col gap-6">
 					{budgets.map((budget) => (
-						<Budget {...budget} />
+						<Budget {...budget} key={budget.id} />
 					))}
 				</div>
 			</div>
