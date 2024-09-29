@@ -45,11 +45,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}
 	})
 
-	return json({ budgets: formattedBudgets })
+	return json({
+		budgets: formattedBudgets,
+		totalSpent: formatCurrency(
+			formattedBudgets.reduce((total, budget) => total + budget.spentNumber, 0),
+			{ decimals: 0 },
+		),
+		totalBudget: formatCurrency(
+			formattedBudgets.reduce(
+				(total, budget) => total + budget.amountNumber,
+				0,
+			),
+			{ decimals: 0 },
+		),
+	})
 }
 
 export default function BudgetsRoute() {
-	const { budgets } = useLoaderData<typeof loader>()
+	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
 	const pie = d3
 		.pie<{ category: string; color: string; amount: number }>()
 		.value((d) => d.amount)
@@ -75,7 +88,7 @@ export default function BudgetsRoute() {
 					aria-labelledby="spending-summary"
 					role="group"
 				>
-					<div className="p-5">
+					<div className="grid place-items-center p-5 [grid-template-areas:'stack'] *:[grid-area:stack]">
 						<svg viewBox="0 0 240 240">
 							{paths.map((path, index) => (
 								<path
@@ -89,6 +102,16 @@ export default function BudgetsRoute() {
 								/>
 							))}
 						</svg>
+						<div className="grid place-items-center p-20">
+							<p className="flex flex-col items-center text-center">
+								<span className="text-3xl font-bold leading-tight">
+									{totalSpent}
+								</span>
+								<span className="text-xs leading-normal text-gray-500">
+									of {totalBudget} limit
+								</span>
+							</p>
+						</div>
 					</div>
 					<h2
 						id="spending-summary"
