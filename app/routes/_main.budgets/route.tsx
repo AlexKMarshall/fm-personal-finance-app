@@ -5,7 +5,8 @@ import { requireAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
-import { Budget } from './Budget'
+import { Budget, ColorIndicator } from './Budget'
+import { Card } from '~/components/Card'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -43,9 +44,49 @@ export default function BudgetsRoute() {
 	return (
 		<>
 			<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
-			{budgets.map((budget) => (
-				<Budget {...budget} />
-			))}
+			<div className="relative flex flex-col gap-6 lg:flex-row lg:items-start">
+				<Card
+					theme="light"
+					className="top-4 lg:sticky"
+					aria-labelledby="spending-summary"
+					role="group"
+				>
+					<h2
+						id="spending-summary"
+						className="mb-6 text-xl font-bold leading-tight"
+					>
+						Spending Summary
+					</h2>
+					<dl>
+						{budgets.map((budget) => (
+							<div
+								key={budget.id}
+								className="flex items-center gap-4 border-b border-gray-500/15 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
+							>
+								<ColorIndicator
+									color={budget.color}
+									shape="bar"
+									className="self-stretch"
+								/>
+								<dt className="flex-1 text-sm leading-normal text-gray-500">
+									{budget.category}
+								</dt>
+								<dd className="flex items-center gap-2 text-xs leading-normal text-gray-500">
+									<span className="text-default font-bold text-gray-900">
+										{budget.spent}
+									</span>
+									of {budget.amount}
+								</dd>
+							</div>
+						))}
+					</dl>
+				</Card>
+				<div className="flex flex-1 flex-col gap-6">
+					{budgets.map((budget) => (
+						<Budget {...budget} />
+					))}
+				</div>
+			</div>
 		</>
 	)
 }

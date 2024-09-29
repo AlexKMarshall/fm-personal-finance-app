@@ -1,10 +1,11 @@
 import { Link } from '@remix-run/react'
-import clsx from 'clsx'
 import type { ComponentProps } from 'react'
 import { Card } from '~/components/Card'
 import { List } from '../_main.transactions/Transactions'
 import { Icon } from '~/components/Icon'
 import { Transaction } from '~/components/Transaction'
+import { tv } from 'tailwind-variants'
+import clsx from 'clsx'
 
 export function Budget({
 	id,
@@ -37,7 +38,7 @@ export function Budget({
 			data-testid="budget"
 		>
 			<div className="flex items-center gap-4">
-				<ColorIndicator color={color} />
+				<ColorIndicator color={color} shape="circle" />
 				<h2 className="text-xl font-bold leading-tight">{category}</h2>
 			</div>
 			<div className="flex flex-col gap-4">
@@ -50,10 +51,7 @@ export function Budget({
 				</div>
 				<dl className="grid grid-cols-2 gap-4">
 					<div className="flex gap-4">
-						<span
-							aria-hidden
-							className={`h-full w-1 rounded-lg ${getBackgroundColor(color)}`}
-						/>
+						<ColorIndicator color={color} shape="bar" />
 						<div
 							className="flex flex-col gap-1"
 							data-testid="descriptionListItem"
@@ -63,7 +61,7 @@ export function Budget({
 						</div>
 					</div>
 					<div className="flex gap-4">
-						<span aria-hidden className="h-full w-1 rounded-lg bg-beige-100" />
+						<ColorIndicator color="Beige" shape="bar" />
 						<div
 							className="flex flex-col gap-1"
 							data-testid="descriptionListItem"
@@ -129,15 +127,36 @@ function getBackgroundColor(colorName: string) {
 			return 'bg-gold'
 		case 'Orange':
 			return 'bg-orange'
+		case 'Beige':
+			return 'bg-beige-100'
 		default:
 			return 'bg-gray-500'
 	}
 }
 
-function ColorIndicator({ color }: { color: string }) {
+const colorIndicatorStyles = tv({
+	variants: {
+		shape: {
+			circle: 'size-4 rounded-full',
+			bar: 'w-1 rounded-lg',
+		},
+	},
+})
+export function ColorIndicator({
+	color,
+	shape,
+	className,
+}: {
+	color: string
+	shape: 'circle' | 'bar'
+	className?: string
+}) {
 	return (
-		<span
-			className={clsx('size-4 rounded-full', getBackgroundColor(color))}
+		<div
+			className={colorIndicatorStyles({
+				shape,
+				className: clsx(getBackgroundColor(color), className),
+			})}
 			aria-hidden
 		/>
 	)
