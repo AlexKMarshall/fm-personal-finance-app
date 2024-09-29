@@ -60,7 +60,7 @@
 		"@types/set-cookie-parser": "2.4.10",
 		"autoprefixer": "10.4.20",
 		"dotenv": "16.4.5",
-		"knip": "5.30.5",
+		"knip": "5.30.6",
 		"postcss": "8.4.47",
 		"prettier": "3.3.3",
 		"prettier-plugin-tailwindcss": "0.6.8",
