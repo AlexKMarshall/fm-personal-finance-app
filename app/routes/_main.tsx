@@ -15,7 +15,7 @@ export default function Main() {
 			<Sidebar className="sticky top-0 hidden max-h-svh overflow-y-auto [grid-area:sidebar-desktop] lg:flex">
 				<SiteNavigation />
 			</Sidebar>
-			<div className="flex flex-grow flex-col gap-8 px-4 py-6 [grid-area:main] sm:px-10 sm:py-8">
+			<div className="flex flex-grow flex-col gap-8 px-4 py-6 @container [grid-area:main] sm:px-10 sm:py-8">
 				<Outlet />
 			</div>
 			<Sidebar className="sticky bottom-0 mt-auto [grid-area:sidebar-mobile] lg:hidden">

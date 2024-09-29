@@ -1,9 +1,14 @@
 import { format } from 'date-fns'
 
-export function formatCurrency(amountInCents: number) {
+export function formatCurrency(
+	amountInCents: number,
+	{ decimals = 2 }: { decimals?: number } = {},
+) {
 	return new Intl.NumberFormat('en-US', {
 		style: 'currency',
 		currency: 'USD',
+		minimumFractionDigits: decimals,
+		maximumFractionDigits: decimals,
 	}).format(amountInCents / 100)
 }
 
