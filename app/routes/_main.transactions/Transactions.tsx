@@ -1,12 +1,22 @@
 import clsx from 'clsx'
-import { type ComponentProps, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { tv } from 'tailwind-variants'
+import { Transaction } from '~/components/Transaction'
+
+type TransactionUI = {
+	id: string
+	name: string
+	avatar: string
+	category: string
+	date: string
+	amount: string
+}
 
 export function Transactions({
 	transactions,
 	className,
 }: {
-	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
+	transactions: Array<TransactionUI>
 	className?: string
 }) {
 	return (
@@ -15,7 +25,12 @@ export function Transactions({
 				transactions={transactions}
 				className="hidden sm:table"
 			/>
-			<TransactionsList transactions={transactions} className="sm:hidden" />
+			<List
+				items={transactions}
+				className="sm:hidden"
+				renderItem={(transaction) => <Transaction {...transaction} />}
+				testId="transactions-mobile"
+			/>
 		</div>
 	)
 }
@@ -29,7 +44,7 @@ function TransactionsTable({
 	transactions,
 }: {
 	className?: string
-	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
+	transactions: Array<TransactionUI>
 }) {
 	return (
 		<table
@@ -91,126 +106,30 @@ function TransactionsTable({
 	)
 }
 
-export function TransactionsList({
-	className,
-	transactions,
-}: {
-	className?: string
-	transactions: Array<ComponentProps<typeof Transaction> & { id: string }>
-}) {
-	return (
-		<ul className={className} data-testid="transactions-mobile">
-			{transactions.map((transaction) => (
-				<li
-					className="mb-4 border-b border-gray-100 pb-4 last:mb-0 last:border-b-0 last:pb-0"
-					key={transaction.id}
-				>
-					<Transaction {...transaction} />
-				</li>
-			))}
-		</ul>
-	)
-}
-
-export function Transaction({
-	name,
-	category,
-	date,
-	amount,
-	avatar,
-}: {
-	name: string
-	category: string
-	date: string
-	amount: string
-	avatar: string
-}) {
-	const direction = amount.startsWith('-') ? 'debit' : 'credit'
-	return (
-		<div className="grid grid-cols-[2rem_1fr_auto] gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_category_date']">
-			<img
-				src={avatar}
-				alt=""
-				className="size-8 shrink-0 self-center rounded-full [grid-area:avatar]"
-			/>
-			<p className="text-sm font-bold leading-normal [grid-area:name]">
-				{name}
-			</p>
-			<p className="text-xs leading-normal text-gray-500 [grid-area:category]">
-				{category}
-			</p>
-			<p
-				className={clsx(
-					'justify-self-end text-sm font-bold leading-normal [grid-area:amount]',
-					{
-						'text-green': direction === 'credit',
-					},
-				)}
-			>
-				{amount}
-			</p>
-			<p className="justify-self-end text-xs leading-normal text-gray-500 [grid-area:date]">
-				{date}
-			</p>
-		</div>
-	)
-}
-
-export function TransactionCardSimple({
-	name,
-	date,
-	amount,
-	avatar,
-}: {
-	name: string
-	date: string
-	amount: string
-	avatar: string
-}) {
-	const direction = amount.startsWith('-') ? 'debit' : 'credit'
-	return (
-		<div className="grid grid-cols-[2rem_1fr_auto] items-center gap-x-3 gap-y-1 [grid-template-areas:'avatar_name_amount'_'avatar_name_date']">
-			<img
-				src={avatar}
-				alt=""
-				className="size-8 shrink-0 self-center rounded-full [grid-area:avatar]"
-			/>
-			<p className="text-sm font-bold leading-normal [grid-area:name]">
-				{name}
-			</p>
-			<p
-				className={clsx(
-					'justify-self-end text-sm font-bold leading-normal [grid-area:amount]',
-					{
-						'text-green': direction === 'credit',
-					},
-				)}
-			>
-				{amount}
-			</p>
-			<p className="justify-self-end text-xs leading-normal text-gray-500 [grid-area:date]">
-				{date}
-			</p>
-		</div>
-	)
-}
+const listStyles = tv({
+	slots: {
+		base: '',
+		listItem:
+			'border-b border-gray-500/15 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0',
+	},
+})
 
 export function List<ItemType extends { id: string }>({
 	className,
 	items,
 	renderItem,
+	testId,
 }: {
 	className?: string
 	items: Array<ItemType>
 	renderItem: (item: ItemType) => ReactNode
+	testId?: string
 }) {
+	const styles = listStyles()
 	return (
-		<ul className={className} data-testid="transactions-mobile">
+		<ul className={styles.base({ className })} data-testid={testId}>
 			{items.map((item) => (
-				<li
-					className="border-b border-gray-100 pb-4 pt-4 first:pt-0 last:border-b-0 last:pb-0"
-					key={item.id}
-				>
+				<li className={styles.listItem()} key={item.id}>
 					{renderItem(item)}
 				</li>
 			))}
