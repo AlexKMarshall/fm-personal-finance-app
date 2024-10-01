@@ -23,3 +23,17 @@ export const Primary: Story = {
 		children: 'A button',
 	},
 }
+
+export const Tertiary: Story = {
+	args: {
+		appearance: 'tertiary',
+		children: 'A button',
+	},
+}
+
+export const Destroy: Story = {
+	args: {
+		appearance: 'destroy',
+		children: 'A button',
+	},
+}
