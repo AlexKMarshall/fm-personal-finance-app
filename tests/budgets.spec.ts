@@ -129,6 +129,32 @@ test('viewing budgets', async ({ page, signUp, login, seedDatabase }) => {
 	)
 })
 
+test('delete a budget', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const budget = makeBudget({ amount: 500 * 100 })
+	await seedDatabase({ budgets: [budget], user })
+	await login(user)
+
+	const budgetsPage = new BudgetsPage(page)
+	await budgetsPage.goto()
+
+	const budgetUi = await budgetsPage.budget(budget.Category.name)
+	await expect(budgetUi).toBeVisible()
+
+	const confirmationDialog = await budgetsPage.delete(budget.Category.name)
+
+	// We should see confirmation modal
+	const confirmationDialogUI = await confirmationDialog.ui()
+	await expect(confirmationDialogUI).toBeVisible()
+	// Confirm the deletion
+	await confirmationDialog.confirm()
+
+	// We shouldn't see the confirmation modal
+	await expect(confirmationDialogUI).toBeHidden()
+	// Or the budget
+	await expect(budgetUi).toBeHidden()
+})
+
 class BudgetsPage {
 	constructor(private page: Page) {}
 
@@ -163,7 +189,29 @@ class BudgetsPage {
 			.getByRole('definition')
 	}
 
+	async delete(category: string) {
+		const budget = this.budget(category)
+		await budget.getByRole('button', { name: 'actions' }).click()
+		await this.page.getByRole('menuitem', { name: 'Delete Budget' }).click()
+
+		return new DeleteConfirmationDialog(this.page)
+	}
+
 	transaction({ category, name }: { category: string; name: string }) {
 		return this.budget(category).getByRole('listitem').filter({ hasText: name })
+	}
+}
+
+class DeleteConfirmationDialog {
+	constructor(private page: Page) {}
+
+	ui() {
+		return this.page.getByRole('dialog', { name: /delete/i })
+	}
+
+	confirm() {
+		return this.ui()
+			.getByRole('button', { name: 'Yes, Confirm Deletion' })
+			.click()
 	}
 }
