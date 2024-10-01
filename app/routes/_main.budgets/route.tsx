@@ -1,14 +1,12 @@
-import { type LoaderFunctionArgs, json } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { parseWithZod } from '@conform-to/zod'
+import {
+	type ActionFunctionArgs,
+	type LoaderFunctionArgs,
+	json,
+} from '@remix-run/node'
+import { Form, useActionData, useLoaderData } from '@remix-run/react'
 import { isSameMonth } from 'date-fns'
-import { requireAuthCookie } from '~/auth.server'
-import { Card } from '~/components/Card'
-import { Donut } from '~/components/Donut'
-import { prisma } from '~/db/prisma.server'
-import { formatCurrency, formatDate } from '~/utils/format'
-import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
-import { Budget, ColorIndicator } from './Budget'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
 	Dialog,
 	DialogTrigger,
@@ -16,8 +14,16 @@ import {
 	Modal,
 	ModalOverlay,
 } from 'react-aria-components'
+import { z } from 'zod'
+import { requireAuthCookie } from '~/auth.server'
 import { Button } from '~/components/Button'
+import { Card } from '~/components/Card'
+import { Donut } from '~/components/Donut'
 import { Icon } from '~/components/Icon'
+import { prisma } from '~/db/prisma.server'
+import { formatCurrency, formatDate } from '~/utils/format'
+import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
+import { Budget, ColorIndicator } from './Budget'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -65,16 +71,63 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	})
 }
 
+const actionSchema = z.object({
+	intent: z.literal('delete'),
+	budgetId: z.string().min(1),
+})
+
+export async function action({ request }: ActionFunctionArgs) {
+	const { userId } = await requireAuthCookie(request)
+
+	const formData = await request.formData()
+	const submission = parseWithZod(formData, { schema: actionSchema })
+	if (submission.status !== 'success') {
+		throw new Error('Invalid form submission')
+	}
+
+	const data = submission.value
+
+	switch (data.intent) {
+		case 'delete':
+			await deleteBudget({ budgetId: data.budgetId, userId })
+			return json({ status: 'success' })
+	}
+}
+
+function deleteBudget({
+	budgetId,
+	userId,
+}: {
+	budgetId: string
+	userId: string
+}) {
+	return prisma.budget.delete({
+		where: {
+			id: budgetId,
+			userId,
+		},
+	})
+}
+
 type ModalState = {
 	action: 'delete'
 	actionItem: {
 		category: string
+		budgetId: string
 	}
 } | null
 
 export default function BudgetsRoute() {
 	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
 	const [modalState, setModalState] = useState<ModalState>(null)
+	const actionData = useActionData<typeof action>()
+
+	useEffect(() => {
+		// close the modal on successful action
+		if (actionData?.status === 'success') {
+			setModalState(null)
+		}
+	}, [actionData?.status])
 
 	return (
 		<>
@@ -148,7 +201,10 @@ export default function BudgetsRoute() {
 							onDelete={() =>
 								setModalState({
 									action: 'delete',
-									actionItem: { category: budget.category },
+									actionItem: {
+										category: budget.category,
+										budgetId: budget.id,
+									},
 								})
 							}
 						/>
@@ -190,9 +246,22 @@ export default function BudgetsRoute() {
 												cannot be reversed, and all the data inside it will be
 												removed forever.
 											</p>
-											<Button appearance="destroy">
-												Yes, Confirm Deletion
-											</Button>
+											<Form method="post" replace>
+												<input
+													type="hidden"
+													name="budgetId"
+													value={modalState.actionItem.budgetId}
+												/>
+												<Button
+													appearance="destroy"
+													type="submit"
+													className="w-full"
+													name="intent"
+													value="delete"
+												>
+													Yes, Confirm Deletion
+												</Button>
+											</Form>
 											<Button appearance="tertiary" onClick={close}>
 												No, Go Back
 											</Button>
