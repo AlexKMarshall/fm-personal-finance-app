@@ -63,5 +63,6 @@ export const Budget: Story = {
 				avatar: flavorFiesta,
 			},
 		],
+		onDelete: () => void 0,
 	},
 }
