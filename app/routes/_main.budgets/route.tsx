@@ -8,6 +8,16 @@ import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
 import { Budget, ColorIndicator } from './Budget'
+import { useState } from 'react'
+import {
+	Dialog,
+	DialogTrigger,
+	Heading,
+	Modal,
+	ModalOverlay,
+} from 'react-aria-components'
+import { Button } from '~/components/Button'
+import { Icon } from '~/components/Icon'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -55,8 +65,16 @@ export async function loader({ request }: LoaderFunctionArgs) {
 	})
 }
 
+type ModalState = {
+	action: 'delete'
+	actionItem: {
+		category: string
+	}
+} | null
+
 export default function BudgetsRoute() {
 	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
+	const [modalState, setModalState] = useState<ModalState>(null)
 
 	return (
 		<>
@@ -124,10 +142,68 @@ export default function BudgetsRoute() {
 				</Card>
 				<div className="flex flex-1 flex-col gap-6">
 					{budgets.map((budget) => (
-						<Budget {...budget} key={budget.id} />
+						<Budget
+							{...budget}
+							key={budget.id}
+							onDelete={() =>
+								setModalState({
+									action: 'delete',
+									actionItem: { category: budget.category },
+								})
+							}
+						/>
 					))}
 				</div>
 			</div>
+			<DialogTrigger
+				isOpen={modalState !== null}
+				onOpenChange={(isOpen) => {
+					if (!isOpen) {
+						setModalState(null)
+					}
+				}}
+			>
+				<ModalOverlay className="fixed inset-0 grid place-items-center bg-black/50 p-5">
+					<Modal isDismissable>
+						<Dialog className="flex max-w-xl flex-col gap-6 rounded-xl bg-white px-5 py-6">
+							{({ close }) =>
+								modalState !== null ? (
+									<>
+										<div className="flex justify-between gap-6">
+											<Heading
+												slot="title"
+												className="text-xl font-bold leading-tight"
+											>
+												Delete &lsquo;{modalState.actionItem.category}&rsquo;?
+											</Heading>
+											<Button
+												appearance="tertiary"
+												aria-label="Cancel"
+												onClick={close}
+											>
+												<Icon name="XCircle" className="size-6" />
+											</Button>
+										</div>
+										<div className="flex flex-col gap-5">
+											<p className="text-sm text-gray-500">
+												Are you sure you want to delete this budget? This action
+												cannot be reversed, and all the data inside it will be
+												removed forever.
+											</p>
+											<Button appearance="destroy">
+												Yes, Confirm Deletion
+											</Button>
+											<Button appearance="tertiary" onClick={close}>
+												No, Go Back
+											</Button>
+										</div>
+									</>
+								) : null
+							}
+						</Dialog>
+					</Modal>
+				</ModalOverlay>
+			</DialogTrigger>
 		</>
 	)
 }

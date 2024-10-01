@@ -1,11 +1,12 @@
 import { Link } from '@remix-run/react'
+import clsx from 'clsx'
 import type { ComponentProps } from 'react'
+import { tv } from 'tailwind-variants'
 import { Card } from '~/components/Card'
-import { List } from '../_main.transactions/Transactions'
+import { ContextMenu } from '~/components/ContextMenu'
 import { Icon } from '~/components/Icon'
 import { Transaction } from '~/components/Transaction'
-import { tv } from 'tailwind-variants'
-import clsx from 'clsx'
+import { List } from '../_main.transactions/Transactions'
 
 export function Budget({
 	id,
@@ -16,6 +17,7 @@ export function Budget({
 	spent,
 	free,
 	recentTransactions,
+	onDelete,
 }: {
 	id: string
 	color: string
@@ -29,6 +31,7 @@ export function Budget({
 			id: string
 		} & ComponentProps<typeof Transaction>
 	>
+	onDelete: () => void
 }) {
 	return (
 		<Card
@@ -40,6 +43,11 @@ export function Budget({
 			<div className="flex items-center gap-4">
 				<ColorIndicator color={color} shape="circle" />
 				<h2 className="text-xl font-bold leading-tight">{category}</h2>
+				<ContextMenu aria-label="actions" className="ml-auto">
+					<ContextMenu.Item className="text-red" onAction={onDelete}>
+						Delete Budget
+					</ContextMenu.Item>
+				</ContextMenu>
 			</div>
 			<div className="flex flex-col gap-4">
 				<h3 className="text-sm text-gray-500">Maximum of {amount}</h3>
