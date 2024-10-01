@@ -235,7 +235,7 @@ export default function BudgetsRoute() {
 											<Button
 												appearance="tertiary"
 												aria-label="Cancel"
-												onClick={close}
+												onPress={close}
 											>
 												<Icon name="XCircle" className="size-6" />
 											</Button>
@@ -262,7 +262,7 @@ export default function BudgetsRoute() {
 													Yes, Confirm Deletion
 												</Button>
 											</Form>
-											<Button appearance="tertiary" onClick={close}>
+											<Button appearance="tertiary" onPress={close}>
 												No, Go Back
 											</Button>
 										</div>
