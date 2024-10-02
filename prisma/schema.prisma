@@ -60,7 +60,7 @@ model Category {
   name String @unique
 
   Transactions Transaction[]
-  Budget       Budget[]
+  Budgets      Budget[]
 }
 
 model Counterparty {
@@ -72,7 +72,7 @@ model Counterparty {
 }
 
 model Color {
-  id     String   @id @default(uuid())
-  name   String   @unique
-  Budget Budget[]
+  id      String   @id @default(uuid())
+  name    String   @unique
+  Budgets Budget[]
 }

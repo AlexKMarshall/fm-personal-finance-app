@@ -1,4 +1,6 @@
+import { formatCurrency } from '~/utils/format'
 import { makeBudget } from './factories/budget'
+import { makeCategory } from './factories/category'
 import { makeTransaction } from './factories/transaction'
 import { test, expect } from './playwright-utils'
 import type { Page } from '@playwright/test'
@@ -154,6 +156,37 @@ test('delete a budget', async ({ page, signUp, login, seedDatabase }) => {
 	// Or the budget
 	await expect(budgetUi).toBeHidden()
 })
+test('create a budget', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const categoryOne = makeCategory()
+	const categoryTwo = makeCategory()
+	const transactionOne = makeTransaction({ Category: categoryOne })
+	const transactionTwo = makeTransaction({ Category: categoryTwo })
+	await seedDatabase({ user, transactions: [transactionOne, transactionTwo] })
+	await login(user)
+
+	const budgetToCreate = makeBudget({ Category: categoryOne })
+
+	const budgetsPage = new BudgetsPage(page)
+
+	await budgetsPage.goto()
+
+	const createBudgetDialog = await budgetsPage.addBudget()
+
+	await createBudgetDialog.fill({
+		category: budgetToCreate.Category.name,
+		amountInDollars: budgetToCreate.amount / 100,
+		color: budgetToCreate.Color.name,
+	})
+	await createBudgetDialog.submit()
+
+	await expect(createBudgetDialog.ui()).toBeHidden()
+	const budgetUi = await budgetsPage.budget(budgetToCreate.Category.name)
+	await expect(budgetUi).toBeVisible()
+	await expect(budgetUi).toContainText(
+		`Maximum of ${formatCurrency(budgetToCreate.amount)}`,
+	)
+})
 
 class BudgetsPage {
 	constructor(private page: Page) {}
@@ -199,6 +232,45 @@ class BudgetsPage {
 
 	transaction({ category, name }: { category: string; name: string }) {
 		return this.budget(category).getByRole('listitem').filter({ hasText: name })
+	}
+
+	async addBudget() {
+		await this.page.getByRole('button', { name: /add budget/i }).click()
+		return new CreateBudgetDialog(this.page)
+	}
+}
+
+class CreateBudgetDialog {
+	constructor(private page: Page) {}
+
+	ui() {
+		return this.page.getByRole('dialog', { name: /add new budget/i })
+	}
+
+	fill({
+		category,
+		amountInDollars,
+		color,
+	}: {
+		category: string
+		amountInDollars: number
+		color: string
+	}) {
+		this.ui()
+			.getByRole('combobox', { name: /budget category/i })
+			.selectOption({ label: category })
+		this.ui()
+			.getByRole('textbox', { name: /maximum spend/i })
+			.fill(String(amountInDollars))
+		this.ui()
+			.getByRole('combobox', { name: /theme/i })
+			.selectOption({ label: color })
+	}
+
+	submit() {
+		return this.ui()
+			.getByRole('button', { name: /add budget/i })
+			.click()
 	}
 }
 

@@ -1,5 +1,6 @@
 import { forwardRef, type ComponentProps } from 'react'
 import { tv } from 'tailwind-variants'
+import { Button as RACButton } from 'react-aria-components'
 
 const buttonStyles = tv({
 	base: 'relative rounded-lg p-4 text-sm font-bold leading-normal',
@@ -15,12 +16,22 @@ const buttonStyles = tv({
 
 export const Button = forwardRef<
 	HTMLButtonElement,
-	ComponentProps<'button'> & { appearance: 'primary' | 'tertiary' | 'destroy' }
+	ComponentProps<typeof RACButton> & {
+		appearance: 'primary' | 'tertiary' | 'destroy'
+	}
 >(function Button({ className, appearance, type = 'button', ...props }, ref) {
 	return (
-		<button
+		<RACButton
 			ref={ref}
-			className={buttonStyles({ appearance, className })}
+			className={(classNameProps) =>
+				buttonStyles({
+					appearance,
+					className:
+						typeof className === 'function'
+							? className(classNameProps)
+							: className,
+				})
+			}
 			type={type}
 			{...props}
 		/>

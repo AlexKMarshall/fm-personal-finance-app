@@ -5,6 +5,7 @@ import { generateSalt, hashPassword, serializeAuthCookie } from '~/auth.server'
 import { prisma } from '~/db/prisma.server'
 import { makeTransaction } from './factories/transaction'
 import { makeBudget } from './factories/budget'
+import { colorMap } from '~/utils/color'
 
 function makeSignupFixture({
 	onUserSaved,
@@ -107,6 +108,15 @@ function makeSeedDatabaseFixture() {
 						},
 					}),
 				),
+			...Object.keys(colorMap).map((colorName) =>
+				prisma.color.upsert({
+					where: { name: colorName },
+					create: { name: colorName },
+					update: {
+						name: colorName,
+					},
+				}),
+			),
 			...budgets
 				.map((budget) => makeBudget(budget))
 				.map(({ Category, Color, ...budget }) =>

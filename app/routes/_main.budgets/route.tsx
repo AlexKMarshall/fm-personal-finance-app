@@ -1,29 +1,37 @@
-import { parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import {
 	type ActionFunctionArgs,
 	type LoaderFunctionArgs,
 	json,
 } from '@remix-run/node'
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
+import {
+	Form,
+	useActionData,
+	useLoaderData,
+	useNavigation,
+} from '@remix-run/react'
 import { isSameMonth } from 'date-fns'
 import { useEffect, useState } from 'react'
-import {
-	Dialog,
-	DialogTrigger,
-	Heading,
-	Modal,
-	ModalOverlay,
-} from 'react-aria-components'
 import { z } from 'zod'
 import { requireAuthCookie } from '~/auth.server'
 import { Button } from '~/components/Button'
 import { Card } from '~/components/Card'
 import { Donut } from '~/components/Donut'
-import { Icon } from '~/components/Icon'
 import { prisma } from '~/db/prisma.server'
 import { formatCurrency, formatDate } from '~/utils/format'
 import { getLatestTransactionDate } from '../_main.recurring-bills/recurring-bills.queries'
 import { Budget, ColorIndicator } from './Budget'
+import { DialogTrigger, Dialog, Modal } from '~/components/Dialog'
+import {
+	getFormProps,
+	getInputProps,
+	getSelectProps,
+	useForm,
+} from '@conform-to/react'
+import { TextField } from '~/components/TextField'
+import { Label } from '~/components/Label'
+import { Input } from '~/components/Input'
+import { FieldError } from '~/components/FieldError'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -55,6 +63,13 @@ export async function loader({ request }: LoaderFunctionArgs) {
 		}
 	})
 
+	const categories = await getCategories()
+	const colors = (await getColors(userId)).map(({ name, id, Budgets }) => ({
+		name,
+		id,
+		isUsed: Budgets.length > 0,
+	}))
+
 	return json({
 		budgets: formattedBudgets,
 		totalSpent: formatCurrency(
@@ -68,13 +83,23 @@ export async function loader({ request }: LoaderFunctionArgs) {
 			),
 			{ decimals: 0 },
 		),
+		categories,
+		colors,
 	})
 }
 
-const actionSchema = z.object({
-	intent: z.literal('delete'),
-	budgetId: z.string().min(1),
+const createBudgetSchema = z.object({
+	intent: z.literal('create'),
+	categoryId: z.string(),
+	amountInDollars: z.coerce.number().positive(),
+	colorId: z.string(),
 })
+const deleteBudgetSchema = z.object({
+	intent: z.literal('delete'),
+	budgetId: z.string(),
+})
+
+const actionSchema = z.union([createBudgetSchema, deleteBudgetSchema])
 
 export async function action({ request }: ActionFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -90,6 +115,14 @@ export async function action({ request }: ActionFunctionArgs) {
 	switch (data.intent) {
 		case 'delete':
 			await deleteBudget({ budgetId: data.budgetId, userId })
+			return json({ status: 'success' })
+		case 'create':
+			await createBudget({
+				amountInDollars: data.amountInDollars,
+				userId,
+				categoryId: data.categoryId,
+				colorId: data.colorId,
+			})
 			return json({ status: 'success' })
 	}
 }
@@ -118,20 +151,92 @@ type ModalState = {
 } | null
 
 export default function BudgetsRoute() {
-	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
+	const { budgets, totalSpent, totalBudget, categories, colors } =
+		useLoaderData<typeof loader>()
 	const [modalState, setModalState] = useState<ModalState>(null)
 	const actionData = useActionData<typeof action>()
+	const navigation = useNavigation()
+	const [form, fields] = useForm({
+		constraint: getZodConstraint(createBudgetSchema),
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: createBudgetSchema }),
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+	})
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
 
 	useEffect(() => {
 		// close the modal on successful action
-		if (actionData?.status === 'success') {
+		if (navigation.state === 'idle' && actionData?.status === 'success') {
 			setModalState(null)
+			setIsCreateModalOpen(false)
 		}
-	}, [actionData?.status])
+	}, [actionData?.status, navigation.state])
 
 	return (
 		<>
-			<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
+			<div className="flex items-center justify-between gap-8">
+				<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
+				<DialogTrigger
+					isOpen={isCreateModalOpen}
+					onOpenChange={setIsCreateModalOpen}
+				>
+					<Button appearance="primary">
+						<span aria-hidden>+&nbsp;</span>
+						Add Budget
+					</Button>
+					<Modal isDismissable>
+						<Dialog title="Add New Budget">
+							<Form
+								className="flex flex-col gap-5"
+								{...getFormProps(form)}
+								method="post"
+							>
+								<p className="text-sm leading-normal text-gray-500">
+									Choose a category to set a spending budget. These categories
+									can help you monitor spending.
+								</p>
+								<div className="group flex flex-col gap-1">
+									<Label htmlFor={fields.categoryId.id}>Budget Category</Label>
+									<select {...getSelectProps(fields.categoryId)}>
+										{categories.map((category) => (
+											<option key={category.id} value={category.id}>
+												{category.name}
+											</option>
+										))}
+									</select>
+								</div>
+								<TextField
+									{...getInputProps(fields.amountInDollars, { type: 'text' })}
+									errors={fields.amountInDollars.errors}
+								>
+									<Label>Maximum Spend</Label>
+									<Input />
+									<FieldError />
+								</TextField>
+								<div className="group flex flex-col gap-1">
+									<Label htmlFor={fields.colorId.id}>Theme</Label>
+									<select {...getSelectProps(fields.colorId)}>
+										{colors.map((color) => (
+											<option key={color.id} value={color.id}>
+												{color.name}
+											</option>
+										))}
+									</select>
+								</div>
+								<Button
+									type="submit"
+									appearance="primary"
+									name={fields.intent.name}
+									value="create"
+								>
+									Add Budget
+								</Button>
+							</Form>
+						</Dialog>
+					</Modal>
+				</DialogTrigger>
+			</div>
 			<div className="relative flex flex-col gap-6 @5xl:flex-row @5xl:items-start">
 				<Card
 					theme="light"
@@ -219,59 +324,43 @@ export default function BudgetsRoute() {
 					}
 				}}
 			>
-				<ModalOverlay className="fixed inset-0 grid place-items-center bg-black/50 p-5">
-					<Modal isDismissable>
-						<Dialog className="flex max-w-xl flex-col gap-6 rounded-xl bg-white px-5 py-6">
-							{({ close }) =>
-								modalState !== null ? (
-									<>
-										<div className="flex justify-between gap-6">
-											<Heading
-												slot="title"
-												className="text-xl font-bold leading-tight"
-											>
-												Delete &lsquo;{modalState.actionItem.category}&rsquo;?
-											</Heading>
-											<Button
-												appearance="tertiary"
-												aria-label="Cancel"
-												onClick={close}
-											>
-												<Icon name="XCircle" className="size-6" />
-											</Button>
-										</div>
-										<div className="flex flex-col gap-5">
-											<p className="text-sm text-gray-500">
-												Are you sure you want to delete this budget? This action
-												cannot be reversed, and all the data inside it will be
-												removed forever.
-											</p>
-											<Form method="post" replace>
-												<input
-													type="hidden"
-													name="budgetId"
-													value={modalState.actionItem.budgetId}
-												/>
-												<Button
-													appearance="destroy"
-													type="submit"
-													className="w-full"
-													name="intent"
-													value="delete"
-												>
-													Yes, Confirm Deletion
-												</Button>
-											</Form>
-											<Button appearance="tertiary" onClick={close}>
-												No, Go Back
-											</Button>
-										</div>
-									</>
-								) : null
-							}
-						</Dialog>
-					</Modal>
-				</ModalOverlay>
+				<Modal isDismissable>
+					<Dialog
+						className="flex max-w-xl flex-col gap-6 rounded-xl bg-white px-5 py-6"
+						title={`Delete ‘${modalState?.actionItem.category}’?`}
+					>
+						{({ close }) =>
+							modalState !== null ? (
+								<div className="flex flex-col gap-5">
+									<p className="text-sm text-gray-500">
+										Are you sure you want to delete this budget? This action
+										cannot be reversed, and all the data inside it will be
+										removed forever.
+									</p>
+									<Form method="post" replace>
+										<input
+											type="hidden"
+											name="budgetId"
+											value={modalState.actionItem.budgetId}
+										/>
+										<Button
+											appearance="destroy"
+											type="submit"
+											className="w-full"
+											name="intent"
+											value="delete"
+										>
+											Yes, Confirm Deletion
+										</Button>
+									</Form>
+									<Button appearance="tertiary" onPress={close}>
+										No, Go Back
+									</Button>
+								</div>
+							) : null
+						}
+					</Dialog>
+				</Modal>
 			</DialogTrigger>
 		</>
 	)
@@ -335,5 +424,59 @@ async function getBudgets({
 		)
 		const free = Math.max(budget.amount - spent, 0)
 		return { ...budget, spent, free }
+	})
+}
+
+function getCategories() {
+	return prisma.category.findMany({
+		select: {
+			name: true,
+			id: true,
+		},
+		orderBy: {
+			name: 'asc',
+		},
+	})
+}
+
+function getColors(userId: string) {
+	return prisma.color.findMany({
+		select: {
+			name: true,
+			id: true,
+			Budgets: {
+				where: {
+					userId,
+				},
+				select: {
+					id: true,
+				},
+			},
+		},
+		orderBy: {
+			name: 'asc',
+		},
+	})
+}
+
+function createBudget({
+	amountInDollars,
+	userId,
+	categoryId,
+	colorId,
+}: {
+	amountInDollars: number
+	userId: string
+	categoryId: string
+	colorId: string
+}) {
+	const amountInCents = amountInDollars * 100
+	return prisma.budget.create({
+		data: {
+			amount: amountInCents,
+			userId,
+			categoryId,
+			colorId,
+		},
 	})
 }

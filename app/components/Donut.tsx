@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import * as d3 from 'd3'
 import { Fragment } from 'react/jsx-runtime'
-import { getColor } from '~/routes/_main.budgets/Budget'
+import { getColor } from '~/utils/color'
 
 export function Donut({
 	values,
