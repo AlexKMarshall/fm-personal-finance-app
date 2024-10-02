@@ -167,10 +167,6 @@ test('create a budget', async ({ page, signUp, login, seedDatabase }) => {
 
 	const budgetToCreate = makeBudget({
 		Category: categoryOne,
-		Color: {
-			// Specifying a name here to avoid isses of matching both 'Navy' and 'Navy Gray' and getting exhaustive checks errors
-			name: 'Orange',
-		},
 	})
 
 	const budgetsPage = new BudgetsPage(page)
@@ -237,7 +233,7 @@ class BudgetsPage {
 	}
 
 	transaction({ category, name }: { category: string; name: string }) {
-		return this.budget(category).getByRole('listitem', { name, exact: true })
+		return this.budget(category).getByRole('listitem').filter({ hasText: name })
 	}
 
 	async addBudget() {
@@ -256,7 +252,7 @@ class CreateBudgetDialog {
 	async select(field: string, value: string) {
 		await this.ui().getByRole('button', { name: field }).click()
 		const listBox = await this.page.getByRole('listbox', { name: field })
-		return listBox.getByRole('option', { name: value }).click()
+		return listBox.getByRole('option', { name: value, exact: true }).click()
 	}
 
 	async fill({
