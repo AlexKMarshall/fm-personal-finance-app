@@ -208,7 +208,7 @@ export default function BudgetsRoute() {
 								</p>
 								<SelectField
 									control={categoryControl}
-									{...getSelectProps(fields.colorId)}
+									{...getSelectProps(fields.categoryId)}
 									errors={fields.categoryId.errors}
 								>
 									<Label>Budget Category</Label>

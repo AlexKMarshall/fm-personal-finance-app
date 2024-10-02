@@ -165,7 +165,13 @@ test('create a budget', async ({ page, signUp, login, seedDatabase }) => {
 	await seedDatabase({ user, transactions: [transactionOne, transactionTwo] })
 	await login(user)
 
-	const budgetToCreate = makeBudget({ Category: categoryOne })
+	const budgetToCreate = makeBudget({
+		Category: categoryOne,
+		Color: {
+			// Specifying a name here to avoid isses of matching both 'Navy' and 'Navy Gray' and getting exhaustive checks errors
+			name: 'Orange',
+		},
+	})
 
 	const budgetsPage = new BudgetsPage(page)
 
@@ -231,7 +237,7 @@ class BudgetsPage {
 	}
 
 	transaction({ category, name }: { category: string; name: string }) {
-		return this.budget(category).getByRole('listitem').filter({ hasText: name })
+		return this.budget(category).getByRole('listitem', { name, exact: true })
 	}
 
 	async addBudget() {
