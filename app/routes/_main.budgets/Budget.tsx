@@ -107,8 +107,8 @@ export function Budget({
 const colorIndicatorStyles = tv({
 	variants: {
 		shape: {
-			circle: 'size-4 rounded-full',
-			bar: 'w-1 rounded-lg',
+			circle: 'block size-4 rounded-full',
+			bar: 'block w-1 rounded-lg',
 		},
 	},
 })
@@ -122,7 +122,7 @@ export function ColorIndicator({
 	className?: string
 }) {
 	return (
-		<div
+		<span
 			className={colorIndicatorStyles({
 				shape,
 				className: clsx(getColor(color).background, className),

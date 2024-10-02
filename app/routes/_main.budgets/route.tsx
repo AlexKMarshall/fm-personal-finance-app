@@ -246,7 +246,29 @@ export default function BudgetsRoute() {
 										<SelectValue />
 									</SelectTrigger>
 									<SelectOptions items={colors}>
-										{(color) => <SelectOption>{color.name}</SelectOption>}
+										{(color) => (
+											<ColorSelectOption
+												name={color.name}
+												isUsed={color.isUsed}
+											/>
+											// <SelectOption isDisabled={color.isUsed}>
+											// 	<div className="flex items-center gap-3">
+											// 		<ColorIndicator
+											// 			color={color.name}
+											// 			shape="circle"
+											// 			className={color.isUsed ? 'opacity-25' : ''}
+											// 		/>
+											// 		<span className={color.isUsed ? 'text-gray-500' : ''}>
+											// 			{color.name}
+											// 		</span>
+											// 		{color.isUsed ? (
+											// 			<span className="ml-auto text-xs text-gray-500">
+											// 				Already used
+											// 			</span>
+											// 		) : null}
+											// 	</div>
+											// </SelectOption>
+										)}
 									</SelectOptions>
 								</SelectField>
 								<Button
@@ -388,6 +410,30 @@ export default function BudgetsRoute() {
 				</Modal>
 			</DialogTrigger>
 		</>
+	)
+}
+
+function ColorSelectOption({
+	name,
+	isUsed,
+}: {
+	name: string
+	isUsed: boolean
+}) {
+	return (
+		<SelectOption isDisabled={isUsed}>
+			<span className="flex items-center gap-3">
+				<ColorIndicator
+					color={name}
+					shape="circle"
+					className={isUsed ? 'opacity-25' : ''}
+				/>
+				<span className={isUsed ? 'text-gray-500' : ''}>{name}</span>
+				{isUsed ? (
+					<span className="ml-auto text-xs text-gray-500">Already used</span>
+				) : null}
+			</span>
+		</SelectOption>
 	)
 }
 
