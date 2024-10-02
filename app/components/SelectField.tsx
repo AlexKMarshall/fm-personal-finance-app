@@ -9,6 +9,7 @@ import {
 	SelectValue as RACSelectValue,
 } from 'react-aria-components'
 import { tv } from 'tailwind-variants'
+import { Icon } from './Icon'
 
 const selectStyles = tv({
 	base: 'group flex flex-col gap-1',
@@ -52,10 +53,11 @@ export function SelectField({
 }
 
 const selectTriggerStyles = tv({
-	base: 'rounded-lg border border-beige-500 px-5 py-3 text-left text-sm text-gray-900',
+	base: 'flex items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-left text-sm text-gray-900',
 })
 export function SelectTrigger({
 	className,
+	children,
 	...props
 }: Omit<ComponentProps<typeof RACButton>, 'type'>) {
 	return (
@@ -70,7 +72,17 @@ export function SelectTrigger({
 							: className,
 				})
 			}
-		/>
+		>
+			{(renderProps) => (
+				<>
+					{typeof children === 'function' ? children(renderProps) : children}
+					<Icon
+						name="CaretDown"
+						className="size-4 group-data-[open]:rotate-180"
+					/>
+				</>
+			)}
+		</RACButton>
 	)
 }
 
