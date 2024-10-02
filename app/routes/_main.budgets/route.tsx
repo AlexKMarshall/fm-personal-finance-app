@@ -113,7 +113,6 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const formData = await request.formData()
 	const submission = parseWithZod(formData, { schema: actionSchema })
-	console.log(JSON.stringify(submission, null, 2))
 	if (submission.status !== 'success') {
 		throw new Error('Invalid form submission')
 	}
@@ -265,6 +264,7 @@ export default function BudgetsRoute() {
 									<SelectOptions items={colors}>
 										{(color) => (
 											<ColorSelectOption
+												id={color.id}
 												name={color.name}
 												isUsed={color.isUsed}
 											/>
