@@ -52,6 +52,6 @@ export const Dialog: Story = {
 
 		expect(
 			await page.findByRole('dialog', { name: /add a budget/i }),
-		).toBeInTheDocument()
+		).toBeVisible()
 	},
 }
