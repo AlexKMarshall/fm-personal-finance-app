@@ -95,7 +95,7 @@ function useSelectTriggerContext() {
 }
 
 const selectTriggerStyles = tv({
-	base: 'flex items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-left text-sm text-gray-900 group-has-[[data-invalid]]:border-red',
+	base: 'flex items-center justify-between gap-4 rounded-lg border border-beige-500 px-5 py-3 text-left text-sm text-gray-900 group-[[data-invalid]]:border-red',
 })
 export function SelectTrigger({
 	className,
