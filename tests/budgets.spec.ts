@@ -247,6 +247,12 @@ class CreateBudgetDialog {
 		return this.page.getByRole('dialog', { name: /add new budget/i })
 	}
 
+	async select(field: string, value: string) {
+		await this.ui().getByRole('button', { name: field }).click()
+		const listBox = await this.page.getByRole('listbox', { name: field })
+		return listBox.getByRole('option', { name: value }).click()
+	}
+
 	async selectColor(color: string) {
 		// open select
 		await this.ui().getByRole('button', { name: /theme/i }).click()
@@ -263,9 +269,8 @@ class CreateBudgetDialog {
 		amountInDollars: number
 		color: string
 	}) {
-		await this.ui()
-			.getByRole('combobox', { name: /budget category/i })
-			.selectOption({ label: category })
+		await this.select('Budget Category', category)
+
 		await this.ui()
 			.getByRole('textbox', { name: /maximum spend/i })
 			.fill(String(amountInDollars))

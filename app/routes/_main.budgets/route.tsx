@@ -25,7 +25,6 @@ import { DialogTrigger, Dialog, Modal } from '~/components/Dialog'
 import {
 	getFormProps,
 	getInputProps,
-	getSelectProps,
 	useForm,
 	useInputControl,
 } from '@conform-to/react'
@@ -114,6 +113,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	const formData = await request.formData()
 	const submission = parseWithZod(formData, { schema: actionSchema })
+	console.log(JSON.stringify(submission, null, 2))
 	if (submission.status !== 'success') {
 		throw new Error('Invalid form submission')
 	}
@@ -184,6 +184,7 @@ export default function BudgetsRoute() {
 	}, [actionData?.status, navigation.state])
 
 	const colorControl = useInputControl(fields.colorId)
+	const categoryControl = useInputControl(fields.categoryId)
 
 	return (
 		<>
@@ -205,16 +206,32 @@ export default function BudgetsRoute() {
 									Choose a category to set a spending budget. These categories
 									can help you monitor spending.
 								</p>
-								<div className="group flex flex-col gap-1">
-									<Label htmlFor={fields.categoryId.id}>Budget Category</Label>
-									<select {...getSelectProps(fields.categoryId)}>
-										{categories.map((category) => (
-											<option key={category.id} value={category.id}>
-												{category.name}
-											</option>
-										))}
-									</select>
-								</div>
+								<SelectField
+									name={fields.categoryId.name}
+									selectedKey={categoryControl.value}
+									onSelectionChange={(categoryId) => {
+										if (typeof categoryId !== 'string') {
+											throw new Error('Invalid colorId')
+										}
+										categoryControl.change(categoryId)
+									}}
+									onFocus={() => categoryControl.focus()}
+									onBlur={() => categoryControl.blur()}
+									onFocusChange={(isFocused) => {
+										if (isFocused) {
+											return categoryControl.focus()
+										}
+										return categoryControl.blur()
+									}}
+								>
+									<Label>Budget Category</Label>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectOptions items={categories}>
+										{(category) => <SelectOption>{category.name}</SelectOption>}
+									</SelectOptions>
+								</SelectField>
 								<TextField
 									{...getInputProps(fields.amountInDollars, { type: 'text' })}
 									errors={fields.amountInDollars.errors}
@@ -251,23 +268,6 @@ export default function BudgetsRoute() {
 												name={color.name}
 												isUsed={color.isUsed}
 											/>
-											// <SelectOption isDisabled={color.isUsed}>
-											// 	<div className="flex items-center gap-3">
-											// 		<ColorIndicator
-											// 			color={color.name}
-											// 			shape="circle"
-											// 			className={color.isUsed ? 'opacity-25' : ''}
-											// 		/>
-											// 		<span className={color.isUsed ? 'text-gray-500' : ''}>
-											// 			{color.name}
-											// 		</span>
-											// 		{color.isUsed ? (
-											// 			<span className="ml-auto text-xs text-gray-500">
-											// 				Already used
-											// 			</span>
-											// 		) : null}
-											// 	</div>
-											// </SelectOption>
 										)}
 									</SelectOptions>
 								</SelectField>
@@ -414,14 +414,16 @@ export default function BudgetsRoute() {
 }
 
 function ColorSelectOption({
+	id,
 	name,
 	isUsed,
 }: {
+	id: string
 	name: string
 	isUsed: boolean
 }) {
 	return (
-		<SelectOption isDisabled={isUsed}>
+		<SelectOption isDisabled={isUsed} id={id} textValue={name}>
 			<span className="flex items-center gap-3">
 				<ColorIndicator
 					color={name}
