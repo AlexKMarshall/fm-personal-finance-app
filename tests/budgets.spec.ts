@@ -247,7 +247,13 @@ class CreateBudgetDialog {
 		return this.page.getByRole('dialog', { name: /add new budget/i })
 	}
 
-	fill({
+	async select(field: string, value: string) {
+		await this.ui().getByRole('button', { name: field }).click()
+		const listBox = await this.page.getByRole('listbox', { name: field })
+		return listBox.getByRole('option', { name: value }).click()
+	}
+
+	async fill({
 		category,
 		amountInDollars,
 		color,
@@ -256,15 +262,13 @@ class CreateBudgetDialog {
 		amountInDollars: number
 		color: string
 	}) {
-		this.ui()
-			.getByRole('combobox', { name: /budget category/i })
-			.selectOption({ label: category })
-		this.ui()
+		await this.select('Budget Category', category)
+
+		await this.ui()
 			.getByRole('textbox', { name: /maximum spend/i })
 			.fill(String(amountInDollars))
-		this.ui()
-			.getByRole('combobox', { name: /theme/i })
-			.selectOption({ label: color })
+
+		await this.select('Theme', color)
 	}
 
 	submit() {

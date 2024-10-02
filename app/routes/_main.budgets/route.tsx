@@ -25,13 +25,20 @@ import { DialogTrigger, Dialog, Modal } from '~/components/Dialog'
 import {
 	getFormProps,
 	getInputProps,
-	getSelectProps,
 	useForm,
+	useInputControl,
 } from '@conform-to/react'
 import { TextField } from '~/components/TextField'
 import { Label } from '~/components/Label'
 import { Input } from '~/components/Input'
 import { FieldError } from '~/components/FieldError'
+import { SelectValue } from 'react-aria-components'
+import {
+	SelectField,
+	SelectOption,
+	SelectOptions,
+	SelectTrigger,
+} from '~/components/SelectField'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -175,6 +182,9 @@ export default function BudgetsRoute() {
 		}
 	}, [actionData?.status, navigation.state])
 
+	const colorControl = useInputControl(fields.colorId)
+	const categoryControl = useInputControl(fields.categoryId)
+
 	return (
 		<>
 			<div className="flex items-center justify-between gap-8">
@@ -195,16 +205,18 @@ export default function BudgetsRoute() {
 									Choose a category to set a spending budget. These categories
 									can help you monitor spending.
 								</p>
-								<div className="group flex flex-col gap-1">
-									<Label htmlFor={fields.categoryId.id}>Budget Category</Label>
-									<select {...getSelectProps(fields.categoryId)}>
-										{categories.map((category) => (
-											<option key={category.id} value={category.id}>
-												{category.name}
-											</option>
-										))}
-									</select>
-								</div>
+								<SelectField
+									name={fields.categoryId.name}
+									control={categoryControl}
+								>
+									<Label>Budget Category</Label>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectOptions items={categories}>
+										{(category) => <SelectOption>{category.name}</SelectOption>}
+									</SelectOptions>
+								</SelectField>
 								<TextField
 									{...getInputProps(fields.amountInDollars, { type: 'text' })}
 									errors={fields.amountInDollars.errors}
@@ -213,16 +225,21 @@ export default function BudgetsRoute() {
 									<Input />
 									<FieldError />
 								</TextField>
-								<div className="group flex flex-col gap-1">
-									<Label htmlFor={fields.colorId.id}>Theme</Label>
-									<select {...getSelectProps(fields.colorId)}>
-										{colors.map((color) => (
-											<option key={color.id} value={color.id}>
-												{color.name}
-											</option>
-										))}
-									</select>
-								</div>
+								<SelectField name={fields.colorId.name} control={colorControl}>
+									<Label>Theme</Label>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectOptions items={colors}>
+										{(color) => (
+											<ColorSelectOption
+												id={color.id}
+												name={color.name}
+												isUsed={color.isUsed}
+											/>
+										)}
+									</SelectOptions>
+								</SelectField>
 								<Button
 									type="submit"
 									appearance="primary"
@@ -362,6 +379,32 @@ export default function BudgetsRoute() {
 				</Modal>
 			</DialogTrigger>
 		</>
+	)
+}
+
+function ColorSelectOption({
+	id,
+	name,
+	isUsed,
+}: {
+	id: string
+	name: string
+	isUsed: boolean
+}) {
+	return (
+		<SelectOption isDisabled={isUsed} id={id} textValue={name}>
+			<span className="flex items-center gap-3">
+				<ColorIndicator
+					color={name}
+					shape="circle"
+					className={isUsed ? 'opacity-25' : ''}
+				/>
+				<span className={isUsed ? 'text-gray-500' : ''}>{name}</span>
+				{isUsed ? (
+					<span className="ml-auto text-xs text-gray-500">Already used</span>
+				) : null}
+			</span>
+		</SelectOption>
 	)
 }
 
