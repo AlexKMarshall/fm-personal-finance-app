@@ -4,10 +4,11 @@ import { Dialog as DialogComponent, DialogTrigger, Modal } from './Dialog'
 import { Button } from './Button'
 import type { ReactNode } from 'react'
 import { allModes } from '.storybook/modes'
+import { expect, within } from '@storybook/test'
 
 function DialogTemplate({ children }: { children: ReactNode }) {
 	return (
-		<DialogTrigger defaultOpen>
+		<DialogTrigger>
 			<Button appearance="primary">Open dialog</Button>
 			<Modal isDismissable>
 				<DialogComponent title="Add a budget">{children}</DialogComponent>
@@ -43,5 +44,14 @@ type Story = StoryObj<typeof meta>
 export const Dialog: Story = {
 	args: {
 		children: 'Some content',
+	},
+	play: async ({ canvasElement }) => {
+		// We're going to get the whole page here
+		const page = within(canvasElement.parentElement!)
+		page.getByRole('button', { name: /open dialog/i }).click()
+
+		expect(
+			await page.findByRole('dialog', { name: /add a budget/i }),
+		).toBeInTheDocument()
 	},
 }
