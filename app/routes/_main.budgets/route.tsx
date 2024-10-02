@@ -33,13 +33,13 @@ import { TextField } from '~/components/TextField'
 import { Label } from '~/components/Label'
 import { Input } from '~/components/Input'
 import { FieldError } from '~/components/FieldError'
+import { SelectValue } from 'react-aria-components'
 import {
-	ListBox,
-	ListBoxItem,
-	Popover,
-	Select,
-	SelectValue,
-} from 'react-aria-components'
+	SelectField,
+	SelectOption,
+	SelectOptions,
+	SelectTrigger,
+} from '~/components/SelectField'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -223,36 +223,32 @@ export default function BudgetsRoute() {
 									<Input />
 									<FieldError />
 								</TextField>
-								<div className="group flex flex-col gap-1">
-									<Select
-										name={fields.colorId.name}
-										selectedKey={colorControl.value}
-										onSelectionChange={(colorId) => {
-											if (typeof colorId !== 'string') {
-												throw new Error('Invalid colorId')
-											}
-											colorControl.change(colorId)
-										}}
-										onFocus={() => colorControl.focus()}
-										onBlur={() => colorControl.blur()}
-										onFocusChange={(isFocused) => {
-											if (isFocused) {
-												return colorControl.focus()
-											}
-											return colorControl.blur()
-										}}
-									>
-										<Label>Theme</Label>
-										<Button type="button" appearance="tertiary">
-											<SelectValue />
-										</Button>
-										<Popover>
-											<ListBox items={colors} className="bg-white p-5">
-												{(color) => <ListBoxItem>{color.name}</ListBoxItem>}
-											</ListBox>
-										</Popover>
-									</Select>
-								</div>
+								<SelectField
+									name={fields.colorId.name}
+									selectedKey={colorControl.value}
+									onSelectionChange={(colorId) => {
+										if (typeof colorId !== 'string') {
+											throw new Error('Invalid colorId')
+										}
+										colorControl.change(colorId)
+									}}
+									onFocus={() => colorControl.focus()}
+									onBlur={() => colorControl.blur()}
+									onFocusChange={(isFocused) => {
+										if (isFocused) {
+											return colorControl.focus()
+										}
+										return colorControl.blur()
+									}}
+								>
+									<Label>Theme</Label>
+									<SelectTrigger>
+										<SelectValue />
+									</SelectTrigger>
+									<SelectOptions items={colors}>
+										{(color) => <SelectOption>{color.name}</SelectOption>}
+									</SelectOptions>
+								</SelectField>
 								<Button
 									type="submit"
 									appearance="primary"
