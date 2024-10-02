@@ -7,7 +7,7 @@ import {
 import { tv } from 'tailwind-variants'
 
 const fieldErrorStyles = tv({
-	base: 'sr-only self-end text-xs leading-normal text-red group-has-[[aria-invalid]]:not-sr-only',
+	base: 'sr-only self-end text-xs leading-normal text-red group-has-[[aria-invalid]]:not-sr-only group-has-[[data-invalid]]:not-sr-only',
 })
 
 export const FieldError = forwardRef<
@@ -32,7 +32,7 @@ export const FieldError = forwardRef<
 			{...mergedProps}
 			data-invalid={isInvalid ?? undefined}
 		>
-			<p className="hidden group-has-[[aria-invalid]]:block">
+			<p className="hidden group-has-[[aria-invalid]]:block group-has-[[data-invalid]]:block">
 				{isInvalid ? errors?.join(',') : null}
 			</p>
 		</div>

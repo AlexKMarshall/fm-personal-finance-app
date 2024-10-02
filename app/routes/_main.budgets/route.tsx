@@ -25,6 +25,7 @@ import { DialogTrigger, Dialog, Modal } from '~/components/Dialog'
 import {
 	getFormProps,
 	getInputProps,
+	getSelectProps,
 	useForm,
 	useInputControl,
 } from '@conform-to/react'
@@ -158,18 +159,10 @@ type ModalState = {
 } | null
 
 export default function BudgetsRoute() {
-	const { budgets, totalSpent, totalBudget, categories, colors } =
-		useLoaderData<typeof loader>()
+	const { budgets, totalSpent, totalBudget } = useLoaderData<typeof loader>()
 	const [modalState, setModalState] = useState<ModalState>(null)
 	const actionData = useActionData<typeof action>()
 	const navigation = useNavigation()
-	const [form, fields] = useForm({
-		constraint: getZodConstraint(createBudgetSchema),
-		onValidate: ({ formData }) =>
-			parseWithZod(formData, { schema: createBudgetSchema }),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
-	})
 
 	const createBudgetDialogTriggerRef =
 		useRef<ComponentRef<typeof DialogTrigger>>(null)
@@ -182,9 +175,6 @@ export default function BudgetsRoute() {
 		}
 	}, [actionData?.status, navigation.state])
 
-	const colorControl = useInputControl(fields.colorId)
-	const categoryControl = useInputControl(fields.categoryId)
-
 	return (
 		<>
 			<div className="flex items-center justify-between gap-8">
@@ -196,59 +186,7 @@ export default function BudgetsRoute() {
 					</Button>
 					<Modal isDismissable>
 						<Dialog title="Add New Budget">
-							<Form
-								className="flex flex-col gap-5"
-								{...getFormProps(form)}
-								method="post"
-							>
-								<p className="text-sm leading-normal text-gray-500">
-									Choose a category to set a spending budget. These categories
-									can help you monitor spending.
-								</p>
-								<SelectField
-									name={fields.categoryId.name}
-									control={categoryControl}
-								>
-									<Label>Budget Category</Label>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectOptions items={categories}>
-										{(category) => <SelectOption>{category.name}</SelectOption>}
-									</SelectOptions>
-								</SelectField>
-								<TextField
-									{...getInputProps(fields.amountInDollars, { type: 'text' })}
-									errors={fields.amountInDollars.errors}
-								>
-									<Label>Maximum Spend</Label>
-									<Input />
-									<FieldError />
-								</TextField>
-								<SelectField name={fields.colorId.name} control={colorControl}>
-									<Label>Theme</Label>
-									<SelectTrigger>
-										<SelectValue />
-									</SelectTrigger>
-									<SelectOptions items={colors}>
-										{(color) => (
-											<ColorSelectOption
-												id={color.id}
-												name={color.name}
-												isUsed={color.isUsed}
-											/>
-										)}
-									</SelectOptions>
-								</SelectField>
-								<Button
-									type="submit"
-									appearance="primary"
-									name={fields.intent.name}
-									value="create"
-								>
-									Add Budget
-								</Button>
-							</Form>
+							<CreateBudgetForm />
 						</Dialog>
 					</Modal>
 				</DialogTrigger>
@@ -379,6 +317,78 @@ export default function BudgetsRoute() {
 				</Modal>
 			</DialogTrigger>
 		</>
+	)
+}
+
+function CreateBudgetForm() {
+	const { categories, colors } = useLoaderData<typeof loader>()
+	const [form, fields] = useForm({
+		constraint: getZodConstraint(createBudgetSchema),
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: createBudgetSchema }),
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+	})
+	const colorControl = useInputControl(fields.colorId)
+	const categoryControl = useInputControl(fields.categoryId)
+
+	return (
+		<Form className="flex flex-col gap-5" {...getFormProps(form)} method="post">
+			<p className="text-sm leading-normal text-gray-500">
+				Choose a category to set a spending budget. These categories can help
+				you monitor spending.
+			</p>
+			<SelectField
+				control={categoryControl}
+				{...getSelectProps(fields.categoryId)}
+				errors={fields.categoryId.errors}
+			>
+				<Label>Budget Category</Label>
+				<SelectTrigger>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectOptions items={categories}>
+					{(category) => <SelectOption>{category.name}</SelectOption>}
+				</SelectOptions>
+				<FieldError />
+			</SelectField>
+			<TextField
+				{...getInputProps(fields.amountInDollars, { type: 'text' })}
+				errors={fields.amountInDollars.errors}
+			>
+				<Label>Maximum Spend</Label>
+				<Input />
+				<FieldError />
+			</TextField>
+			<SelectField
+				control={colorControl}
+				{...getSelectProps(fields.colorId)}
+				errors={fields.colorId.errors}
+			>
+				<Label>Theme</Label>
+				<SelectTrigger>
+					<SelectValue />
+				</SelectTrigger>
+				<SelectOptions items={colors}>
+					{(color) => (
+						<ColorSelectOption
+							id={color.id}
+							name={color.name}
+							isUsed={color.isUsed}
+						/>
+					)}
+				</SelectOptions>
+				<FieldError />
+			</SelectField>
+			<Button
+				type="submit"
+				appearance="primary"
+				name={fields.intent.name}
+				value="create"
+			>
+				Add Budget
+			</Button>
+		</Form>
 	)
 }
 
