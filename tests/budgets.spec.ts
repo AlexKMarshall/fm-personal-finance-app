@@ -1,4 +1,6 @@
+import { formatCurrency } from '~/utils/format'
 import { makeBudget } from './factories/budget'
+import { makeCategory } from './factories/category'
 import { makeTransaction } from './factories/transaction'
 import { test, expect } from './playwright-utils'
 import type { Page } from '@playwright/test'
@@ -153,6 +155,43 @@ test('delete a budget', async ({ page, signUp, login, seedDatabase }) => {
 	await expect(confirmationDialogUI).toBeHidden()
 	// Or the budget
 	await expect(budgetUi).toBeHidden()
+})
+test('create a budget', async ({ page, signUp, login, seedDatabase }) => {
+	const user = await signUp()
+	const categoryOne = makeCategory()
+	const categoryTwo = makeCategory()
+	const transactionOne = makeTransaction({ Category: categoryOne })
+	const transactionTwo = makeTransaction({ Category: categoryTwo })
+	await seedDatabase({ user, transactions: [transactionOne, transactionTwo] })
+	await login(user)
+
+	const budgetToCreate = makeBudget({ Category: categoryOne })
+
+	const budgetsPage = new BudgetsPage(page)
+
+	await budgetsPage.goto()
+
+	await page.getByRole('button', { name: /add budget/i }).click()
+	const createBudgetDialog = await page.getByRole('dialog', {
+		name: /add new budget/i,
+	})
+	await createBudgetDialog
+		.getByRole('combobox', { name: /budget category/i })
+		.selectOption({ label: budgetToCreate.Category.name })
+	await createBudgetDialog
+		.getByRole('textbox', { name: /maximum spend/i })
+		.fill(String(budgetToCreate.amount / 100))
+	await createBudgetDialog
+		.getByRole('combobox', { name: /theme/i })
+		.selectOption({ label: budgetToCreate.Color.name })
+	await createBudgetDialog.getByRole('button', { name: /add budget/i }).click()
+
+	await expect(createBudgetDialog).toBeHidden()
+	const budgetUi = await budgetsPage.budget(budgetToCreate.Category.name)
+	await expect(budgetUi).toBeVisible()
+	await expect(budgetUi).toContainText(
+		`Maximum of ${formatCurrency(budgetToCreate.amount)}`,
+	)
 })
 
 class BudgetsPage {
