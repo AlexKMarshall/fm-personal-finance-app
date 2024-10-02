@@ -46,7 +46,7 @@ export const Dialog: Story = {
 		children: 'Some content',
 	},
 	play: async ({ canvasElement }) => {
-		// We're going to get the whole page here
+		// We're going to get the whole page here as the dialog is portalled, we know the parent won't be null
 		const page = within(canvasElement.parentElement!)
 		page.getByRole('button', { name: /open dialog/i }).click()
 
