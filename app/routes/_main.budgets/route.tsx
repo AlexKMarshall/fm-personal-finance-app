@@ -11,7 +11,7 @@ import {
 	useNavigation,
 } from '@remix-run/react'
 import { isSameMonth } from 'date-fns'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type ComponentRef } from 'react'
 import { z } from 'zod'
 import { requireAuthCookie } from '~/auth.server'
 import { Button } from '~/components/Button'
@@ -163,13 +163,15 @@ export default function BudgetsRoute() {
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
-	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+	const createBudgetDialogTriggerRef =
+		useRef<ComponentRef<typeof DialogTrigger>>(null)
 
 	useEffect(() => {
 		// close the modal on successful action
 		if (navigation.state === 'idle' && actionData?.status === 'success') {
 			setModalState(null)
-			setIsCreateModalOpen(false)
+			createBudgetDialogTriggerRef.current?.close()
 		}
 	}, [actionData?.status, navigation.state])
 
@@ -177,10 +179,7 @@ export default function BudgetsRoute() {
 		<>
 			<div className="flex items-center justify-between gap-8">
 				<h1 className="text-3xl font-bold leading-tight">Budgets</h1>
-				<DialogTrigger
-					isOpen={isCreateModalOpen}
-					onOpenChange={setIsCreateModalOpen}
-				>
+				<DialogTrigger ref={createBudgetDialogTriggerRef}>
 					<Button appearance="primary">
 						<span aria-hidden>+&nbsp;</span>
 						Add Budget

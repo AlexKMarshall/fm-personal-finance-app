@@ -1,13 +1,55 @@
-import type { ComponentProps } from 'react'
+import {
+	forwardRef,
+	useImperativeHandle,
+	useState,
+	type ComponentProps,
+} from 'react'
 import {
 	ModalOverlay,
 	Dialog as RACDialog,
-	DialogTrigger,
+	DialogTrigger as RACDialogTrigger,
 	Heading,
 	Modal as RACModal,
 } from 'react-aria-components'
 import { Button } from './Button'
 import { Icon } from './Icon'
+
+export const DialogTrigger = forwardRef<
+	{ close: () => void },
+	ComponentProps<typeof RACDialogTrigger>
+>(function DialogTrigger(
+	{ children, isOpen: controlledIsOpen, onOpenChange, defaultOpen, ...props },
+	ref,
+) {
+	const isControlled = controlledIsOpen !== undefined
+	const [internalIsOpen, setIsOpen] = useState(defaultOpen ?? false)
+
+	const isOpen = controlledIsOpen ?? internalIsOpen
+
+	useImperativeHandle(ref, () => ({
+		close: () => {
+			if (!isControlled) {
+				setIsOpen(false)
+			}
+			onOpenChange?.(false)
+		},
+	}))
+
+	return (
+		<RACDialogTrigger
+			{...props}
+			isOpen={isOpen}
+			onOpenChange={(isOpen) => {
+				if (!isControlled) {
+					setIsOpen(isOpen)
+				}
+				onOpenChange?.(isOpen)
+			}}
+		>
+			{children}
+		</RACDialogTrigger>
+	)
+})
 
 export function Modal({
 	isDismissable,
@@ -53,5 +95,3 @@ export function Dialog({
 		</RACDialog>
 	)
 }
-
-export { DialogTrigger }
