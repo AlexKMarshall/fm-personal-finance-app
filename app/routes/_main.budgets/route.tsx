@@ -27,11 +27,20 @@ import {
 	getInputProps,
 	getSelectProps,
 	useForm,
+	useInputControl,
 } from '@conform-to/react'
 import { TextField } from '~/components/TextField'
 import { Label } from '~/components/Label'
 import { Input } from '~/components/Input'
 import { FieldError } from '~/components/FieldError'
+import {
+	ListBox,
+	ListBoxItem,
+	Popover,
+	Select,
+	SelectValue,
+	Label as RACLabel,
+} from 'react-aria-components'
 
 export async function loader({ request }: LoaderFunctionArgs) {
 	const { userId } = await requireAuthCookie(request)
@@ -175,6 +184,8 @@ export default function BudgetsRoute() {
 		}
 	}, [actionData?.status, navigation.state])
 
+	const colorControl = useInputControl(fields.colorId)
+
 	return (
 		<>
 			<div className="flex items-center justify-between gap-8">
@@ -214,14 +225,34 @@ export default function BudgetsRoute() {
 									<FieldError />
 								</TextField>
 								<div className="group flex flex-col gap-1">
-									<Label htmlFor={fields.colorId.id}>Theme</Label>
-									<select {...getSelectProps(fields.colorId)}>
-										{colors.map((color) => (
-											<option key={color.id} value={color.id}>
-												{color.name}
-											</option>
-										))}
-									</select>
+									<Select
+										name={fields.colorId.name}
+										selectedKey={colorControl.value}
+										onSelectionChange={(colorId) => {
+											if (typeof colorId !== 'string') {
+												throw new Error('Invalid colorId')
+											}
+											colorControl.change(colorId)
+										}}
+										onFocus={() => colorControl.focus()}
+										onBlur={() => colorControl.blur()}
+										onFocusChange={(isFocused) => {
+											if (isFocused) {
+												return colorControl.focus()
+											}
+											return colorControl.blur()
+										}}
+									>
+										<RACLabel>Theme</RACLabel>
+										<Button type="button" appearance="tertiary">
+											<SelectValue />
+										</Button>
+										<Popover>
+											<ListBox items={colors} className="bg-white p-5">
+												{(color) => <ListBoxItem>{color.name}</ListBoxItem>}
+											</ListBox>
+										</Popover>
+									</Select>
 								</div>
 								<Button
 									type="submit"
