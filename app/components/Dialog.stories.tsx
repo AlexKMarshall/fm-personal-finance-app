@@ -4,11 +4,10 @@ import { Dialog as DialogComponent, DialogTrigger, Modal } from './Dialog'
 import { Button } from './Button'
 import type { ReactNode } from 'react'
 import { allModes } from '.storybook/modes'
-import { within } from '@storybook/test'
 
 function DialogTemplate({ children }: { children: ReactNode }) {
 	return (
-		<DialogTrigger>
+		<DialogTrigger defaultOpen>
 			<Button appearance="primary">Open dialog</Button>
 			<Modal isDismissable>
 				<DialogComponent title="Add a budget">{children}</DialogComponent>
@@ -37,10 +36,5 @@ type Story = StoryObj<typeof meta>
 export const Dialog: Story = {
 	args: {
 		children: 'Some content',
-	},
-	play: async ({ canvasElement }) => {
-		const canvas = within(canvasElement)
-
-		await canvas.getByRole('button', { name: 'Open dialog' }).click()
 	},
 }
