@@ -25,6 +25,7 @@ import { DialogTrigger, Dialog, Modal } from '~/components/Dialog'
 import {
 	getFormProps,
 	getInputProps,
+	getSelectProps,
 	useForm,
 	useInputControl,
 } from '@conform-to/react'
@@ -206,8 +207,9 @@ export default function BudgetsRoute() {
 									can help you monitor spending.
 								</p>
 								<SelectField
-									name={fields.categoryId.name}
 									control={categoryControl}
+									{...getSelectProps(fields.categoryId)}
+									errors={fields.categoryId.errors}
 								>
 									<Label>Budget Category</Label>
 									<SelectTrigger>
@@ -216,6 +218,7 @@ export default function BudgetsRoute() {
 									<SelectOptions items={categories}>
 										{(category) => <SelectOption>{category.name}</SelectOption>}
 									</SelectOptions>
+									<FieldError />
 								</SelectField>
 								<TextField
 									{...getInputProps(fields.amountInDollars, { type: 'text' })}
@@ -225,7 +228,11 @@ export default function BudgetsRoute() {
 									<Input />
 									<FieldError />
 								</TextField>
-								<SelectField name={fields.colorId.name} control={colorControl}>
+								<SelectField
+									control={colorControl}
+									{...getSelectProps(fields.colorId)}
+									errors={fields.colorId.errors}
+								>
 									<Label>Theme</Label>
 									<SelectTrigger>
 										<SelectValue />
@@ -239,6 +246,7 @@ export default function BudgetsRoute() {
 											/>
 										)}
 									</SelectOptions>
+									<FieldError />
 								</SelectField>
 								<Button
 									type="submit"

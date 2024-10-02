@@ -9,6 +9,7 @@ import {
 } from './SelectField'
 import { Label } from './Label'
 import { within } from '@storybook/test'
+import { FieldError } from './FieldError'
 
 const mockControl = {
 	value: '',
@@ -62,4 +63,24 @@ export const SelectField: Story = {
 		const trigger = page.getByRole('button', { name: /pet/i })
 		trigger.click()
 	},
+}
+
+export const Invalid: Story = {
+	args: {
+		control: mockControl,
+	},
+	render: (args) => (
+		<SelectFieldComponent {...args} aria-invalid errors={['Required']}>
+			<Label>Pet</Label>
+			<SelectTrigger>
+				<SelectValue />
+			</SelectTrigger>
+			<SelectOptions>
+				<SelectOption>Cat</SelectOption>
+				<SelectOption>Dog</SelectOption>
+				<SelectOption>Fish</SelectOption>
+			</SelectOptions>
+			<FieldError />
+		</SelectFieldComponent>
+	),
 }

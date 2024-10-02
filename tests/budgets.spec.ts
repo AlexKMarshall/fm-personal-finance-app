@@ -165,7 +165,9 @@ test('create a budget', async ({ page, signUp, login, seedDatabase }) => {
 	await seedDatabase({ user, transactions: [transactionOne, transactionTwo] })
 	await login(user)
 
-	const budgetToCreate = makeBudget({ Category: categoryOne })
+	const budgetToCreate = makeBudget({
+		Category: categoryOne,
+	})
 
 	const budgetsPage = new BudgetsPage(page)
 
@@ -250,7 +252,7 @@ class CreateBudgetDialog {
 	async select(field: string, value: string) {
 		await this.ui().getByRole('button', { name: field }).click()
 		const listBox = await this.page.getByRole('listbox', { name: field })
-		return listBox.getByRole('option', { name: value }).click()
+		return listBox.getByRole('option', { name: value, exact: true }).click()
 	}
 
 	async fill({

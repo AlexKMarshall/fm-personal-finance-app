@@ -49,7 +49,12 @@ export const TextField = forwardRef<
 	const ariaDescribedBy = ariaInvalid ? errorMessageId : descriptionId
 
 	return (
-		<div ref={ref} className={textFieldStyles({ className })} {...props}>
+		<div
+			ref={ref}
+			className={textFieldStyles({ className })}
+			{...props}
+			data-invalid={ariaInvalid || undefined}
+		>
 			<InputContext.Provider
 				value={{
 					id,
