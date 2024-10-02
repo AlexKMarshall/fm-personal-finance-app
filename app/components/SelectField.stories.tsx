@@ -10,6 +10,13 @@ import {
 import { Label } from './Label'
 import { within } from '@storybook/test'
 
+const mockControl = {
+	value: '',
+	change: () => void 0,
+	focus: () => void 0,
+	blur: () => void 0,
+}
+
 const meta = {
 	title: 'SelectField',
 	component: SelectFieldComponent,
@@ -33,7 +40,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const SelectField: Story = {
-	args: {},
+	args: {
+		control: mockControl,
+	},
 	render: (args) => (
 		<SelectFieldComponent {...args}>
 			<Label>Pet</Label>

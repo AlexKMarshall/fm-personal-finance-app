@@ -207,21 +207,7 @@ export default function BudgetsRoute() {
 								</p>
 								<SelectField
 									name={fields.categoryId.name}
-									selectedKey={categoryControl.value}
-									onSelectionChange={(categoryId) => {
-										if (typeof categoryId !== 'string') {
-											throw new Error('Invalid colorId')
-										}
-										categoryControl.change(categoryId)
-									}}
-									onFocus={() => categoryControl.focus()}
-									onBlur={() => categoryControl.blur()}
-									onFocusChange={(isFocused) => {
-										if (isFocused) {
-											return categoryControl.focus()
-										}
-										return categoryControl.blur()
-									}}
+									control={categoryControl}
 								>
 									<Label>Budget Category</Label>
 									<SelectTrigger>
@@ -239,24 +225,7 @@ export default function BudgetsRoute() {
 									<Input />
 									<FieldError />
 								</TextField>
-								<SelectField
-									name={fields.colorId.name}
-									selectedKey={colorControl.value}
-									onSelectionChange={(colorId) => {
-										if (typeof colorId !== 'string') {
-											throw new Error('Invalid colorId')
-										}
-										colorControl.change(colorId)
-									}}
-									onFocus={() => colorControl.focus()}
-									onBlur={() => colorControl.blur()}
-									onFocusChange={(isFocused) => {
-										if (isFocused) {
-											return colorControl.focus()
-										}
-										return colorControl.blur()
-									}}
-								>
+								<SelectField name={fields.colorId.name} control={colorControl}>
 									<Label>Theme</Label>
 									<SelectTrigger>
 										<SelectValue />

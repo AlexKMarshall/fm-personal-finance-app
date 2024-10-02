@@ -1,3 +1,4 @@
+import { useInputControl } from '@conform-to/react'
 import type { ComponentProps } from 'react'
 import {
 	Select as RACSelect,
@@ -15,11 +16,29 @@ const selectStyles = tv({
 
 export function SelectField({
 	className,
+	control,
 	...props
-}: ComponentProps<typeof RACSelect>) {
+}: ComponentProps<typeof RACSelect> & {
+	control: ReturnType<typeof useInputControl<string>>
+}) {
 	return (
 		<RACSelect
 			{...props}
+			selectedKey={control.value}
+			onSelectionChange={(categoryId) => {
+				if (typeof categoryId !== 'string') {
+					throw new Error('Invalid colorId')
+				}
+				control.change(categoryId)
+			}}
+			onFocus={() => control.focus()}
+			onBlur={() => control.blur()}
+			onFocusChange={(isFocused) => {
+				if (isFocused) {
+					return control.focus()
+				}
+				return control.blur()
+			}}
 			className={(classNameProps) =>
 				selectStyles({
 					className:
