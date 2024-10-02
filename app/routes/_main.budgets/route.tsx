@@ -39,7 +39,6 @@ import {
 	Popover,
 	Select,
 	SelectValue,
-	Label as RACLabel,
 } from 'react-aria-components'
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -243,7 +242,7 @@ export default function BudgetsRoute() {
 											return colorControl.blur()
 										}}
 									>
-										<RACLabel>Theme</RACLabel>
+										<Label>Theme</Label>
 										<Button type="button" appearance="tertiary">
 											<SelectValue />
 										</Button>
