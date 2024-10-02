@@ -1,26 +1,11 @@
+import { colorMap } from '~/utils/color'
 import { makeCategory } from './category'
 import type { ObjectFactory } from './utils'
 import { faker } from '@faker-js/faker'
 
 const makeColor: ObjectFactory<{ name: string }> = (overrides) => {
-	const colors = [
-		'Green',
-		'Yellow',
-		'Cyan',
-		'Navy',
-		'Red',
-		'Purple',
-		'Pink',
-		'Turquoise',
-		'Brown',
-		'Magenta',
-		'Blue',
-		'NavyGray',
-		'ArmyGreen',
-		'Gold',
-		'Orange',
-	]
-	const name = overrides?.name ?? faker.helpers.arrayElement(colors)
+	const name =
+		overrides?.name ?? faker.helpers.arrayElement(Object.keys(colorMap))
 	return {
 		name,
 	}

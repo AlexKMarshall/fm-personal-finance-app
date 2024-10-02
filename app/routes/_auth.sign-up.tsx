@@ -16,6 +16,7 @@ import { Label } from '~/components/Label'
 import { TextField } from '~/components/TextField'
 import { prisma } from '~/db/prisma.server'
 import dummyData from '~/data/data.json'
+import { colorMap } from '~/utils/color'
 
 function createSchema(options?: {
 	isEmailUnique: (email: string) => Promise<boolean>
@@ -197,6 +198,15 @@ async function seedInitialUserData(userId: string) {
 							create: { name: transaction.category },
 						},
 					},
+				},
+			}),
+		),
+		...Object.keys(colorMap).map((colorName) =>
+			prisma.color.upsert({
+				where: { name: colorName },
+				create: { name: colorName },
+				update: {
+					name: colorName,
 				},
 			}),
 		),
